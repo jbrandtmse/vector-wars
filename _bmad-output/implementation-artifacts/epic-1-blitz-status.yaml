@@ -10,11 +10,11 @@ completed: null
 
 stories:
   1-1-vite-threejs-project-setup:
-    status: pending
-    phase: null
-    attempts: 0
+    status: done
+    phase: code-review passed
+    attempts: 1
     committed: false
-    notes: ""
+    notes: "Code review passed with 2 minor fixes (negative dt guard, package-lock.json in file list)"
   1-2-vector-wireframe-lines-with-phosphor-glow:
     status: pending
     phase: null
