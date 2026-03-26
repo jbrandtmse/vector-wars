@@ -27,6 +27,10 @@ export const STARFIELD_POINT_SIZE = 2.0;
 export const GRID_LIGHTNESS_OFFSET = -0.15;
 export const STARFIELD_LIGHTNESS_OFFSET = -0.25;
 
+// Viewport banking constants
+export const BANK_MAX_ANGLE = 0.12; // radians (~7 degrees)
+export const BANK_LERP_SPEED = 6.0; // how fast the bank rolls in/out
+
 // Viewport movement constants (Story 1-4)
 export const VIEWPORT_MOVE_SPEED = 3.0;
 export const VIEWPORT_MAX_OFFSET_X = 3.0;

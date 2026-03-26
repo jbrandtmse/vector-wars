@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { calculateDeltaTime } from './core/DeltaTime.ts';
 import { InputManager } from './core/InputManager.ts';
 import { updateViewportOffset } from './core/ViewportMovement.ts';
-import { VIEWPORT_BASE_POSITION } from './config/constants.ts';
+import { VIEWPORT_BASE_POSITION, BANK_MAX_ANGLE, BANK_LERP_SPEED } from './config/constants.ts';
 import { vectorMaterials } from './rendering/VectorMaterials.ts';
 import { RenderPipeline } from './rendering/RenderPipeline.ts';
 import { CockpitRenderer } from './rendering/CockpitRenderer.ts';
@@ -74,9 +74,15 @@ renderer.setAnimationLoop((time: number) => {
   lastTime = time;
 
   // Update viewport offset based on arrow key input
+  const prevX = viewportOffset.x;
   viewportOffset = updateViewportOffset(viewportOffset, inputManager, dt);
   camera.position.x = VIEWPORT_BASE_POSITION.x + viewportOffset.x;
   camera.position.y = VIEWPORT_BASE_POSITION.y + viewportOffset.y;
+
+  // Banking effect — roll camera based on horizontal movement direction
+  const horizontalDelta = viewportOffset.x - prevX;
+  const targetBank = horizontalDelta !== 0 ? -Math.sign(horizontalDelta) * BANK_MAX_ANGLE : 0;
+  camera.rotation.z += (targetBank - camera.rotation.z) * Math.min(1, BANK_LERP_SPEED * dt);
 
   // Update game systems
   dataLanceSystem.update(dt);
