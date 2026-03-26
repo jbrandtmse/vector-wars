@@ -21,11 +21,23 @@ export interface PlayerHitEvent {
   source: string;
 }
 
+export interface ShieldChangedEvent {
+  shields: number;
+  maxShields: number;
+}
+
+export interface ScoreChangedEvent {
+  score: number;
+  delta: number;
+}
+
 export interface GameEvents {
   weaponFired: WeaponFiredEvent;
   enemySpawned: { enemy: Enemy; position: { x: number; y: number; z: number } };
   enemyDestroyed: { enemy: Enemy; position: { x: number; y: number; z: number } };
   playerHit: PlayerHitEvent;
+  shieldChanged: ShieldChangedEvent;
+  scoreChanged: ScoreChangedEvent;
 }
 
 /** Module-level singleton event bus */

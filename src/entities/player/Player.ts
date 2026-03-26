@@ -28,6 +28,12 @@ export class Player {
       this.takeDamage(damage, source);
     });
 
+    // Emit initial shield state for HUD (Story 2-6)
+    eventBus.emit('shieldChanged', {
+      shields: this.shields,
+      maxShields: this.maxShields,
+    });
+
     Logger.info('Player', 'Player initialized', {
       shields: this.shields,
       maxShields: this.maxShields,
@@ -36,6 +42,13 @@ export class Player {
 
   takeDamage(damage: number, source: string): void {
     this.shields = Math.max(0, this.shields - damage);
+
+    // Emit shield change for HUD (Story 2-6)
+    eventBus.emit('shieldChanged', {
+      shields: this.shields,
+      maxShields: this.maxShields,
+    });
+
     Logger.info('Player', 'Damage taken', {
       damage,
       source,

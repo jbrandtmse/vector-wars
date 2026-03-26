@@ -15,6 +15,8 @@ import { CollisionSystem } from './systems/CollisionSystem.ts';
 import { EffectsManager } from './systems/EffectsManager.ts';
 import { Player } from './entities/player/Player.ts';
 import { EnemyProjectileSystem } from './systems/EnemyProjectileSystem.ts';
+import { HUDManager } from './ui/hud/HUDManager.ts';
+import { ScoreManager } from './systems/ScoreManager.ts';
 
 // --- Renderer Setup ---
 const container = document.getElementById('app');
@@ -104,6 +106,19 @@ const collisionSystem = new CollisionSystem(
 
 // --- Effects Manager Setup (Story 2-4) ---
 const effectsManager = new EffectsManager(scene, vectorMaterials);
+
+// --- Score Manager Setup (Story 2-6) ---
+// ScoreManager and HUDManager are event-driven (no per-frame update calls).
+// They exist in module scope for lifecycle management and GC prevention.
+const scoreManager = new ScoreManager();
+void scoreManager;
+
+// --- HUD Setup (Story 2-6) ---
+// ShieldBar initializes with 100% fill (default). Player already emitted shieldChanged
+// in its constructor, but ShieldBar is created after Player, so it relies on the default.
+// This is correct since shields start full.
+const hudManager = new HUDManager(camera, vectorMaterials);
+void hudManager;
 
 // Pre-allocated quaternion for banking effect (avoid per-frame allocation)
 const bankQuaternion = new THREE.Quaternion();

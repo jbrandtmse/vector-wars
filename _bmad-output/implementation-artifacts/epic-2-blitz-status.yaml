@@ -40,11 +40,11 @@ stories:
     committed: false
     notes: ""
   2-6-shields-hud-display:
-    status: pending
-    phase: null
+    status: reviewing
+    phase: code-review (attempt 1)
     attempts: 0
     committed: false
-    notes: ""
+    notes: "Story created with comprehensive HUD implementation guide"
   2-7-screen-shake-and-damage-flash:
     status: pending
     phase: null

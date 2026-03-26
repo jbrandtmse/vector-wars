@@ -35,8 +35,8 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-03-26
-last_updated: "2026-03-26T18:10:00Z"
-last_story_created: 2-5-damage-from-enemy-data-bursts
+last_updated: "2026-03-26T21:35:00Z"
+last_story_created: 2-6-shields-hud-display
 project: vector-wars
 project_key: NOKEY
 tracking_system: file-system
@@ -61,7 +61,7 @@ development_status:
   2-3-destroy-enemies-with-data-lance: done
   2-4-vector-shard-explosions: done
   2-5-damage-from-enemy-data-bursts: done
-  2-6-shields-hud-display: backlog
+  2-6-shields-hud-display: done
   2-7-screen-shake-and-damage-flash: backlog
   2-8-score-increment-on-kill: backlog
   2-9-stable-60fps-with-object-pooling: backlog

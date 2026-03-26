@@ -113,6 +113,15 @@ export const PLAYER_COLLIDER_RADIUS = 1.0;
 // Attack state constants (Story 2-5)
 export const ATTACK_STATE_PATROL_DURATION = 3.0; // seconds in patrol before attacking
 
+// HUD constants (Story 2-6)
+export const HUD_SHIELD_BAR_WIDTH = 0.3;       // total width in camera-local units
+export const HUD_SHIELD_BAR_HEIGHT = 0.04;      // total height in camera-local units
+export const HUD_SCORE_DIGIT_WIDTH = 0.06;      // width of each seven-segment digit
+export const HUD_SCORE_DIGIT_HEIGHT = 0.09;     // height of each seven-segment digit
+export const HUD_SCORE_DIGIT_SPACING = 0.02;    // gap between digits
+export const HUD_SCORE_MAX_DIGITS = 6;          // max displayable digits (999999)
+export const HUD_Z_DEPTH = -1.5;                // z position in camera-local space
+
 // Viewport movement constants (Story 1-4)
 export const VIEWPORT_MOVE_SPEED = 3.0;
 export const VIEWPORT_MAX_OFFSET_X = 3.0;

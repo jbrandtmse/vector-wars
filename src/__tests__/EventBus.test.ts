@@ -111,4 +111,30 @@ describe('GameEvents and eventBus singleton', () => {
     // Clean up listener
     eventBus.off('playerHit', callback);
   });
+
+  it('should emit and receive shieldChanged event with shields and maxShields fields (Story 2-6)', async () => {
+    const { eventBus } = await import('../core/GameEvents.ts');
+    const callback = vi.fn();
+    eventBus.on('shieldChanged', callback);
+    const payload = { shields: 75, maxShields: 100 };
+    eventBus.emit('shieldChanged', payload);
+    expect(callback).toHaveBeenCalledWith(payload);
+    expect(callback.mock.calls[0][0]).toHaveProperty('shields', 75);
+    expect(callback.mock.calls[0][0]).toHaveProperty('maxShields', 100);
+    // Clean up listener
+    eventBus.off('shieldChanged', callback);
+  });
+
+  it('should emit and receive scoreChanged event with score and delta fields (Story 2-6)', async () => {
+    const { eventBus } = await import('../core/GameEvents.ts');
+    const callback = vi.fn();
+    eventBus.on('scoreChanged', callback);
+    const payload = { score: 200, delta: 100 };
+    eventBus.emit('scoreChanged', payload);
+    expect(callback).toHaveBeenCalledWith(payload);
+    expect(callback.mock.calls[0][0]).toHaveProperty('score', 200);
+    expect(callback.mock.calls[0][0]).toHaveProperty('delta', 100);
+    // Clean up listener
+    eventBus.off('scoreChanged', callback);
+  });
 });
