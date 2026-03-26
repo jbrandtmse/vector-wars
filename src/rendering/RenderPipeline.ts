@@ -6,7 +6,7 @@
  * 2. Final composer renders the full scene and additively blends the bloom texture
  *
  * Pipeline order in final composer:
- *   RenderPass (full scene) -> ShaderPass (bloom mix) -> [CRT placeholder] -> OutputPass -> FXAA
+ *   RenderPass (full scene) -> ShaderPass (bloom mix) -> ShaderPass (CRT) -> OutputPass -> FXAA
  */
 
 import * as THREE from 'three';
@@ -18,6 +18,7 @@ import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { FXAAShader } from 'three/addons/shaders/FXAAShader.js';
 import { BLOOM_LAYER } from '../config/constants.ts';
 import { RENDERING_CONFIG } from '../config/rendering.ts';
+import { CRTShader } from './shaders/CRTShader.ts';
 
 /**
  * Additive bloom mix shader.
@@ -51,6 +52,7 @@ export class RenderPipeline {
   private bloomComposer: EffectComposer;
   private finalComposer: EffectComposer;
   private fxaaPass: ShaderPass;
+  private crtPass: ShaderPass;
   private camera: THREE.Camera;
   private cameraLayersCache: THREE.Layers;
 
@@ -95,13 +97,30 @@ export class RenderPipeline {
     const bloomMixPass = new ShaderPass(bloomMixShader, 'baseTexture');
     this.finalComposer.addPass(bloomMixPass);
 
-    // [CRT shader pass placeholder — Story 1-7 will add CRT post-processing here]
+    // 3. CRT shader pass (scanlines, chromatic aberration, vignette)
+    this.crtPass = new ShaderPass(CRTShader);
+    this.crtPass.material.uniforms['scanlineIntensity'].value =
+      RENDERING_CONFIG.crt.scanlineIntensity;
+    this.crtPass.material.uniforms['scanlineCount'].value =
+      RENDERING_CONFIG.crt.scanlineCount;
+    this.crtPass.material.uniforms['chromaticAberration'].value =
+      RENDERING_CONFIG.crt.chromaticAberration;
+    this.crtPass.material.uniforms['vignetteIntensity'].value =
+      RENDERING_CONFIG.crt.vignetteIntensity;
+    this.crtPass.material.uniforms['enabled'].value = RENDERING_CONFIG.crt
+      .enabled
+      ? 1.0
+      : 0.0;
+    if (!RENDERING_CONFIG.crt.enabled) {
+      this.crtPass.enabled = false;
+    }
+    this.finalComposer.addPass(this.crtPass);
 
-    // 3. OutputPass (tone mapping + color space conversion)
+    // 4. OutputPass (tone mapping + color space conversion)
     const outputPass = new OutputPass();
     this.finalComposer.addPass(outputPass);
 
-    // 4. FXAA (anti-aliasing AFTER OutputPass)
+    // 5. FXAA (anti-aliasing AFTER OutputPass)
     this.fxaaPass = new ShaderPass(FXAAShader);
     this.fxaaPass.material.uniforms['resolution'].value.set(
       1 / width,
@@ -132,7 +151,31 @@ export class RenderPipeline {
   }
 
   /**
-   * Updates both composers and FXAA uniforms on window resize.
+   * Toggles the CRT post-processing effect on or off.
+   * When disabled, the CRT ShaderPass is skipped entirely (zero GPU cost).
+   */
+  setCRTEnabled(enabled: boolean): void {
+    this.crtPass.enabled = enabled;
+  }
+
+  /**
+   * Scales all CRT parameters proportionally from their configured defaults.
+   * 0.0 = invisible (GPU-side early exit), 1.0 = full config values.
+   * Useful for smooth fade-in/fade-out and per-level intensity variation.
+   */
+  setCRTIntensity(intensity: number): void {
+    const crt = RENDERING_CONFIG.crt;
+    this.crtPass.material.uniforms['scanlineIntensity'].value =
+      crt.scanlineIntensity * intensity;
+    this.crtPass.material.uniforms['chromaticAberration'].value =
+      crt.chromaticAberration * intensity;
+    this.crtPass.material.uniforms['vignetteIntensity'].value =
+      crt.vignetteIntensity * intensity;
+    this.crtPass.material.uniforms['enabled'].value = intensity > 0 ? 1.0 : 0.0;
+  }
+
+  /**
+   * Updates both composers, FXAA uniforms, and CRT scanline count on window resize.
    */
   resize(width: number, height: number): void {
     this.bloomComposer.setSize(width, height);
@@ -141,5 +184,6 @@ export class RenderPipeline {
       1 / width,
       1 / height,
     );
+    this.crtPass.material.uniforms['scanlineCount'].value = height;
   }
 }

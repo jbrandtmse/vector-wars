@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 
 /**
  * RenderPipeline tests.
@@ -20,5 +20,25 @@ describe('RenderPipeline', () => {
   it('should export BLOOM_LAYER constant re-export or use from constants', async () => {
     const constants = await import('../config/constants.ts');
     expect(constants.BLOOM_LAYER).toBe(1);
+  });
+
+  it('should have setCRTEnabled method on prototype', async () => {
+    const mod = await import('../rendering/RenderPipeline.ts');
+    expect(typeof mod.RenderPipeline.prototype.setCRTEnabled).toBe('function');
+  });
+
+  it('should have setCRTIntensity method on prototype', async () => {
+    const mod = await import('../rendering/RenderPipeline.ts');
+    expect(typeof mod.RenderPipeline.prototype.setCRTIntensity).toBe('function');
+  });
+
+  it('should have render method on prototype', async () => {
+    const mod = await import('../rendering/RenderPipeline.ts');
+    expect(typeof mod.RenderPipeline.prototype.render).toBe('function');
+  });
+
+  it('should have resize method on prototype', async () => {
+    const mod = await import('../rendering/RenderPipeline.ts');
+    expect(typeof mod.RenderPipeline.prototype.resize).toBe('function');
   });
 });

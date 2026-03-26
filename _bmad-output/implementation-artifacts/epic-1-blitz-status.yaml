@@ -46,8 +46,8 @@ stories:
     committed: false
     notes: "Story created with grid (LineSegments) + starfield (Points) environment, removes test shapes, SceneEnvironment class"
   1-7-post-processing-pipeline-validation:
-    status: pending
-    phase: null
+    status: reviewing
+    phase: code-review (attempt 1)
     attempts: 0
     committed: false
-    notes: ""
+    notes: "CRT shader + pipeline validation story. Custom GLSL CRT effect with scanlines, chromatic aberration, vignette. Toggle and intensity API on RenderPipeline."

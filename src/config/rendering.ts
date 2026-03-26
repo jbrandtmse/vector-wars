@@ -7,5 +7,12 @@ export const RENDERING_CONFIG = {
     radius: 1.5,
     threshold: 0.1,
   },
+  crt: {
+    enabled: true,
+    scanlineIntensity: 0.15,
+    scanlineCount: 800,
+    chromaticAberration: 0.002,
+    vignetteIntensity: 0.25,
+  },
   fxaa: true,
 } as const;

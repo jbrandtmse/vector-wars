@@ -44,4 +44,38 @@ describe('RENDERING_CONFIG', () => {
   it('should have fxaa flag', () => {
     expect(RENDERING_CONFIG.fxaa).toBe(true);
   });
+
+  describe('crt config', () => {
+    it('should have crt configuration object', () => {
+      expect(RENDERING_CONFIG.crt).toBeDefined();
+      expect(typeof RENDERING_CONFIG.crt).toBe('object');
+    });
+
+    it('should have crt.enabled as a boolean', () => {
+      expect(typeof RENDERING_CONFIG.crt.enabled).toBe('boolean');
+    });
+
+    it('should have crt.scanlineIntensity as a number in range [0, 1]', () => {
+      expect(typeof RENDERING_CONFIG.crt.scanlineIntensity).toBe('number');
+      expect(RENDERING_CONFIG.crt.scanlineIntensity).toBeGreaterThanOrEqual(0);
+      expect(RENDERING_CONFIG.crt.scanlineIntensity).toBeLessThanOrEqual(1);
+    });
+
+    it('should have crt.scanlineCount as a positive number', () => {
+      expect(typeof RENDERING_CONFIG.crt.scanlineCount).toBe('number');
+      expect(RENDERING_CONFIG.crt.scanlineCount).toBeGreaterThan(0);
+    });
+
+    it('should have crt.chromaticAberration as a number in range [0, 0.01]', () => {
+      expect(typeof RENDERING_CONFIG.crt.chromaticAberration).toBe('number');
+      expect(RENDERING_CONFIG.crt.chromaticAberration).toBeGreaterThanOrEqual(0);
+      expect(RENDERING_CONFIG.crt.chromaticAberration).toBeLessThanOrEqual(0.01);
+    });
+
+    it('should have crt.vignetteIntensity as a number in range [0, 1]', () => {
+      expect(typeof RENDERING_CONFIG.crt.vignetteIntensity).toBe('number');
+      expect(RENDERING_CONFIG.crt.vignetteIntensity).toBeGreaterThanOrEqual(0);
+      expect(RENDERING_CONFIG.crt.vignetteIntensity).toBeLessThanOrEqual(1);
+    });
+  });
 });
