@@ -53,10 +53,20 @@ export class DataLanceSystem {
     this.inputManager = inputManager;
     this.cockpitRenderer = cockpitRenderer;
 
-    // Create bolt geometry template — 2 vertices forming one line segment
+    // Create bolt geometry template — cross-shaped so it's visible from behind
+    // Main shaft along Z + horizontal crossbar for visibility from any angle
+    const halfLen = DATA_LANCE_BOLT_LENGTH / 2;
+    const crossSize = 0.03;
     const positions = new Float32Array([
-      0, 0, 0,                          // tail
-      0, 0, -DATA_LANCE_BOLT_LENGTH,    // head (forward is -Z in camera space)
+      // Main shaft (along -Z)
+      0, 0, halfLen,                     // tail
+      0, 0, -halfLen,                    // head
+      // Horizontal crossbar at midpoint
+      -crossSize, 0, 0,
+      crossSize, 0, 0,
+      // Vertical crossbar at midpoint
+      0, -crossSize, 0,
+      0, crossSize, 0,
     ]);
     const templateGeometry = new THREE.BufferGeometry();
     templateGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
@@ -105,14 +115,15 @@ export class DataLanceSystem {
     const bolt = this.acquireBolt();
     if (!bolt) return;
 
-    // Position bolt at camera world position
-    this.camera.getWorldPosition(this.tempPosition);
-    bolt.mesh.position.copy(this.tempPosition);
-
     // Orient bolt along camera look direction
     this.camera.getWorldDirection(this.tempDirection);
     bolt.direction.copy(this.tempDirection);
     bolt.mesh.quaternion.copy(this.camera.quaternion);
+
+    // Position bolt slightly ahead of camera so it spawns visible (past the cockpit)
+    this.camera.getWorldPosition(this.tempPosition);
+    this.tempPosition.addScaledVector(this.tempDirection, 2.0);
+    bolt.mesh.position.copy(this.tempPosition);
 
     // Activate bolt
     bolt.active = true;
