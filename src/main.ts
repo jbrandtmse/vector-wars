@@ -5,6 +5,7 @@ import { calculateDeltaTime } from './core/DeltaTime.ts';
 import { BLOOM_LAYER } from './config/constants.ts';
 import { vectorMaterials } from './rendering/VectorMaterials.ts';
 import { RenderPipeline } from './rendering/RenderPipeline.ts';
+import { CockpitRenderer } from './rendering/CockpitRenderer.ts';
 
 // --- Renderer Setup ---
 const container = document.getElementById('app');
@@ -64,6 +65,13 @@ scene.add(fatWireframe);
 
 // Set initial resolution for LineMaterial
 vectorMaterials.updateResolution(window.innerWidth, window.innerHeight);
+
+// --- Cockpit Setup ---
+// CRITICAL: camera must be added to scene for camera-parented geometry to render
+scene.add(camera);
+// CockpitRenderer is instantiated for its side effects (adds geometry to camera).
+// The reference will be used in Story 1-5 for recoilArms() integration.
+void new CockpitRenderer(camera, vectorMaterials);
 
 // --- Render Pipeline Setup ---
 const renderPipeline = new RenderPipeline(renderer, scene, camera);

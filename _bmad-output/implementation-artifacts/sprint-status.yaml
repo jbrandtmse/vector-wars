@@ -35,8 +35,8 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-03-26
-last_updated: 2026-03-26T13:00:00Z
-last_story_created: 1-2-vector-wireframe-lines-with-phosphor-glow
+last_updated: 2026-03-26
+last_story_created: 1-3-first-person-cockpit-view-with-actuator-arms
 project: vector-wars
 project_key: NOKEY
 tracking_system: file-system
@@ -47,7 +47,7 @@ development_status:
   epic-1: in-progress
   1-1-vite-threejs-project-setup: done
   1-2-vector-wireframe-lines-with-phosphor-glow: done
-  1-3-first-person-cockpit-view-with-actuator-arms: backlog
+  1-3-first-person-cockpit-view-with-actuator-arms: done
   1-4-viewport-movement-with-arrow-keys: backlog
   1-5-data-lance-bolt-firing: backlog
   1-6-basic-vector-scene-grid-starfield: backlog
