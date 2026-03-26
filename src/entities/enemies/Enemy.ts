@@ -10,6 +10,9 @@
 
 import * as THREE from 'three';
 import { GameObject } from '../GameObject.ts';
+import { DestroyedState } from '../../ai/states/DestroyedState.ts';
+import { eventBus } from '../../core/GameEvents.ts';
+import { Logger } from '../../core/Logger.ts';
 import type { AIState } from '../../ai/AIState.ts';
 import type { BehaviorParams } from '../../ai/BehaviorParams.ts';
 
@@ -22,6 +25,7 @@ export abstract class Enemy extends GameObject {
   public params: BehaviorParams;
   protected currentState: AIState | null = null;
   private spawnPosition = new THREE.Vector3();
+  private flashTimer = 0;
 
   constructor(
     health: number,
@@ -50,7 +54,47 @@ export abstract class Enemy extends GameObject {
     this.currentState.enter(this);
   }
 
+  takeDamage(amount: number): void {
+    this.health -= amount;
+    this.onHit();
+    if (this.health <= 0) {
+      this.onDestroyed();
+    }
+  }
+
+  protected onHit(): void {
+    // Brief flash -- increase scale to create visible "pulse" effect
+    // Subclasses can override for custom hit effects
+    this.flashTimer = 0.1; // seconds of flash remaining
+    this.setFlashState(true);
+  }
+
+  protected onDestroyed(): void {
+    this.transitionToState(new DestroyedState());
+    eventBus.emit('enemyDestroyed', {
+      enemy: this,
+      position: {
+        x: this.object3D.position.x,
+        y: this.object3D.position.y,
+        z: this.object3D.position.z,
+      },
+    });
+    Logger.info('Combat', `Enemy destroyed`, { id: this.id, scoreValue: this.scoreValue });
+  }
+
+  protected setFlashState(flashing: boolean): void {
+    // Scale up slightly when hit to create a visible "pulse" effect
+    const scale = flashing ? 1.4 : 1.0;
+    this.object3D.scale.setScalar(scale);
+  }
+
   update(dt: number): void {
+    // Hit flash timer
+    if (this.flashTimer > 0) {
+      this.flashTimer -= dt;
+      this.setFlashState(this.flashTimer > 0);
+    }
+
     if (this.currentState) {
       this.currentState.update(this, dt);
     }

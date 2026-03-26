@@ -36,7 +36,7 @@ const RIGHT_ARM_TIP = new THREE.Vector3(0.5, -0.05, -2.2);
 // Slight inward convergence angle (radians) so bolts cross ~40 units ahead
 const CONVERGENCE_ANGLE = 0.012;
 
-interface BoltData {
+export interface BoltData {
   mesh: LineSegments2;
   direction: THREE.Vector3;
   active: boolean;
@@ -86,6 +86,11 @@ export class DataLanceSystem {
         distance: 0,
       });
     }
+  }
+
+  /** Returns the internal bolt array for collision checking. Read-only usage expected. */
+  getActiveBolts(): readonly BoltData[] {
+    return this.bolts;
   }
 
   /**

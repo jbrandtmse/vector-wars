@@ -18,6 +18,10 @@ export const DATA_LANCE_POOL_SIZE = 40;
 export const RECOIL_INTENSITY = 0.06;
 export const RECOIL_RECOVERY_SPEED = 12.0;
 
+// Collision/Damage constants (Story 2-3)
+// Sentinel (30 HP) / 8 dmg = ~4 hits to kill. Twin bolts + 0.13s cooldown = fast kill on accurate fire
+export const DATA_LANCE_BOLT_DAMAGE = 8;
+
 // Environment constants (Story 1-6)
 export const GRID_SIZE = 200;
 export const GRID_DIVISIONS = 40;

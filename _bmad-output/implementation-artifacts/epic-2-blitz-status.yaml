@@ -22,8 +22,8 @@ stories:
     committed: false
     notes: "Code review passed clean - no issues found"
   2-3-destroy-enemies-with-data-lance:
-    status: pending
-    phase: null
+    status: reviewing
+    phase: code-review (attempt 1)
     attempts: 0
     committed: false
     notes: ""

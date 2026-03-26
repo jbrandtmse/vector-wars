@@ -8,6 +8,7 @@ vi.mock('three', () => {
     copy = vi.fn().mockReturnThis();
     set = vi.fn().mockReturnThis();
     add = vi.fn().mockReturnThis();
+    setScalar(s: number) { this.x = s; this.y = s; this.z = s; return this; }
   }
   class MockObject3D {
     position = new MockVector3();
@@ -180,6 +181,149 @@ describe('Enemy Base Class', () => {
     const e = new TestEnemy();
     const spawnPos = e.getSpawnPosition();
     expect(spawnPos).toBeDefined();
+  });
+});
+
+describe('Enemy Damage System', () => {
+  it('should have takeDamage method on Enemy prototype', async () => {
+    const { Enemy } = await import('../entities/enemies/Enemy.ts');
+    expect(typeof Enemy.prototype.takeDamage).toBe('function');
+  });
+
+  it('should reduce health when takeDamage is called', async () => {
+    const { Enemy } = await import('../entities/enemies/Enemy.ts');
+    class TestEnemy extends Enemy {
+      constructor() {
+        super(30, 100, {
+          patrolSpeed: 1, attackCooldown: 2, evasionChance: 0,
+          movementRandomness: 0, attackDamage: 10, projectileSpeed: 15,
+        }, 1.0);
+      }
+    }
+    const e = new TestEnemy();
+    expect(e.health).toBe(30);
+    e.takeDamage(8);
+    expect(e.health).toBe(22);
+  });
+
+  it('should trigger flash state on hit', async () => {
+    const { Enemy } = await import('../entities/enemies/Enemy.ts');
+    class TestEnemy extends Enemy {
+      constructor() {
+        super(30, 100, {
+          patrolSpeed: 1, attackCooldown: 2, evasionChance: 0,
+          movementRandomness: 0, attackDamage: 10, projectileSpeed: 15,
+        }, 1.0);
+      }
+    }
+    const e = new TestEnemy();
+    e.takeDamage(5);
+    // The object3D scale should be set to 1.4 (flash state active)
+    const obj = e.getObject3D();
+    expect(obj.scale.x).toBeCloseTo(1.4);
+    expect(obj.scale.y).toBeCloseTo(1.4);
+    expect(obj.scale.z).toBeCloseTo(1.4);
+  });
+
+  it('should revert flash state after timer expires', async () => {
+    const { Enemy } = await import('../entities/enemies/Enemy.ts');
+    class TestEnemy extends Enemy {
+      constructor() {
+        super(30, 100, {
+          patrolSpeed: 1, attackCooldown: 2, evasionChance: 0,
+          movementRandomness: 0, attackDamage: 10, projectileSpeed: 15,
+        }, 1.0);
+      }
+    }
+    const e = new TestEnemy();
+    e.takeDamage(5);
+    // Update enough to clear the 0.1s flash timer
+    e.update(0.15);
+    const obj = e.getObject3D();
+    expect(obj.scale.x).toBeCloseTo(1.0);
+    expect(obj.scale.y).toBeCloseTo(1.0);
+    expect(obj.scale.z).toBeCloseTo(1.0);
+  });
+
+  it('should transition to DestroyedState when health reaches zero', async () => {
+    const { Enemy } = await import('../entities/enemies/Enemy.ts');
+    class TestEnemy extends Enemy {
+      constructor() {
+        super(8, 100, {
+          patrolSpeed: 1, attackCooldown: 2, evasionChance: 0,
+          movementRandomness: 0, attackDamage: 10, projectileSpeed: 15,
+        }, 1.0);
+      }
+    }
+    const e = new TestEnemy();
+    e.takeDamage(8);
+    // DestroyedState sets active to false and visible to false
+    expect(e.isActive).toBe(false);
+    expect(e.getObject3D().visible).toBe(false);
+  });
+
+  it('should transition to DestroyedState when health goes below zero', async () => {
+    const { Enemy } = await import('../entities/enemies/Enemy.ts');
+    class TestEnemy extends Enemy {
+      constructor() {
+        super(5, 100, {
+          patrolSpeed: 1, attackCooldown: 2, evasionChance: 0,
+          movementRandomness: 0, attackDamage: 10, projectileSpeed: 15,
+        }, 1.0);
+      }
+    }
+    const e = new TestEnemy();
+    e.takeDamage(10);
+    expect(e.isActive).toBe(false);
+    expect(e.getObject3D().visible).toBe(false);
+  });
+
+  it('should emit enemyDestroyed event when destroyed', async () => {
+    const { Enemy } = await import('../entities/enemies/Enemy.ts');
+    const { eventBus } = await import('../core/GameEvents.ts');
+    class TestEnemy extends Enemy {
+      constructor() {
+        super(8, 100, {
+          patrolSpeed: 1, attackCooldown: 2, evasionChance: 0,
+          movementRandomness: 0, attackDamage: 10, projectileSpeed: 15,
+        }, 1.0);
+      }
+    }
+    const e = new TestEnemy();
+    const callback = vi.fn();
+    eventBus.on('enemyDestroyed', callback);
+    e.takeDamage(8);
+    expect(callback).toHaveBeenCalledTimes(1);
+    expect(callback).toHaveBeenCalledWith(
+      expect.objectContaining({
+        enemy: e,
+        position: expect.objectContaining({
+          x: expect.any(Number),
+          y: expect.any(Number),
+          z: expect.any(Number),
+        }),
+      }),
+    );
+    eventBus.off('enemyDestroyed', callback);
+  });
+
+  it('should not emit enemyDestroyed when health is still positive', async () => {
+    const { Enemy } = await import('../entities/enemies/Enemy.ts');
+    const { eventBus } = await import('../core/GameEvents.ts');
+    class TestEnemy extends Enemy {
+      constructor() {
+        super(30, 100, {
+          patrolSpeed: 1, attackCooldown: 2, evasionChance: 0,
+          movementRandomness: 0, attackDamage: 10, projectileSpeed: 15,
+        }, 1.0);
+      }
+    }
+    const e = new TestEnemy();
+    const callback = vi.fn();
+    eventBus.on('enemyDestroyed', callback);
+    e.takeDamage(8);
+    expect(callback).not.toHaveBeenCalled();
+    eventBus.off('enemyDestroyed', callback);
   });
 });
 

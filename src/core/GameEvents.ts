@@ -19,6 +19,7 @@ export interface WeaponFiredEvent {
 export interface GameEvents {
   weaponFired: WeaponFiredEvent;
   enemySpawned: { enemy: Enemy; position: { x: number; y: number; z: number } };
+  enemyDestroyed: { enemy: Enemy; position: { x: number; y: number; z: number } };
 }
 
 /** Module-level singleton event bus */

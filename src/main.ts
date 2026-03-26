@@ -11,6 +11,7 @@ import { DataLanceSystem } from './systems/DataLanceSystem.ts';
 import { RailMovement } from './systems/RailMovement.ts';
 import { GameObjectManager } from './entities/GameObjectManager.ts';
 import { EnemySpawner } from './systems/EnemySpawner.ts';
+import { CollisionSystem } from './systems/CollisionSystem.ts';
 
 // --- Renderer Setup ---
 const container = document.getElementById('app');
@@ -75,6 +76,12 @@ const dataLanceSystem = new DataLanceSystem(scene, camera, inputManager, vectorM
 const gameObjectManager = new GameObjectManager();
 const enemySpawner = new EnemySpawner(scene, gameObjectManager, vectorMaterials);
 
+// --- Collision System Setup (Story 2-3) ---
+const collisionSystem = new CollisionSystem(
+  gameObjectManager,
+  dataLanceSystem.getActiveBolts(),
+);
+
 // Pre-allocated quaternion for banking effect (avoid per-frame allocation)
 const bankQuaternion = new THREE.Quaternion();
 const bankAxis = new THREE.Vector3(0, 0, 1);
@@ -109,6 +116,10 @@ renderer.setAnimationLoop((time: number) => {
 
   // Update game systems
   dataLanceSystem.update(dt);
+
+  // Collision detection (after bolt movement and enemy updates)
+  collisionSystem.update();
+
   cockpitRenderer.update(dt);
 
   renderPipeline.render();

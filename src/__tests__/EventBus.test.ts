@@ -84,4 +84,18 @@ describe('GameEvents and eventBus singleton', () => {
     const mod = await import('../core/GameEvents.ts');
     expect(mod).toBeDefined();
   });
+
+  it('should emit and receive enemyDestroyed event', async () => {
+    const { eventBus } = await import('../core/GameEvents.ts');
+    const callback = vi.fn();
+    eventBus.on('enemyDestroyed', callback);
+    const payload = {
+      enemy: {} as never,
+      position: { x: 1, y: 2, z: 3 },
+    };
+    eventBus.emit('enemyDestroyed', payload);
+    expect(callback).toHaveBeenCalledWith(payload);
+    // Clean up listener
+    eventBus.off('enemyDestroyed', callback);
+  });
 });

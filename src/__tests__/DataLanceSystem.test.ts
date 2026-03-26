@@ -248,6 +248,43 @@ describe('DataLanceSystem', () => {
     });
   });
 
+  describe('getActiveBolts()', () => {
+    it('should have getActiveBolts method on prototype', () => {
+      expect(typeof DataLanceSystem.prototype.getActiveBolts).toBe('function');
+    });
+
+    it('should return an array of bolt data', () => {
+      const bolts = system.getActiveBolts();
+      expect(Array.isArray(bolts)).toBe(true);
+      expect(bolts.length).toBe(DATA_LANCE_POOL_SIZE);
+    });
+
+    it('should return bolts with expected properties', () => {
+      const bolts = system.getActiveBolts();
+      for (const bolt of bolts) {
+        expect(bolt).toHaveProperty('mesh');
+        expect(bolt).toHaveProperty('direction');
+        expect(bolt).toHaveProperty('active');
+        expect(bolt).toHaveProperty('distance');
+      }
+    });
+
+    it('should reflect active state after firing', () => {
+      const bolts = system.getActiveBolts();
+      // All bolts should be inactive initially
+      const activeBefore = bolts.filter((b) => b.active);
+      expect(activeBefore.length).toBe(0);
+
+      // Fire
+      setFireActive(true);
+      system.update(0.016);
+
+      // Two bolts should now be active (twin fire)
+      const activeAfter = bolts.filter((b) => b.active);
+      expect(activeAfter.length).toBe(2);
+    });
+  });
+
   describe('Dispose', () => {
     it('should remove all bolt meshes from scene on dispose', () => {
       const lineSegmentsBefore = scene.children.filter(

@@ -35,8 +35,8 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-03-26
-last_updated: "2026-03-26T20:00:00Z"
-last_story_created: 2-2-enemy-spawning-and-patrol
+last_updated: "2026-03-26T12:30:00Z"
+last_story_created: 2-3-destroy-enemies-with-data-lance
 project: vector-wars
 project_key: NOKEY
 tracking_system: file-system
@@ -58,7 +58,7 @@ development_status:
   epic-2: in-progress
   2-1-rail-path-movement: done
   2-2-enemy-spawning-and-patrol: done
-  2-3-destroy-enemies-with-data-lance: backlog
+  2-3-destroy-enemies-with-data-lance: done
   2-4-vector-shard-explosions: backlog
   2-5-damage-from-enemy-data-bursts: backlog
   2-6-shields-hud-display: backlog
