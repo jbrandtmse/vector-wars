@@ -1,0 +1,53 @@
+# GDS Workflow Status Tracker
+# Project: vector-wars
+# Created: 2026-03-25
+
+project_name: vector-wars
+project_type: game
+created: 2026-03-25
+
+# Phase 1: Preproduction
+preproduction:
+  brainstorm-game:
+    status: complete
+    started: 2026-03-25
+    completed: 2026-03-25
+    output: _bmad-output/brainstorming-session-2026-03-25.md
+  game-brief:
+    status: complete
+    started: 2026-03-25
+    completed: 2026-03-25
+    output: _bmad-output/game-brief.md
+  domain-research:
+    status: not-started
+  market-research:
+    status: not-started
+  technical-research:
+    status: complete
+    started: 2026-03-25
+    completed: 2026-03-25
+    output: _bmad-output/planning-artifacts/research/technical-vector-wars-game-stack-research-2026-03-25.md
+
+# Phase 2: Design
+design:
+  gdd:
+    status: not-started
+  narrative-design:
+    status: not-started
+  ux-design:
+    status: not-started
+
+# Phase 3: Technical
+technical:
+  game-architecture:
+    status: not-started
+  epics-and-stories:
+    status: not-started
+  implementation-readiness:
+    status: not-started
+
+# Phase 4: Production
+production:
+  sprint-planning:
+    status: not-started
+  current-sprint: null
