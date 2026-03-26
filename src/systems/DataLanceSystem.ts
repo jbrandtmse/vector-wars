@@ -48,7 +48,6 @@ export class DataLanceSystem {
   private cockpitRenderer: CockpitRenderer;
 
   // Pre-allocated vectors for per-frame calculations (zero-allocation update loop)
-  private tempPosition = new THREE.Vector3();
   private tempDirection = new THREE.Vector3();
   private tempArmWorld = new THREE.Vector3();
 

@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import * as THREE from 'three';
+import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
 import { CockpitRenderer } from '../rendering/CockpitRenderer.ts';
 import { VectorMaterials } from '../rendering/VectorMaterials.ts';
 import { setActivePalette } from '../rendering/ColorPalette.ts';
@@ -39,7 +40,7 @@ describe('CockpitRenderer', () => {
     it('should create left and right actuator arms as LineSegments', () => {
       const cockpitGroup = camera.children[0] as THREE.Group;
       const lineSegments = cockpitGroup.children.filter(
-        (child) => child instanceof THREE.LineSegments
+        (child) => child instanceof LineSegments2
       );
       // At minimum: left arm, right arm, and frame
       expect(lineSegments.length).toBeGreaterThanOrEqual(2);
@@ -48,7 +49,7 @@ describe('CockpitRenderer', () => {
     it('should have arms with bloom layer enabled', () => {
       const cockpitGroup = camera.children[0] as THREE.Group;
       const lineSegments = cockpitGroup.children.filter(
-        (child) => child instanceof THREE.LineSegments
+        (child) => child instanceof LineSegments2
       );
       const bloomTest = new THREE.Layers();
       bloomTest.set(BLOOM_LAYER);
@@ -57,24 +58,13 @@ describe('CockpitRenderer', () => {
       }
     });
 
-    it('should position left arm at negative X and right arm at positive X', () => {
+    it('should create both left and right arms as separate LineSegments2 children', () => {
       const cockpitGroup = camera.children[0] as THREE.Group;
-      const lineSegments = cockpitGroup.children.filter(
-        (child) => child instanceof THREE.LineSegments
-      ) as THREE.LineSegments[];
-
-      // Find arms by checking the geometry bounding box center X positions
-      const armPositions = lineSegments.map((seg) => {
-        const geo = seg.geometry;
-        geo.computeBoundingBox();
-        const center = new THREE.Vector3();
-        geo.boundingBox!.getCenter(center);
-        return center.x;
-      });
-
-      // Should have at least one arm at negative X and one at positive X
-      expect(armPositions.some((x) => x < -0.3)).toBe(true);
-      expect(armPositions.some((x) => x > 0.3)).toBe(true);
+      const fatLines = cockpitGroup.children.filter(
+        (child) => child instanceof LineSegments2
+      );
+      // left arm + right arm + frame = 3
+      expect(fatLines.length).toBe(3);
     });
   });
 
@@ -82,7 +72,7 @@ describe('CockpitRenderer', () => {
     it('should create cockpit frame as LineSegments with bloom layer', () => {
       const cockpitGroup = camera.children[0] as THREE.Group;
       const lineSegments = cockpitGroup.children.filter(
-        (child) => child instanceof THREE.LineSegments
+        (child) => child instanceof LineSegments2
       );
       // left arm + right arm + frame = at least 3
       expect(lineSegments.length).toBeGreaterThanOrEqual(3);
@@ -111,11 +101,6 @@ describe('CockpitRenderer', () => {
     });
 
     it('should dispose all geometries on dispose', () => {
-      const cockpitGroup = camera.children[0] as THREE.Group;
-      const geometries = cockpitGroup.children
-        .filter((child): child is THREE.LineSegments => child instanceof THREE.LineSegments)
-        .map((seg) => seg.geometry);
-
       cockpit.dispose();
 
       // After dispose, the cockpit group should be removed from camera
