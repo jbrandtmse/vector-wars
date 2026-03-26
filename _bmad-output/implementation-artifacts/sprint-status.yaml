@@ -1,0 +1,123 @@
+# generated: 2026-03-26
+# last_updated: 2026-03-26
+# project: vector-wars
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: {project-root}/_bmad-output/implementation-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - SM typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+
+generated: 2026-03-26
+last_updated: 2026-03-26
+project: vector-wars
+project_key: NOKEY
+tracking_system: file-system
+story_location: "{project-root}/_bmad-output/implementation-artifacts"
+
+development_status:
+  # === Epic 1: Core Tech Validation ===
+  epic-1: backlog
+  1-1-vite-threejs-project-setup: backlog
+  1-2-vector-wireframe-lines-with-phosphor-glow: backlog
+  1-3-first-person-cockpit-view-with-actuator-arms: backlog
+  1-4-viewport-movement-with-arrow-keys: backlog
+  1-5-data-lance-bolt-firing: backlog
+  1-6-basic-vector-scene-grid-starfield: backlog
+  1-7-post-processing-pipeline-validation: backlog
+  epic-1-retrospective: optional
+
+  # === Epic 2: Core Game Loop ===
+  epic-2: backlog
+  2-1-rail-path-movement: backlog
+  2-2-enemy-spawning-and-patrol: backlog
+  2-3-destroy-enemies-with-data-lance: backlog
+  2-4-vector-shard-explosions: backlog
+  2-5-damage-from-enemy-data-bursts: backlog
+  2-6-shields-hud-display: backlog
+  2-7-screen-shake-and-damage-flash: backlog
+  2-8-score-increment-on-kill: backlog
+  2-9-stable-60fps-with-object-pooling: backlog
+  2-10-game-over-state: backlog
+  epic-2-retrospective: optional
+
+  # === Epic 3: Complete Level 1 ===
+  epic-3: backlog
+  3-1-watchdog-enemy-type: backlog
+  3-2-gatekeeper-enemy-type: backlog
+  3-3-surface-attack-phase: backlog
+  3-4-data-corridor-phase: backlog
+  3-5-logic-bombs-weapon: backlog
+  3-6-emp-burst-weapon: backlog
+  3-7-gatekeeper-boss-encounter: backlog
+  3-8-virus-payload-weapon: backlog
+  3-9-boss-destruction-sequence: backlog
+  3-10-phase-transitions: backlog
+  epic-3-retrospective: optional
+
+  # === Epic 4: Narrative & Audio ===
+  epic-4: backlog
+  4-1-handler-comm-overlay-system: backlog
+  4-2-ai-taunt-system: backlog
+  4-3-diegetic-tutorial-sequence: backlog
+  4-4-briefing-screen-system: backlog
+  4-5-audio-manager-architecture: backlog
+  4-6-retro-sfx-for-weapons-and-actions: backlog
+  4-7-ambient-electronic-hum: backlog
+  4-8-swappable-audio-assets: backlog
+  4-9-synthesized-handler-voice-lines: backlog
+  epic-4-retrospective: optional
+
+  # === Epic 5: Full Campaign ===
+  epic-5: backlog
+  5-1-level-2-amber-palette: backlog
+  5-2-the-avenger-boss: backlog
+  5-3-level-3-red-palette: backlog
+  5-4-the-core-intelligence-boss: backlog
+  5-5-color-palette-progression: backlog
+  5-6-overseer-enemy-type: backlog
+  5-7-enemy-behavioral-evolution: backlog
+  5-8-handler-voice-escalation: backlog
+  5-9-briefing-screens-all-levels: backlog
+  5-10-ending-sequence: backlog
+  5-11-high-score-table: backlog
+  5-12-cyberspace-fragmentation-ending: backlog
+  epic-5-retrospective: optional
+
+  # === Epic 6: Polish & Ship ===
+  epic-6: backlog
+  6-1-main-menu-screen: backlog
+  6-2-full-game-flow-navigation: backlog
+  6-3-browser-compatibility-testing: backlog
+  6-4-performance-optimization: backlog
+  6-5-github-pages-deployment: backlog
+  6-6-electron-desktop-wrapper: backlog
+  6-7-final-audio-polish: backlog
+  6-8-playtesting-bug-fixes: backlog
+  epic-6-retrospective: optional

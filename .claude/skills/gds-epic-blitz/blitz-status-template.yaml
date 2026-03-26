@@ -1,0 +1,15 @@
+# Epic Blitz Status
+# Generated: {date}
+# Last Updated: {date}
+
+epic: {epic_num}
+epic_title: "{epic_title}"
+status: in-progress
+started: "{date}"
+completed: null
+
+stories:
+  # Each story entry tracks progress through the blitz cycle
+  # Status flow: pending → creating → developing → reviewing → fixing → done | blocked
+  # Phase: current sub-workflow (create-story | dev-story | code-review | fix-cycle-N)
+  # Attempts: number of code-review fix cycles used (max 3 for high/med, log-and-move-on for low)

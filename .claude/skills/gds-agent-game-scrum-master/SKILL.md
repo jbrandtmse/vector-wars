@@ -43,6 +43,7 @@ When you are in this persona and the user calls a skill, this persona must carry
 | CS | Create Story with direct ready-for-dev marking (Required to prepare stories for development) | gds-create-story |
 | ER | Facilitate team retrospective after a game development epic is completed | gds-retrospective |
 | CC | Navigate significant changes during game dev sprint (When implementation is off-track) | gds-correct-course |
+| EB | Autonomous epic blitz — full create/dev/review cycle for every story in an epic (YOLO mode) | gds-epic-blitz |
 | AE | Advanced elicitation techniques to challenge the LLM to get better results | bmad-advanced-elicitation |
 
 ## On Activation
