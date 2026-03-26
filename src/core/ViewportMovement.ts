@@ -2,7 +2,8 @@ import type { InputManager } from './InputManager.ts';
 import {
   VIEWPORT_MOVE_SPEED,
   VIEWPORT_MAX_OFFSET_X,
-  VIEWPORT_MAX_OFFSET_Y,
+  VIEWPORT_MAX_OFFSET_Y_UP,
+  VIEWPORT_MAX_OFFSET_Y_DOWN,
 } from '../config/constants.ts';
 
 /**
@@ -30,7 +31,7 @@ export function updateViewportOffset(
   if (inputManager.isActive('moveDown')) current.y -= VIEWPORT_MOVE_SPEED * dt;
 
   current.x = Math.max(-VIEWPORT_MAX_OFFSET_X, Math.min(VIEWPORT_MAX_OFFSET_X, current.x));
-  current.y = Math.max(-VIEWPORT_MAX_OFFSET_Y, Math.min(VIEWPORT_MAX_OFFSET_Y, current.y));
+  current.y = Math.max(-VIEWPORT_MAX_OFFSET_Y_DOWN, Math.min(VIEWPORT_MAX_OFFSET_Y_UP, current.y));
 
   return current;
 }

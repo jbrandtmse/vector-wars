@@ -30,5 +30,6 @@ export const STARFIELD_LIGHTNESS_OFFSET = -0.25;
 // Viewport movement constants (Story 1-4)
 export const VIEWPORT_MOVE_SPEED = 3.0;
 export const VIEWPORT_MAX_OFFSET_X = 3.0;
-export const VIEWPORT_MAX_OFFSET_Y = 2.0;
+export const VIEWPORT_MAX_OFFSET_Y_UP = 2.5;
+export const VIEWPORT_MAX_OFFSET_Y_DOWN = 1.2;
 export const VIEWPORT_BASE_POSITION = { x: 0, y: 0, z: 3 } as const;

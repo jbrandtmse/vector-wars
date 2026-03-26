@@ -2,7 +2,8 @@ import { describe, it, expect } from 'vitest';
 import {
   VIEWPORT_MOVE_SPEED,
   VIEWPORT_MAX_OFFSET_X,
-  VIEWPORT_MAX_OFFSET_Y,
+  VIEWPORT_MAX_OFFSET_Y_UP,
+  VIEWPORT_MAX_OFFSET_Y_DOWN,
   VIEWPORT_BASE_POSITION,
 } from '../config/constants.ts';
 
@@ -15,8 +16,8 @@ describe('Viewport Movement Constants', () => {
     expect(VIEWPORT_MAX_OFFSET_X).toBe(3.0);
   });
 
-  it('should define VIEWPORT_MAX_OFFSET_Y as 2.0', () => {
-    expect(VIEWPORT_MAX_OFFSET_Y).toBe(2.0);
+  it('should define asymmetric Y limits (more up than down)', () => {
+    expect(VIEWPORT_MAX_OFFSET_Y_UP).toBeGreaterThan(VIEWPORT_MAX_OFFSET_Y_DOWN);
   });
 
   it('should define VIEWPORT_BASE_POSITION matching camera setup from Story 1-1', () => {

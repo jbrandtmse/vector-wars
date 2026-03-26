@@ -6,7 +6,8 @@ import { InputManager } from '../core/InputManager.ts';
 import {
   VIEWPORT_MOVE_SPEED,
   VIEWPORT_MAX_OFFSET_X,
-  VIEWPORT_MAX_OFFSET_Y,
+  VIEWPORT_MAX_OFFSET_Y_UP,
+  VIEWPORT_MAX_OFFSET_Y_DOWN,
 } from '../config/constants.ts';
 
 function dispatchKeydown(code: string): void {
@@ -84,22 +85,22 @@ describe('ViewportMovement', () => {
     expect(result.x).toBe(-VIEWPORT_MAX_OFFSET_X);
   });
 
-  it('should clamp offsetY at max bounds', () => {
+  it('should clamp offsetY at upper bound', () => {
     const dt = 1.0;
-    const current: ViewportOffset = { x: 0, y: VIEWPORT_MAX_OFFSET_Y - 0.01 };
+    const current: ViewportOffset = { x: 0, y: VIEWPORT_MAX_OFFSET_Y_UP - 0.01 };
     dispatchKeydown('ArrowUp');
 
     const result = updateViewportOffset(current, inputManager, dt);
-    expect(result.y).toBe(VIEWPORT_MAX_OFFSET_Y);
+    expect(result.y).toBe(VIEWPORT_MAX_OFFSET_Y_UP);
   });
 
-  it('should clamp offsetY at negative max bounds', () => {
+  it('should clamp offsetY at lower bound', () => {
     const dt = 1.0;
-    const current: ViewportOffset = { x: 0, y: -VIEWPORT_MAX_OFFSET_Y + 0.01 };
+    const current: ViewportOffset = { x: 0, y: -VIEWPORT_MAX_OFFSET_Y_DOWN + 0.01 };
     dispatchKeydown('ArrowDown');
 
     const result = updateViewportOffset(current, inputManager, dt);
-    expect(result.y).toBe(-VIEWPORT_MAX_OFFSET_Y);
+    expect(result.y).toBe(-VIEWPORT_MAX_OFFSET_Y_DOWN);
   });
 
   it('should return unchanged offset when no keys are pressed (no drift)', () => {
