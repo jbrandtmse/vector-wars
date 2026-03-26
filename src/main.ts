@@ -1,13 +1,12 @@
 import * as THREE from 'three';
-import { Line2 } from 'three/addons/lines/Line2.js';
-import { LineGeometry } from 'three/addons/lines/LineGeometry.js';
 import { calculateDeltaTime } from './core/DeltaTime.ts';
 import { InputManager } from './core/InputManager.ts';
 import { updateViewportOffset } from './core/ViewportMovement.ts';
-import { BLOOM_LAYER, VIEWPORT_BASE_POSITION } from './config/constants.ts';
+import { VIEWPORT_BASE_POSITION } from './config/constants.ts';
 import { vectorMaterials } from './rendering/VectorMaterials.ts';
 import { RenderPipeline } from './rendering/RenderPipeline.ts';
 import { CockpitRenderer } from './rendering/CockpitRenderer.ts';
+import { SceneEnvironment } from './rendering/SceneEnvironment.ts';
 import { DataLanceSystem } from './systems/DataLanceSystem.ts';
 
 // --- Renderer Setup ---
@@ -35,36 +34,8 @@ camera.lookAt(0, 0, 0);
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x000000);
 
-// --- Test Wireframe Shape 1: Thin LineSegments (icosahedron) ---
-const icoGeometry = new THREE.IcosahedronGeometry(0.8, 0);
-const icoEdges = new THREE.EdgesGeometry(icoGeometry);
-const thinMaterial = vectorMaterials.create('test-thin');
-const thinWireframe = new THREE.LineSegments(icoEdges, thinMaterial);
-thinWireframe.layers.enable(BLOOM_LAYER);
-thinWireframe.position.set(-1.2, 0, 0);
-scene.add(thinWireframe);
-
-// --- Test Wireframe Shape 2: Fat Line2 (torus knot outline) ---
-const torusKnotGeometry = new THREE.TorusKnotGeometry(0.5, 0.15, 64, 8);
-const torusKnotEdges = new THREE.EdgesGeometry(torusKnotGeometry);
-const edgePositions = torusKnotEdges.attributes.position;
-const fatLineGeometry = new LineGeometry();
-const positions: number[] = [];
-for (let i = 0; i < edgePositions.count; i++) {
-  positions.push(
-    edgePositions.getX(i),
-    edgePositions.getY(i),
-    edgePositions.getZ(i),
-  );
-}
-fatLineGeometry.setPositions(positions);
-
-const fatMaterial = vectorMaterials.createFat('test-fat', 3);
-const fatWireframe = new Line2(fatLineGeometry, fatMaterial);
-fatWireframe.computeLineDistances();
-fatWireframe.layers.enable(BLOOM_LAYER);
-fatWireframe.position.set(1.2, 0, 0);
-scene.add(fatWireframe);
+// --- Environment Setup (grid + starfield) ---
+new SceneEnvironment(scene, vectorMaterials);
 
 // Set initial resolution for LineMaterial
 vectorMaterials.updateResolution(window.innerWidth, window.innerHeight);
@@ -110,13 +81,6 @@ renderer.setAnimationLoop((time: number) => {
   // Update game systems
   dataLanceSystem.update(dt);
   cockpitRenderer.update(dt);
-
-  // Slowly rotate test shapes to confirm animation works
-  thinWireframe.rotation.x += 0.3 * dt;
-  thinWireframe.rotation.y += 0.5 * dt;
-
-  fatWireframe.rotation.x -= 0.2 * dt;
-  fatWireframe.rotation.y += 0.4 * dt;
 
   renderPipeline.render();
 });

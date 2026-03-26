@@ -16,6 +16,17 @@ export const DATA_LANCE_POOL_SIZE = 30;
 export const RECOIL_INTENSITY = 0.06;
 export const RECOIL_RECOVERY_SPEED = 12.0;
 
+// Environment constants (Story 1-6)
+export const GRID_SIZE = 200;
+export const GRID_DIVISIONS = 40;
+export const GRID_Y_POSITION = -2.0;
+export const STARFIELD_COUNT = 800;
+export const STARFIELD_SPREAD = 400;
+export const STARFIELD_MIN_Y = -50;
+export const STARFIELD_POINT_SIZE = 2.0;
+export const GRID_LIGHTNESS_OFFSET = -0.15;
+export const STARFIELD_LIGHTNESS_OFFSET = -0.25;
+
 // Viewport movement constants (Story 1-4)
 export const VIEWPORT_MOVE_SPEED = 3.0;
 export const VIEWPORT_MAX_OFFSET_X = 1.5;
