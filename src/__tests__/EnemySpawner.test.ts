@@ -106,7 +106,7 @@ describe('SPAWN_EVENTS configuration', () => {
 });
 
 describe('EnemySpawner Trigger Logic', () => {
-  it('should not spawn enemies when rail progress has not reached trigger', async () => {
+  it('should not activate enemies when rail progress has not reached trigger', async () => {
     const { EnemySpawner } = await import('../systems/EnemySpawner.ts');
     const { GameObjectManager } = await import('../entities/GameObjectManager.ts');
 
@@ -115,13 +115,14 @@ describe('EnemySpawner Trigger Logic', () => {
     const mockVectorMaterials = { create: vi.fn().mockReturnValue({}) } as never;
 
     const spawner = new EnemySpawner(mockScene, gom, mockVectorMaterials);
-    // Progress 0 means no triggers fired (first trigger is at 0.10)
+    // Pool pre-warms sentinels (inactive) into GOM, so getAll() has items
+    // but getActiveCount() should be 0 before any triggers fire
     spawner.update(0);
     spawner.update(0.05);
-    expect(gom.getAll()).toHaveLength(0);
+    expect(gom.getActiveCount()).toBe(0);
   });
 
-  it('should spawn enemies when rail progress crosses a trigger', async () => {
+  it('should activate enemies when rail progress crosses a trigger', async () => {
     const { EnemySpawner } = await import('../systems/EnemySpawner.ts');
     const { GameObjectManager } = await import('../entities/GameObjectManager.ts');
 
@@ -132,7 +133,7 @@ describe('EnemySpawner Trigger Logic', () => {
     const spawner = new EnemySpawner(mockScene, gom, mockVectorMaterials);
     spawner.update(0.0); // Initial position
     spawner.update(0.11); // Cross first trigger at 0.10
-    expect(gom.getAll().length).toBeGreaterThan(0);
+    expect(gom.getActiveCount()).toBeGreaterThan(0);
   });
 
   it('should not re-spawn enemies on repeated crossings', async () => {
@@ -146,9 +147,24 @@ describe('EnemySpawner Trigger Logic', () => {
     const spawner = new EnemySpawner(mockScene, gom, mockVectorMaterials);
     spawner.update(0.0);
     spawner.update(0.11);
-    const countAfterFirst = gom.getAll().length;
+    const countAfterFirst = gom.getActiveCount();
     // Simulate going backwards past the trigger (wrap scenario)
     spawner.update(0.11);
-    expect(gom.getAll().length).toBe(countAfterFirst);
+    expect(gom.getActiveCount()).toBe(countAfterFirst);
+  });
+
+  it('should pre-warm sentinels into GameObjectManager at construction', async () => {
+    const { EnemySpawner } = await import('../systems/EnemySpawner.ts');
+    const { GameObjectManager } = await import('../entities/GameObjectManager.ts');
+    const { SENTINEL_POOL_SIZE } = await import('../config/constants.ts');
+
+    const mockScene = { add: vi.fn() } as never;
+    const gom = new GameObjectManager();
+    const mockVectorMaterials = { create: vi.fn().mockReturnValue({}) } as never;
+
+    new EnemySpawner(mockScene, gom, mockVectorMaterials);
+    // All pre-warmed sentinels should be in the GOM (inactive)
+    expect(gom.getAll().length).toBe(SENTINEL_POOL_SIZE);
+    expect(gom.getActiveCount()).toBe(0);
   });
 });

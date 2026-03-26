@@ -93,6 +93,17 @@ export class EnemyProjectileSystem {
     }
   }
 
+  /**
+   * Returns pool stats for debug diagnostics (Story 2-9).
+   */
+  getPoolStats(): { active: number; total: number } {
+    let active = 0;
+    for (const burst of this.bursts) {
+      if (burst.active) active++;
+    }
+    return { active, total: this.bursts.length };
+  }
+
   private acquireBurst(): EnemyDataBurst | undefined {
     for (const burst of this.bursts) {
       if (!burst.active) return burst;

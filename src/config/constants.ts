@@ -70,6 +70,7 @@ export const SENTINEL_BEHAVIOR_LEVEL1: BehaviorParams = {
 export const SENTINEL_COLLIDER_RADIUS = 1.5;
 export const SENTINEL_HEALTH = 30;
 export const SENTINEL_SCORE_VALUE = 100;
+export const SENTINEL_POOL_SIZE = 20;
 
 // Spawn event definitions (Story 2-2)
 // Hardcoded for now -- JSON loading comes later with LevelManager

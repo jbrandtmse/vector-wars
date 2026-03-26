@@ -44,6 +44,17 @@ export class EffectsManager {
     Logger.debug('Effects', 'Explosion spawned', { x, y, z, poolIndex: this.nextExplosionIndex });
   }
 
+  /**
+   * Returns pool stats for debug diagnostics (Story 2-9).
+   */
+  getPoolStats(): { active: number; total: number } {
+    let active = 0;
+    for (const explosion of this.explosions) {
+      if (explosion.isActive) active++;
+    }
+    return { active, total: this.explosions.length };
+  }
+
   update(dt: number): void {
     for (const explosion of this.explosions) {
       explosion.update(dt);

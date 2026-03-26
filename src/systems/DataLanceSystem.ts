@@ -199,6 +199,17 @@ export class DataLanceSystem {
   }
 
   /**
+   * Returns pool stats for debug diagnostics (Story 2-9).
+   */
+  getPoolStats(): { active: number; total: number } {
+    let active = 0;
+    for (const bolt of this.bolts) {
+      if (bolt.active) active++;
+    }
+    return { active, total: this.bolts.length };
+  }
+
+  /**
    * Removes all bolt meshes from the scene and disposes their geometries.
    * Material is managed by VectorMaterials and not disposed here.
    */

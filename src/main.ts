@@ -131,6 +131,26 @@ const screenShake = new ScreenShake();
 const damageEffectsManager = new DamageEffectsManager(screenShake, renderPipeline);
 void damageEffectsManager; // event-driven lifecycle, no per-frame calls
 
+// --- Pool Diagnostics Setup (Story 2-9, debug-only) ---
+let poolDiagnosticsUpdate: ((dt: number) => void) | null = null;
+
+if (import.meta.env.DEV) {
+  import('./debug/PoolDiagnostics.ts').then(({ PoolDiagnostics }) => {
+    const poolDiagnostics = new PoolDiagnostics();
+    poolDiagnostics.registerSource('dataLance', dataLanceSystem);
+    poolDiagnostics.registerSource('enemyProjectile', enemyProjectileSystem);
+    poolDiagnostics.registerSource('effects', effectsManager);
+    poolDiagnostics.registerGenericPool('sentinels', enemySpawner.getSentinelPool());
+    poolDiagnostics.setRenderer(renderer);
+    poolDiagnosticsUpdate = (dt: number) => poolDiagnostics.update(dt);
+
+    // Expose debug API on window
+    (window as unknown as { debug: { pools: () => Record<string, unknown> } }).debug = {
+      pools: () => poolDiagnostics.getStats(),
+    };
+  });
+}
+
 // Pre-allocated quaternion for banking effect (avoid per-frame allocation)
 const bankQuaternion = new THREE.Quaternion();
 const bankAxis = new THREE.Vector3(0, 0, 1);
@@ -188,6 +208,9 @@ renderer.setAnimationLoop((time: number) => {
 
   // Damage flash decay: update uniform before render pass (Story 2-7)
   renderPipeline.updateDamageFlash(dt);
+
+  // Pool diagnostics: log stats once per second in debug mode (Story 2-9)
+  if (poolDiagnosticsUpdate) poolDiagnosticsUpdate(dt);
 
   renderPipeline.render();
 });

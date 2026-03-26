@@ -15,12 +15,14 @@ import { eventBus } from '../../core/GameEvents.ts';
 import { Logger } from '../../core/Logger.ts';
 import type { AIState } from '../../ai/AIState.ts';
 import type { BehaviorParams } from '../../ai/BehaviorParams.ts';
+import type { Poolable } from '../../core/ObjectPool.ts';
 
-export abstract class Enemy extends GameObject {
+export abstract class Enemy extends GameObject implements Poolable {
   private static nextId = 0;
   public readonly id: number = Enemy.nextId++;
 
   public health: number;
+  protected maxHealth: number;
   public scoreValue: number;
   public params: BehaviorParams;
   protected currentState: AIState | null = null;
@@ -35,8 +37,19 @@ export abstract class Enemy extends GameObject {
   ) {
     super(colliderRadius);
     this.health = health;
+    this.maxHealth = health;
     this.scoreValue = scoreValue;
     this.params = params;
+  }
+
+  reset(): void {
+    this.health = this.maxHealth;
+    this.setActive(false);
+    this.object3D.visible = false;
+    this.object3D.position.set(0, -1000, 0);
+    this.object3D.scale.setScalar(1.0);
+    this.currentState = null;
+    this.flashTimer = 0;
   }
 
   setSpawnPosition(pos: THREE.Vector3): void {
