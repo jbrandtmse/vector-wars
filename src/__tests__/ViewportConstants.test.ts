@@ -11,12 +11,12 @@ describe('Viewport Movement Constants', () => {
     expect(VIEWPORT_MOVE_SPEED).toBe(3.0);
   });
 
-  it('should define VIEWPORT_MAX_OFFSET_X as 1.5', () => {
-    expect(VIEWPORT_MAX_OFFSET_X).toBe(1.5);
+  it('should define VIEWPORT_MAX_OFFSET_X as 3.0', () => {
+    expect(VIEWPORT_MAX_OFFSET_X).toBe(3.0);
   });
 
-  it('should define VIEWPORT_MAX_OFFSET_Y as 1.0', () => {
-    expect(VIEWPORT_MAX_OFFSET_Y).toBe(1.0);
+  it('should define VIEWPORT_MAX_OFFSET_Y as 2.0', () => {
+    expect(VIEWPORT_MAX_OFFSET_Y).toBe(2.0);
   });
 
   it('should define VIEWPORT_BASE_POSITION matching camera setup from Story 1-1', () => {

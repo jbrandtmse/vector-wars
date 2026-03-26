@@ -11,6 +11,8 @@
  */
 
 import * as THREE from 'three';
+import { LineSegmentsGeometry } from 'three/addons/lines/LineSegmentsGeometry.js';
+import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
 import {
   BLOOM_LAYER,
   DATA_LANCE_BOLT_LENGTH,
@@ -24,6 +26,8 @@ import type { InputManager } from '../core/InputManager.ts';
 import type { VectorMaterials } from '../rendering/VectorMaterials.ts';
 import type { CockpitRenderer } from '../rendering/CockpitRenderer.ts';
 
+const BOLT_LINE_WIDTH = 2.5;
+
 // Arm tip positions in camera-local space
 // Cockpit group is at (0, -0.1, -1.5), arm tips are at ~(±0.5, 0.05, -0.7) in group space
 const LEFT_ARM_TIP = new THREE.Vector3(-0.5, -0.05, -2.2);
@@ -33,7 +37,7 @@ const RIGHT_ARM_TIP = new THREE.Vector3(0.5, -0.05, -2.2);
 const CONVERGENCE_ANGLE = 0.012;
 
 interface BoltData {
-  mesh: THREE.LineSegments;
+  mesh: LineSegments2;
   direction: THREE.Vector3;
   active: boolean;
   distance: number;
@@ -63,21 +67,15 @@ export class DataLanceSystem {
     this.inputManager = inputManager;
     this.cockpitRenderer = cockpitRenderer;
 
-    // Create bolt geometry — a long line segment (visible as a streak)
+    // Create ONE shared fat material for all bolts
+    const boltMaterial = vectorMaterials.createFat('data-lance-bolt', BOLT_LINE_WIDTH);
+
+    // Pre-allocate bolt pool with fat line geometry
     const halfLen = DATA_LANCE_BOLT_LENGTH / 2;
-    const positions = new Float32Array([
-      0, 0, halfLen,    // tail
-      0, 0, -halfLen,   // head
-    ]);
-    const templateGeometry = new THREE.BufferGeometry();
-    templateGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-
-    // Create ONE shared material for all bolts
-    const boltMaterial = vectorMaterials.create('data-lance-bolt');
-
-    // Pre-allocate bolt pool
     for (let i = 0; i < DATA_LANCE_POOL_SIZE; i++) {
-      const mesh = new THREE.LineSegments(templateGeometry.clone(), boltMaterial);
+      const geometry = new LineSegmentsGeometry();
+      geometry.setPositions([0, 0, halfLen, 0, 0, -halfLen]);
+      const mesh = new LineSegments2(geometry, boltMaterial);
       mesh.layers.enable(BLOOM_LAYER);
       mesh.visible = false;
       scene.add(mesh);
@@ -88,9 +86,6 @@ export class DataLanceSystem {
         distance: 0,
       });
     }
-
-    // Dispose the template geometry (each bolt has its own clone)
-    templateGeometry.dispose();
   }
 
   /**

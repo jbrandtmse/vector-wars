@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import * as THREE from 'three';
+import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
 import { DataLanceSystem } from '../systems/DataLanceSystem.ts';
 import { VectorMaterials } from '../rendering/VectorMaterials.ts';
 import { CockpitRenderer } from '../rendering/CockpitRenderer.ts';
@@ -52,7 +53,7 @@ describe('DataLanceSystem', () => {
   describe('Pool initialization', () => {
     it('should pre-allocate bolt meshes in the scene', () => {
       const lineSegments = scene.children.filter(
-        (child) => child instanceof THREE.LineSegments
+        (child) => child instanceof LineSegments2
       );
       expect(lineSegments.length).toBe(DATA_LANCE_POOL_SIZE);
     });
@@ -61,7 +62,7 @@ describe('DataLanceSystem', () => {
       const bloomTest = new THREE.Layers();
       bloomTest.set(BLOOM_LAYER);
       const lineSegments = scene.children.filter(
-        (child) => child instanceof THREE.LineSegments
+        (child) => child instanceof LineSegments2
       );
       for (const seg of lineSegments) {
         expect(seg.layers.test(bloomTest)).toBe(true);
@@ -70,7 +71,7 @@ describe('DataLanceSystem', () => {
 
     it('should create all bolt meshes as invisible initially', () => {
       const lineSegments = scene.children.filter(
-        (child) => child instanceof THREE.LineSegments
+        (child) => child instanceof LineSegments2
       );
       for (const seg of lineSegments) {
         expect(seg.visible).toBe(false);
@@ -84,7 +85,7 @@ describe('DataLanceSystem', () => {
       system.update(0.016);
 
       const visibleBolts = scene.children.filter(
-        (child) => child instanceof THREE.LineSegments && child.visible
+        (child) => child instanceof LineSegments2 && child.visible
       );
       expect(visibleBolts.length).toBe(2);
     });
@@ -94,7 +95,7 @@ describe('DataLanceSystem', () => {
       system.update(0.016);
 
       const visibleBolts = scene.children.filter(
-        (child) => child instanceof THREE.LineSegments && child.visible
+        (child) => child instanceof LineSegments2 && child.visible
       );
       expect(visibleBolts.length).toBe(0);
     });
@@ -108,7 +109,7 @@ describe('DataLanceSystem', () => {
       system.update(0.016);
 
       const visibleBolts = scene.children.filter(
-        (child) => child instanceof THREE.LineSegments && child.visible
+        (child) => child instanceof LineSegments2 && child.visible
       );
       expect(visibleBolts.length).toBe(2);
     });
@@ -122,7 +123,7 @@ describe('DataLanceSystem', () => {
       system.update(DATA_LANCE_FIRE_RATE + 0.001);
 
       const visibleBolts = scene.children.filter(
-        (child) => child instanceof THREE.LineSegments && child.visible
+        (child) => child instanceof LineSegments2 && child.visible
       );
       expect(visibleBolts.length).toBe(4);
     });
@@ -136,7 +137,7 @@ describe('DataLanceSystem', () => {
       system.update(DATA_LANCE_FIRE_RATE + 0.001);
 
       const visibleBolts = scene.children.filter(
-        (child) => child instanceof THREE.LineSegments && child.visible
+        (child) => child instanceof LineSegments2 && child.visible
       );
       expect(visibleBolts.length).toBe(6);
     });
@@ -150,7 +151,7 @@ describe('DataLanceSystem', () => {
       system.update(0.001);
 
       const bolt = scene.children.find(
-        (child) => child instanceof THREE.LineSegments && child.visible
+        (child) => child instanceof LineSegments2 && child.visible
       ) as THREE.LineSegments;
       const initialPos = bolt.position.clone();
 
@@ -182,7 +183,7 @@ describe('DataLanceSystem', () => {
       }
 
       const visibleBolts = scene.children.filter(
-        (child) => child instanceof THREE.LineSegments && child.visible
+        (child) => child instanceof LineSegments2 && child.visible
       );
       expect(visibleBolts.length).toBe(0);
     });
@@ -204,7 +205,7 @@ describe('DataLanceSystem', () => {
 
       // Verify bolt is deactivated
       const visibleBefore = scene.children.filter(
-        (child) => child instanceof THREE.LineSegments && child.visible
+        (child) => child instanceof LineSegments2 && child.visible
       );
       expect(visibleBefore.length).toBe(0);
 
@@ -213,7 +214,7 @@ describe('DataLanceSystem', () => {
       system.update(DATA_LANCE_FIRE_RATE + 0.001);
 
       const visibleAfter = scene.children.filter(
-        (child) => child instanceof THREE.LineSegments && child.visible
+        (child) => child instanceof LineSegments2 && child.visible
       );
       expect(visibleAfter.length).toBe(2);
     });
@@ -230,7 +231,7 @@ describe('DataLanceSystem', () => {
 
       // Should not throw and visible bolts should not exceed pool size
       const visibleBolts = scene.children.filter(
-        (child) => child instanceof THREE.LineSegments && child.visible
+        (child) => child instanceof LineSegments2 && child.visible
       );
       expect(visibleBolts.length).toBeLessThanOrEqual(DATA_LANCE_POOL_SIZE);
     });
@@ -250,14 +251,14 @@ describe('DataLanceSystem', () => {
   describe('Dispose', () => {
     it('should remove all bolt meshes from scene on dispose', () => {
       const lineSegmentsBefore = scene.children.filter(
-        (child) => child instanceof THREE.LineSegments
+        (child) => child instanceof LineSegments2
       );
       expect(lineSegmentsBefore.length).toBe(DATA_LANCE_POOL_SIZE);
 
       system.dispose();
 
       const lineSegmentsAfter = scene.children.filter(
-        (child) => child instanceof THREE.LineSegments
+        (child) => child instanceof LineSegments2
       );
       expect(lineSegmentsAfter.length).toBe(0);
     });
