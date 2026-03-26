@@ -2,7 +2,9 @@ import * as THREE from 'three';
 import { Line2 } from 'three/addons/lines/Line2.js';
 import { LineGeometry } from 'three/addons/lines/LineGeometry.js';
 import { calculateDeltaTime } from './core/DeltaTime.ts';
-import { BLOOM_LAYER } from './config/constants.ts';
+import { InputManager } from './core/InputManager.ts';
+import { updateViewportOffset } from './core/ViewportMovement.ts';
+import { BLOOM_LAYER, VIEWPORT_BASE_POSITION } from './config/constants.ts';
 import { vectorMaterials } from './rendering/VectorMaterials.ts';
 import { RenderPipeline } from './rendering/RenderPipeline.ts';
 import { CockpitRenderer } from './rendering/CockpitRenderer.ts';
@@ -88,11 +90,20 @@ function onWindowResize(): void {
 }
 window.addEventListener('resize', onWindowResize);
 
+// --- Input Manager Setup ---
+const inputManager = new InputManager();
+
 // --- Animation Loop with Delta Time ---
 let lastTime = 0;
+let viewportOffset = { x: 0, y: 0 };
 renderer.setAnimationLoop((time: number) => {
   const dt = calculateDeltaTime(time, lastTime);
   lastTime = time;
+
+  // Update viewport offset based on arrow key input
+  viewportOffset = updateViewportOffset(viewportOffset, inputManager, dt);
+  camera.position.x = VIEWPORT_BASE_POSITION.x + viewportOffset.x;
+  camera.position.y = VIEWPORT_BASE_POSITION.y + viewportOffset.y;
 
   // Slowly rotate test shapes to confirm animation works
   thinWireframe.rotation.x += 0.3 * dt;
