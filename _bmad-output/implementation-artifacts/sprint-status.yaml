@@ -35,8 +35,8 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-03-26
-last_updated: "2026-03-26T23:30:00Z"
-last_story_created: 2-7-screen-shake-and-damage-flash
+last_updated: "2026-03-26T14:12:00Z"
+last_story_created: 2-8-score-increment-on-kill
 project: vector-wars
 project_key: NOKEY
 tracking_system: file-system
@@ -63,7 +63,7 @@ development_status:
   2-5-damage-from-enemy-data-bursts: done
   2-6-shields-hud-display: done
   2-7-screen-shake-and-damage-flash: done
-  2-8-score-increment-on-kill: backlog
+  2-8-score-increment-on-kill: done
   2-9-stable-60fps-with-object-pooling: backlog
   2-10-game-over-state: backlog
   epic-2-retrospective: optional

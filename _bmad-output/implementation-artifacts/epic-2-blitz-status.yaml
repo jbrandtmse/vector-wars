@@ -52,8 +52,8 @@ stories:
     committed: false
     notes: ""
   2-8-score-increment-on-kill:
-    status: pending
-    phase: null
+    status: reviewing
+    phase: code-review (attempt 1)
     attempts: 0
     committed: false
     notes: ""

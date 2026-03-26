@@ -19,6 +19,7 @@ import { HUDManager } from './ui/hud/HUDManager.ts';
 import { ScoreManager } from './systems/ScoreManager.ts';
 import { ScreenShake } from './systems/ScreenShake.ts';
 import { DamageEffectsManager } from './systems/DamageEffectsManager.ts';
+import { ScorePopup } from './ui/hud/ScorePopup.ts';
 
 // --- Renderer Setup ---
 const container = document.getElementById('app');
@@ -115,6 +116,9 @@ const effectsManager = new EffectsManager(scene, vectorMaterials);
 const scoreManager = new ScoreManager();
 void scoreManager;
 
+// --- Score Popups Setup (Story 2-8) ---
+const scorePopup = new ScorePopup(scene, vectorMaterials);
+
 // --- HUD Setup (Story 2-6) ---
 // ShieldBar initializes with 100% fill (default). Player already emitted shieldChanged
 // in its constructor, but ShieldBar is created after Player, so it relies on the default.
@@ -175,6 +179,9 @@ renderer.setAnimationLoop((time: number) => {
   effectsManager.update(dt);
 
   cockpitRenderer.update(dt);
+
+  // Score popups: update floating/fading before shake and render (Story 2-8)
+  scorePopup.update(dt, camera);
 
   // Screen shake: apply camera offset AFTER all movement, BEFORE render (Story 2-7)
   screenShake.update(dt, camera);

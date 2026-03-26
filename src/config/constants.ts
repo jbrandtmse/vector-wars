@@ -129,6 +129,13 @@ export const DAMAGE_FLASH_DECAY_RATE = 6.0;        // damage overlay fade speed
 export const DAMAGE_FLASH_MIN_INTENSITY = 0.2;     // minimum flash intensity per hit
 export const DAMAGE_FLASH_COLOR = { r: 1.0, g: 0.1, b: 0.0 } as const; // red-orange
 
+// Score popup constants (Story 2-8)
+export const SCORE_POPUP_POOL_SIZE = 8;       // max concurrent popups
+export const SCORE_POPUP_LIFETIME = 0.8;       // seconds before full fade-out
+export const SCORE_POPUP_FLOAT_SPEED = 2.0;    // units/sec upward movement
+export const SCORE_POPUP_SCALE = 0.5;           // world-space scale factor
+export const SCORE_POPUP_MAX_DIGITS = 4;        // max digits in popup (+9999)
+
 // Viewport movement constants (Story 1-4)
 export const VIEWPORT_MOVE_SPEED = 3.0;
 export const VIEWPORT_MAX_OFFSET_X = 3.0;
