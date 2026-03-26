@@ -64,8 +64,8 @@ stories:
     committed: false
     notes: "Story created - comprehensive ObjectPool<T> implementation guide with enemy recycling"
   2-10-game-over-state:
-    status: pending
-    phase: null
+    status: reviewing
+    phase: code-review (attempt 1)
     attempts: 0
     committed: false
     notes: ""

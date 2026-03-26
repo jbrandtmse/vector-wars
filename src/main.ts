@@ -20,6 +20,7 @@ import { ScoreManager } from './systems/ScoreManager.ts';
 import { ScreenShake } from './systems/ScreenShake.ts';
 import { DamageEffectsManager } from './systems/DamageEffectsManager.ts';
 import { ScorePopup } from './ui/hud/ScorePopup.ts';
+import { GameOverManager } from './systems/GameOverManager.ts';
 
 // --- Renderer Setup ---
 const container = document.getElementById('app');
@@ -114,7 +115,6 @@ const effectsManager = new EffectsManager(scene, vectorMaterials);
 // ScoreManager and HUDManager are event-driven (no per-frame update calls).
 // They exist in module scope for lifecycle management and GC prevention.
 const scoreManager = new ScoreManager();
-void scoreManager;
 
 // --- Score Popups Setup (Story 2-8) ---
 const scorePopup = new ScorePopup(scene, vectorMaterials);
@@ -124,7 +124,9 @@ const scorePopup = new ScorePopup(scene, vectorMaterials);
 // in its constructor, but ShieldBar is created after Player, so it relies on the default.
 // This is correct since shields start full.
 const hudManager = new HUDManager(camera, vectorMaterials);
-void hudManager;
+
+// --- Game Over Manager Setup (Story 2-10) ---
+const gameOverManager = new GameOverManager(scoreManager, hudManager);
 
 // --- Screen Shake + Damage Flash Setup (Story 2-7) ---
 const screenShake = new ScreenShake();
@@ -181,23 +183,17 @@ renderer.setAnimationLoop((time: number) => {
   // Sync player collider to camera position (Story 2-5)
   player.syncToCamera(camera);
 
-  // Enemy spawning based on rail progress (Story 2-2)
-  enemySpawner.update(railMovement.getRailProgress());
-  // Update all game objects (enemies patrol, etc.)
-  gameObjectManager.update(dt);
+  // === GAMEPLAY SYSTEMS (frozen on game over) ===
+  if (!gameOverManager.isGameOver) {
+    enemySpawner.update(railMovement.getRailProgress());
+    gameObjectManager.update(dt);
+    dataLanceSystem.update(dt);
+    collisionSystem.update();
+    enemyProjectileSystem.update(dt);
+    effectsManager.update(dt);
+  }
 
-  // Update game systems
-  dataLanceSystem.update(dt);
-
-  // Collision detection (after bolt movement and enemy updates)
-  collisionSystem.update();
-
-  // Enemy projectile movement + player collision (Story 2-5)
-  enemyProjectileSystem.update(dt);
-
-  // Update visual effects (explosions, etc.)
-  effectsManager.update(dt);
-
+  // === VISUAL SYSTEMS (always run) ===
   cockpitRenderer.update(dt);
 
   // Score popups: update floating/fading before shake and render (Story 2-8)

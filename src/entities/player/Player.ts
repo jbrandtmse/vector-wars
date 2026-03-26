@@ -17,6 +17,7 @@ export class Player {
   public shields: number;
   public maxShields: number;
   public readonly collider: THREE.Sphere;
+  private dead = false;
 
   constructor() {
     this.maxShields = PLAYER_MAX_SHIELDS;
@@ -48,6 +49,13 @@ export class Player {
       shields: this.shields,
       maxShields: this.maxShields,
     });
+
+    // Emit playerDied exactly once when shields deplete (Story 2-10)
+    if (this.shields <= 0 && !this.dead) {
+      this.dead = true;
+      eventBus.emit('playerDied', {} as Record<string, never>);
+      Logger.info('Player', 'Player destroyed -- shields depleted');
+    }
 
     Logger.info('Player', 'Damage taken', {
       damage,

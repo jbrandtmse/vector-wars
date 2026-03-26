@@ -44,6 +44,15 @@ export class HUDManager {
   }
 
   /**
+   * Hides the HUD by setting the group visibility to false.
+   * Used during game over to prevent HUD from overlapping the game over screen.
+   * (Story 2-10)
+   */
+  hideHUD(): void {
+    this.hudGroup.visible = false;
+  }
+
+  /**
    * Removes HUD from the camera, unsubscribes events, and disposes all geometries.
    * Materials are managed by VectorMaterials singleton and not disposed here.
    */

@@ -38,6 +38,7 @@ export interface GameEvents {
   playerHit: PlayerHitEvent;
   shieldChanged: ShieldChangedEvent;
   scoreChanged: ScoreChangedEvent;
+  playerDied: Record<string, never>;
 }
 
 /** Module-level singleton event bus */

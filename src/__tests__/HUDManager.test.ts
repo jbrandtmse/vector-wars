@@ -11,4 +11,9 @@ describe('HUDManager', () => {
     const mod = await import('../ui/hud/HUDManager.ts');
     expect(typeof mod.HUDManager.prototype.dispose).toBe('function');
   });
+
+  it('should have hideHUD method on prototype (Story 2-10)', async () => {
+    const mod = await import('../ui/hud/HUDManager.ts');
+    expect(typeof mod.HUDManager.prototype.hideHUD).toBe('function');
+  });
 });
