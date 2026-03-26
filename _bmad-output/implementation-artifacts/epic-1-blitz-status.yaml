@@ -1,0 +1,53 @@
+# Epic Blitz Status
+# Generated: 2026-03-26
+# Last Updated: 2026-03-26
+
+epic: 1
+epic_title: "Core Tech Validation"
+status: in-progress
+started: "2026-03-26"
+completed: null
+
+stories:
+  1-1-vite-threejs-project-setup:
+    status: pending
+    phase: null
+    attempts: 0
+    committed: false
+    notes: ""
+  1-2-vector-wireframe-lines-with-phosphor-glow:
+    status: pending
+    phase: null
+    attempts: 0
+    committed: false
+    notes: ""
+  1-3-first-person-cockpit-view-with-actuator-arms:
+    status: pending
+    phase: null
+    attempts: 0
+    committed: false
+    notes: ""
+  1-4-viewport-movement-with-arrow-keys:
+    status: pending
+    phase: null
+    attempts: 0
+    committed: false
+    notes: ""
+  1-5-data-lance-bolt-firing:
+    status: pending
+    phase: null
+    attempts: 0
+    committed: false
+    notes: ""
+  1-6-basic-vector-scene-grid-starfield:
+    status: pending
+    phase: null
+    attempts: 0
+    committed: false
+    notes: ""
+  1-7-post-processing-pipeline-validation:
+    status: pending
+    phase: null
+    attempts: 0
+    committed: false
+    notes: ""
