@@ -232,6 +232,12 @@ Load config from `{project-root}/_bmad/gds/config.yaml` and resolve:
   - Load project context from **/project-context.md (if exists)
   - Use subagents for parallel analysis where beneficial
 
+  STEP 4 — Research tools (MANDATORY for Step 4 web research):
+  You have access to MCP research tools. USE THEM during the web research step:
+  - **Context7** for library documentation: First call `mcp__context7__resolve-library-id` to get the library ID, then call `mcp__context7__query-docs` to fetch current docs, API references, and code examples for any library/framework in the tech stack (Three.js, Vite, TypeScript, etc.)
+  - **Perplexity** for broader research: Use `mcp__perplexity-mcp__search` for latest versions, breaking changes, best practices, and community knowledge. Use `mcp__perplexity-mcp__reason` for complex technical questions requiring synthesis.
+  - Do NOT skip research — the dev agent depends on accurate, current technical context in the story file.
+
   When complete, report: story file path, final status, and any concerns about the story quality.
   ```
 
@@ -300,6 +306,12 @@ Load config from `{project-root}/_bmad/gds/config.yaml` and resolve:
   - If additional dependencies are needed beyond story spec, make the best choice and document it in Dev Agent Record
   - If 3 consecutive implementation failures occur on the same task, STOP and report the failure
 
+  STEP 4 — Research tools (USE when you need API docs or technical guidance):
+  You have access to MCP research tools. Use them when implementing unfamiliar APIs or resolving technical questions:
+  - **Context7** for library documentation: First call `mcp__context7__resolve-library-id` to get the library ID, then call `mcp__context7__query-docs` to fetch current API docs, code examples, and usage patterns (Three.js, Vite, TypeScript, etc.)
+  - **Perplexity** for broader research: Use `mcp__perplexity-mcp__search` for implementation patterns, troubleshooting, and best practices. Use `mcp__perplexity-mcp__reason` for complex technical decisions.
+  - Prefer Context7 for specific API lookups (e.g., "how does UnrealBloomPass work"). Prefer Perplexity for broader questions (e.g., "best approach for object pooling in Three.js").
+
   When complete, report: completion status (all tasks done?), count of tasks completed, test results (passing/failing), and any concerns.
   ```
 
@@ -365,6 +377,12 @@ Load config from `{project-root}/_bmad/gds/config.yaml` and resolve:
   STEP 3 — Configuration:
   - Load config from {project-root}/_bmad/gds/config.yaml
   - Load project context from **/project-context.md (if exists)
+
+  STEP 4 — Research tools (USE when verifying implementation correctness):
+  You have access to MCP research tools. Use them to verify code against current API docs:
+  - **Context7** for library documentation: First call `mcp__context7__resolve-library-id` to get the library ID, then call `mcp__context7__query-docs` to verify API usage is correct and up-to-date (Three.js, Vite, TypeScript, etc.)
+  - **Perplexity** for broader verification: Use `mcp__perplexity-mcp__search` to check for known issues, deprecations, or security concerns with the implementation patterns used.
+  - Use these tools especially when reviewing unfamiliar API calls or library usage patterns.
 
   When complete, report back with ALL of these:
   - Review outcome: PASS (all clean or all fixed) or FAIL (issues remain)
