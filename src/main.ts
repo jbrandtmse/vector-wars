@@ -12,6 +12,7 @@ import { RailMovement } from './systems/RailMovement.ts';
 import { GameObjectManager } from './entities/GameObjectManager.ts';
 import { EnemySpawner } from './systems/EnemySpawner.ts';
 import { CollisionSystem } from './systems/CollisionSystem.ts';
+import { EffectsManager } from './systems/EffectsManager.ts';
 
 // --- Renderer Setup ---
 const container = document.getElementById('app');
@@ -82,6 +83,9 @@ const collisionSystem = new CollisionSystem(
   dataLanceSystem.getActiveBolts(),
 );
 
+// --- Effects Manager Setup (Story 2-4) ---
+const effectsManager = new EffectsManager(scene, vectorMaterials);
+
 // Pre-allocated quaternion for banking effect (avoid per-frame allocation)
 const bankQuaternion = new THREE.Quaternion();
 const bankAxis = new THREE.Vector3(0, 0, 1);
@@ -119,6 +123,9 @@ renderer.setAnimationLoop((time: number) => {
 
   // Collision detection (after bolt movement and enemy updates)
   collisionSystem.update();
+
+  // Update visual effects (explosions, etc.)
+  effectsManager.update(dt);
 
   cockpitRenderer.update(dt);
 

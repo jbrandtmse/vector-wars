@@ -91,6 +91,15 @@ export const SPAWN_EVENTS: SpawnEvent[] = [
   { railProgress: 0.85, enemyType: 'sentinel', position: [30, 2, -55], count: 3 },
 ];
 
+// Vector shard explosion constants (Story 2-4)
+export const SHARD_COUNT = 10;           // shards per explosion
+export const SHARD_MIN_SPEED = 8;        // units/sec minimum outward velocity
+export const SHARD_MAX_SPEED = 18;       // units/sec maximum outward velocity
+export const SHARD_MIN_LIFETIME = 0.4;   // seconds minimum before fade-out
+export const SHARD_MAX_LIFETIME = 0.8;   // seconds maximum before fade-out
+export const SHARD_LENGTH = 0.5;         // length of each shard line segment
+export const MAX_ACTIVE_EXPLOSIONS = 12; // max concurrent explosions (pre-allocated pool)
+
 // Viewport movement constants (Story 1-4)
 export const VIEWPORT_MOVE_SPEED = 3.0;
 export const VIEWPORT_MAX_OFFSET_X = 3.0;
