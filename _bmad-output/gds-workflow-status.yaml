@@ -31,9 +31,15 @@ preproduction:
 # Phase 2: Design
 design:
   gdd:
-    status: not-started
+    status: complete
+    started: 2026-03-25
+    completed: 2026-03-25
+    output: _bmad-output/gdd.md
   narrative-design:
-    status: not-started
+    status: complete
+    started: 2026-03-26
+    completed: 2026-03-26
+    output: _bmad-output/narrative-design.md
   ux-design:
     status: not-started
 
