@@ -11,8 +11,8 @@ export const MAX_POOL_SIZE = {
 export const DATA_LANCE_BOLT_SPEED = 50;
 export const DATA_LANCE_FIRE_RATE = 0.13;
 export const DATA_LANCE_MAX_RANGE = 90;
-export const DATA_LANCE_BOLT_LENGTH = 0.4;
-export const DATA_LANCE_POOL_SIZE = 30;
+export const DATA_LANCE_BOLT_LENGTH = 2.0;
+export const DATA_LANCE_POOL_SIZE = 40;
 export const RECOIL_INTENSITY = 0.06;
 export const RECOIL_RECOVERY_SPEED = 12.0;
 

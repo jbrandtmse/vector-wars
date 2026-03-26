@@ -79,14 +79,14 @@ describe('DataLanceSystem', () => {
   });
 
   describe('Firing bolts', () => {
-    it('should spawn a visible bolt at camera position when fire is active', () => {
+    it('should spawn twin visible bolts from both arms when fire is active', () => {
       setFireActive(true);
       system.update(0.016);
 
       const visibleBolts = scene.children.filter(
         (child) => child instanceof THREE.LineSegments && child.visible
       );
-      expect(visibleBolts.length).toBe(1);
+      expect(visibleBolts.length).toBe(2);
     });
 
     it('should not fire when spacebar is not pressed', () => {
@@ -102,7 +102,7 @@ describe('DataLanceSystem', () => {
     it('should fire rate limit prevents shots faster than DATA_LANCE_FIRE_RATE', () => {
       setFireActive(true);
 
-      // First shot fires immediately
+      // First shot fires immediately (twin bolts)
       system.update(0.016);
       // Second shot within cooldown should NOT fire
       system.update(0.016);
@@ -110,27 +110,27 @@ describe('DataLanceSystem', () => {
       const visibleBolts = scene.children.filter(
         (child) => child instanceof THREE.LineSegments && child.visible
       );
-      expect(visibleBolts.length).toBe(1);
+      expect(visibleBolts.length).toBe(2);
     });
 
     it('should allow firing after cooldown has elapsed', () => {
       setFireActive(true);
 
-      // First shot
+      // First twin shot
       system.update(0.016);
-      // Wait for cooldown to expire
+      // Wait for cooldown to expire — second twin shot
       system.update(DATA_LANCE_FIRE_RATE + 0.001);
 
       const visibleBolts = scene.children.filter(
         (child) => child instanceof THREE.LineSegments && child.visible
       );
-      expect(visibleBolts.length).toBe(2);
+      expect(visibleBolts.length).toBe(4);
     });
 
-    it('should support multiple bolts active simultaneously', () => {
+    it('should support multiple twin-bolt pairs active simultaneously', () => {
       setFireActive(true);
 
-      // Fire multiple bolts with enough time between
+      // Fire 3 twin-bolt pairs with enough time between
       system.update(0.016);
       system.update(DATA_LANCE_FIRE_RATE + 0.001);
       system.update(DATA_LANCE_FIRE_RATE + 0.001);
@@ -138,7 +138,7 @@ describe('DataLanceSystem', () => {
       const visibleBolts = scene.children.filter(
         (child) => child instanceof THREE.LineSegments && child.visible
       );
-      expect(visibleBolts.length).toBe(3);
+      expect(visibleBolts.length).toBe(6);
     });
   });
 
@@ -166,10 +166,10 @@ describe('DataLanceSystem', () => {
   });
 
   describe('Bolt deactivation', () => {
-    it('should deactivate bolt when distance exceeds DATA_LANCE_MAX_RANGE', () => {
+    it('should deactivate bolts when distance exceeds DATA_LANCE_MAX_RANGE', () => {
       setFireActive(true);
 
-      // Fire a bolt
+      // Fire twin bolts
       system.update(0.001);
 
       // Stop firing
@@ -187,16 +187,16 @@ describe('DataLanceSystem', () => {
       expect(visibleBolts.length).toBe(0);
     });
 
-    it('should recycle deactivated bolt for next fire', () => {
+    it('should recycle deactivated bolts for next fire', () => {
       setFireActive(true);
 
-      // Fire a bolt
+      // Fire twin bolts
       system.update(0.001);
 
       // Stop firing
       setFireActive(false);
 
-      // Move bolt beyond max range to deactivate it
+      // Move bolts beyond max range to deactivate them
       const updatesNeeded = Math.ceil(DATA_LANCE_MAX_RANGE / (DATA_LANCE_BOLT_SPEED * 0.5)) + 1;
       for (let i = 0; i < updatesNeeded; i++) {
         system.update(0.5);
@@ -208,14 +208,14 @@ describe('DataLanceSystem', () => {
       );
       expect(visibleBefore.length).toBe(0);
 
-      // Fire again — should reuse the deactivated bolt
+      // Fire again — should reuse the deactivated bolts
       setFireActive(true);
       system.update(DATA_LANCE_FIRE_RATE + 0.001);
 
       const visibleAfter = scene.children.filter(
         (child) => child instanceof THREE.LineSegments && child.visible
       );
-      expect(visibleAfter.length).toBe(1);
+      expect(visibleAfter.length).toBe(2);
     });
   });
 

@@ -1,9 +1,11 @@
 /**
  * DataLanceSystem — Manages Data Lance bolt firing, pooling, and movement.
  *
- * Implements the primary weapon system for Epic 1. Uses a lightweight
- * pre-allocated bolt pool (not the full ObjectPool<T> from Epic 2) with
- * visibility toggling to avoid GC pauses and scene graph mutations.
+ * Fires twin bolts from the actuator arm tips with slight inward convergence,
+ * creating visible laser streams in the classic 1983 arcade style.
+ *
+ * Uses a lightweight pre-allocated bolt pool with visibility toggling
+ * to avoid GC pauses and scene graph mutations.
  *
  * Created by: Story 1-5
  */
@@ -21,6 +23,14 @@ import { Logger } from '../core/Logger.ts';
 import type { InputManager } from '../core/InputManager.ts';
 import type { VectorMaterials } from '../rendering/VectorMaterials.ts';
 import type { CockpitRenderer } from '../rendering/CockpitRenderer.ts';
+
+// Arm tip positions in camera-local space
+// Cockpit group is at (0, -0.1, -1.5), arm tips are at ~(±0.5, 0.05, -0.7) in group space
+const LEFT_ARM_TIP = new THREE.Vector3(-0.5, -0.05, -2.2);
+const RIGHT_ARM_TIP = new THREE.Vector3(0.5, -0.05, -2.2);
+
+// Slight inward convergence angle (radians) so bolts cross ~40 units ahead
+const CONVERGENCE_ANGLE = 0.012;
 
 interface BoltData {
   mesh: THREE.LineSegments;
@@ -40,6 +50,7 @@ export class DataLanceSystem {
   // Pre-allocated vectors for per-frame calculations (zero-allocation update loop)
   private tempPosition = new THREE.Vector3();
   private tempDirection = new THREE.Vector3();
+  private tempArmWorld = new THREE.Vector3();
 
   constructor(
     scene: THREE.Scene,
@@ -53,20 +64,11 @@ export class DataLanceSystem {
     this.inputManager = inputManager;
     this.cockpitRenderer = cockpitRenderer;
 
-    // Create bolt geometry template — cross-shaped so it's visible from behind
-    // Main shaft along Z + horizontal crossbar for visibility from any angle
+    // Create bolt geometry — a long line segment (visible as a streak)
     const halfLen = DATA_LANCE_BOLT_LENGTH / 2;
-    const crossSize = 0.03;
     const positions = new Float32Array([
-      // Main shaft (along -Z)
-      0, 0, halfLen,                     // tail
-      0, 0, -halfLen,                    // head
-      // Horizontal crossbar at midpoint
-      -crossSize, 0, 0,
-      crossSize, 0, 0,
-      // Vertical crossbar at midpoint
-      0, -crossSize, 0,
-      0, crossSize, 0,
+      0, 0, halfLen,    // tail
+      0, 0, -halfLen,   // head
     ]);
     const templateGeometry = new THREE.BufferGeometry();
     templateGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
@@ -100,7 +102,7 @@ export class DataLanceSystem {
     this.cooldown = Math.max(0, this.cooldown - dt);
 
     if (this.inputManager.isActive('fire') && this.cooldown <= 0) {
-      this.fireBolt();
+      this.fireTwinBolts();
       this.cooldown = DATA_LANCE_FIRE_RATE;
     }
 
@@ -108,37 +110,55 @@ export class DataLanceSystem {
   }
 
   /**
-   * Fires a single bolt from the camera's current position along
-   * the camera's look direction.
+   * Fires twin bolts from both actuator arm tips with slight inward convergence.
    */
-  private fireBolt(): void {
+  private fireTwinBolts(): void {
+    this.fireFromArm(LEFT_ARM_TIP, CONVERGENCE_ANGLE);
+    this.fireFromArm(RIGHT_ARM_TIP, -CONVERGENCE_ANGLE);
+
+    // Trigger cockpit recoil (cosmetic only)
+    this.cockpitRenderer.recoilArms(1.0);
+
+    Logger.debug('Weapon', 'Data Lance fired (twin bolts)');
+  }
+
+  /**
+   * Fires a single bolt from the given arm tip position (in camera-local space)
+   * with an optional horizontal convergence offset.
+   */
+  private fireFromArm(armLocal: THREE.Vector3, yawOffset: number): void {
     const bolt = this.acquireBolt();
     if (!bolt) return;
 
-    // Orient bolt along camera look direction
-    this.camera.getWorldDirection(this.tempDirection);
-    bolt.direction.copy(this.tempDirection);
-    bolt.mesh.quaternion.copy(this.camera.quaternion);
+    // Convert arm tip from camera-local to world space
+    this.tempArmWorld.copy(armLocal);
+    this.camera.localToWorld(this.tempArmWorld);
+    bolt.mesh.position.copy(this.tempArmWorld);
 
-    // Position bolt slightly ahead of camera so it spawns visible (past the cockpit)
-    this.camera.getWorldPosition(this.tempPosition);
-    this.tempPosition.addScaledVector(this.tempDirection, 2.0);
-    bolt.mesh.position.copy(this.tempPosition);
+    // Get camera forward direction, then apply slight inward yaw
+    this.camera.getWorldDirection(this.tempDirection);
+    if (yawOffset !== 0) {
+      const cos = Math.cos(yawOffset);
+      const sin = Math.sin(yawOffset);
+      const dx = this.tempDirection.x;
+      const dz = this.tempDirection.z;
+      this.tempDirection.x = dx * cos - dz * sin;
+      this.tempDirection.z = dx * sin + dz * cos;
+      this.tempDirection.normalize();
+    }
+
+    bolt.direction.copy(this.tempDirection);
+
+    // Orient the bolt mesh to face along its travel direction
+    bolt.mesh.quaternion.setFromUnitVectors(
+      new THREE.Vector3(0, 0, -1),
+      this.tempDirection,
+    );
 
     // Activate bolt
     bolt.active = true;
     bolt.distance = 0;
     bolt.mesh.visible = true;
-
-    // Trigger cockpit recoil (cosmetic only)
-    this.cockpitRenderer.recoilArms(1.0);
-
-    // Placeholder SFX trigger (actual audio is Epic 4)
-    Logger.debug('Weapon', 'Data Lance fired', {
-      x: this.tempPosition.x,
-      y: this.tempPosition.y,
-      z: this.tempPosition.z,
-    });
   }
 
   /**
