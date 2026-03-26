@@ -4,68 +4,68 @@
 
 epic: 2
 epic_title: "Core Game Loop"
-status: in-progress
+status: completed
 started: "2026-03-26"
-completed: null
+completed: "2026-03-26"
 
 stories:
   2-1-rail-path-movement:
-    status: reviewing
-    phase: code-review (attempt 1)
-    attempts: 0
-    committed: false
-    notes: ""
+    status: done
+    phase: code-review passed
+    attempts: 1
+    committed: true
+    notes: "Code review passed with 1 HIGH fix (expanded rail path for 30-60s loop). 267 tests."
   2-2-enemy-spawning-and-patrol:
     status: done
-    phase: code-review (attempt 1)
+    phase: code-review passed
     attempts: 1
-    committed: false
-    notes: "Code review passed clean - no issues found"
+    committed: true
+    notes: "Code review passed clean — zero issues. 354 tests."
   2-3-destroy-enemies-with-data-lance:
-    status: reviewing
-    phase: code-review (attempt 1)
-    attempts: 0
-    committed: false
-    notes: ""
+    status: done
+    phase: code-review passed
+    attempts: 1
+    committed: true
+    notes: "Code review passed clean — zero issues. 381 tests."
   2-4-vector-shard-explosions:
-    status: reviewing
-    phase: code-review (attempt 1)
-    attempts: 0
-    committed: false
-    notes: ""
+    status: done
+    phase: code-review passed
+    attempts: 1
+    committed: true
+    notes: "Code review passed clean — zero issues. 401 tests."
   2-5-damage-from-enemy-data-bursts:
-    status: reviewing
-    phase: code-review (attempt 1)
-    attempts: 0
-    committed: false
-    notes: ""
+    status: done
+    phase: code-review passed
+    attempts: 1
+    committed: true
+    notes: "Code review passed with 1 LOW fix (per-activation allocation). 446 tests."
   2-6-shields-hud-display:
-    status: reviewing
-    phase: code-review (attempt 1)
-    attempts: 0
-    committed: false
-    notes: "Story created with comprehensive HUD implementation guide"
+    status: done
+    phase: code-review passed
+    attempts: 1
+    committed: true
+    notes: "Code review passed with 2 LOW fixes (missing dispose methods + tests). 482 tests."
   2-7-screen-shake-and-damage-flash:
-    status: reviewing
-    phase: code-review (attempt 1)
-    attempts: 0
-    committed: false
-    notes: ""
+    status: done
+    phase: code-review passed
+    attempts: 1
+    committed: true
+    notes: "Code review passed with 2 LOW fixes (header comment, defensive clamp). 509 tests."
   2-8-score-increment-on-kill:
-    status: reviewing
-    phase: code-review (attempt 1)
-    attempts: 0
-    committed: false
-    notes: ""
+    status: done
+    phase: code-review passed
+    attempts: 1
+    committed: true
+    notes: "Code review passed with 1 LOW fix (defensive clamp on negative score). 526 tests."
   2-9-stable-60fps-with-object-pooling:
-    status: reviewing
-    phase: code-review (attempt 1)
-    attempts: 0
-    committed: false
-    notes: "Story created - comprehensive ObjectPool<T> implementation guide with enemy recycling"
+    status: done
+    phase: code-review passed
+    attempts: 1
+    committed: true
+    notes: "Code review passed with 1 LOW fix (double-release guard). 571 tests."
   2-10-game-over-state:
-    status: reviewing
-    phase: code-review (attempt 1)
-    attempts: 0
-    committed: false
-    notes: ""
+    status: done
+    phase: code-review passed
+    attempts: 1
+    committed: true
+    notes: "Code review passed with 1 MEDIUM + 2 LOW fixes. 590 tests."
