@@ -46,8 +46,8 @@ stories:
     committed: false
     notes: "Story created with comprehensive HUD implementation guide"
   2-7-screen-shake-and-damage-flash:
-    status: pending
-    phase: null
+    status: reviewing
+    phase: code-review (attempt 1)
     attempts: 0
     committed: false
     notes: ""

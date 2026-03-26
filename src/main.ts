@@ -17,6 +17,8 @@ import { Player } from './entities/player/Player.ts';
 import { EnemyProjectileSystem } from './systems/EnemyProjectileSystem.ts';
 import { HUDManager } from './ui/hud/HUDManager.ts';
 import { ScoreManager } from './systems/ScoreManager.ts';
+import { ScreenShake } from './systems/ScreenShake.ts';
+import { DamageEffectsManager } from './systems/DamageEffectsManager.ts';
 
 // --- Renderer Setup ---
 const container = document.getElementById('app');
@@ -120,6 +122,11 @@ void scoreManager;
 const hudManager = new HUDManager(camera, vectorMaterials);
 void hudManager;
 
+// --- Screen Shake + Damage Flash Setup (Story 2-7) ---
+const screenShake = new ScreenShake();
+const damageEffectsManager = new DamageEffectsManager(screenShake, renderPipeline);
+void damageEffectsManager; // event-driven lifecycle, no per-frame calls
+
 // Pre-allocated quaternion for banking effect (avoid per-frame allocation)
 const bankQuaternion = new THREE.Quaternion();
 const bankAxis = new THREE.Vector3(0, 0, 1);
@@ -168,6 +175,12 @@ renderer.setAnimationLoop((time: number) => {
   effectsManager.update(dt);
 
   cockpitRenderer.update(dt);
+
+  // Screen shake: apply camera offset AFTER all movement, BEFORE render (Story 2-7)
+  screenShake.update(dt, camera);
+
+  // Damage flash decay: update uniform before render pass (Story 2-7)
+  renderPipeline.updateDamageFlash(dt);
 
   renderPipeline.render();
 });

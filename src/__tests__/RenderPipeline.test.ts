@@ -41,4 +41,14 @@ describe('RenderPipeline', () => {
     const mod = await import('../rendering/RenderPipeline.ts');
     expect(typeof mod.RenderPipeline.prototype.resize).toBe('function');
   });
+
+  it('should have triggerDamageFlash method on prototype', async () => {
+    const mod = await import('../rendering/RenderPipeline.ts');
+    expect(typeof mod.RenderPipeline.prototype.triggerDamageFlash).toBe('function');
+  });
+
+  it('should have updateDamageFlash method on prototype', async () => {
+    const mod = await import('../rendering/RenderPipeline.ts');
+    expect(typeof mod.RenderPipeline.prototype.updateDamageFlash).toBe('function');
+  });
 });

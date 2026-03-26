@@ -6,7 +6,7 @@
  * 2. Final composer renders the full scene and additively blends the bloom texture
  *
  * Pipeline order in final composer:
- *   RenderPass (full scene) -> ShaderPass (bloom mix) -> ShaderPass (CRT) -> OutputPass -> FXAA
+ *   RenderPass (full scene) -> ShaderPass (bloom mix) -> ShaderPass (CRT) -> ShaderPass (DamageFlash) -> OutputPass -> FXAA
  */
 
 import * as THREE from 'three';
@@ -16,9 +16,10 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { FXAAShader } from 'three/addons/shaders/FXAAShader.js';
-import { BLOOM_LAYER } from '../config/constants.ts';
+import { BLOOM_LAYER, DAMAGE_FLASH_DECAY_RATE } from '../config/constants.ts';
 import { RENDERING_CONFIG } from '../config/rendering.ts';
 import { CRTShader } from './shaders/CRTShader.ts';
+import { DamageFlashShader } from './shaders/DamageFlashShader.ts';
 
 /**
  * Additive bloom mix shader.
@@ -53,6 +54,7 @@ export class RenderPipeline {
   private finalComposer: EffectComposer;
   private fxaaPass: ShaderPass;
   private crtPass: ShaderPass;
+  private damageFlashPass: ShaderPass;
   private camera: THREE.Camera;
   private cameraLayersCache: THREE.Layers;
 
@@ -116,6 +118,10 @@ export class RenderPipeline {
     }
     this.finalComposer.addPass(this.crtPass);
 
+    // 3.5. Damage flash pass (Story 2-7)
+    this.damageFlashPass = new ShaderPass(DamageFlashShader);
+    this.finalComposer.addPass(this.damageFlashPass);
+
     // 4. OutputPass (tone mapping + color space conversion)
     const outputPass = new OutputPass();
     this.finalComposer.addPass(outputPass);
@@ -172,6 +178,27 @@ export class RenderPipeline {
     this.crtPass.material.uniforms['vignetteIntensity'].value =
       crt.vignetteIntensity * intensity;
     this.crtPass.material.uniforms['enabled'].value = intensity > 0 ? 1.0 : 0.0;
+  }
+
+  /**
+   * Triggers the damage flash overlay at the given intensity (clamped 0-1).
+   * Called by DamageEffectsManager when player takes damage.
+   */
+  triggerDamageFlash(intensity: number): void {
+    const clamped = Math.min(1.0, Math.max(0.0, intensity));
+    this.damageFlashPass.material.uniforms['damageIntensity'].value = clamped;
+  }
+
+  /**
+   * Decays the damage flash intensity each frame using exponential decay.
+   * Snaps to 0.0 when below threshold to prevent infinite decay.
+   * Call before render() each frame.
+   */
+  updateDamageFlash(dt: number): void {
+    const uniform = this.damageFlashPass.material.uniforms['damageIntensity'];
+    if (uniform.value <= 0) return;
+    uniform.value *= Math.max(0, 1 - DAMAGE_FLASH_DECAY_RATE * dt);
+    if (uniform.value < 0.01) uniform.value = 0.0;
   }
 
   /**

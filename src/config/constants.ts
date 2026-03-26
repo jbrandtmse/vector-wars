@@ -122,6 +122,13 @@ export const HUD_SCORE_DIGIT_SPACING = 0.02;    // gap between digits
 export const HUD_SCORE_MAX_DIGITS = 6;          // max displayable digits (999999)
 export const HUD_Z_DEPTH = -1.5;                // z position in camera-local space
 
+// Screen shake and damage flash constants (Story 2-7)
+export const SCREEN_SHAKE_MAX_INTENSITY = 0.15;    // max camera offset in world units
+export const SCREEN_SHAKE_DECAY_RATE = 8.0;        // exponential decay speed
+export const DAMAGE_FLASH_DECAY_RATE = 6.0;        // damage overlay fade speed
+export const DAMAGE_FLASH_MIN_INTENSITY = 0.2;     // minimum flash intensity per hit
+export const DAMAGE_FLASH_COLOR = { r: 1.0, g: 0.1, b: 0.0 } as const; // red-orange
+
 // Viewport movement constants (Story 1-4)
 export const VIEWPORT_MOVE_SPEED = 3.0;
 export const VIEWPORT_MAX_OFFSET_X = 3.0;
