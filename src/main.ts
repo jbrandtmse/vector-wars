@@ -9,6 +9,8 @@ import { CockpitRenderer } from './rendering/CockpitRenderer.ts';
 import { SceneEnvironment } from './rendering/SceneEnvironment.ts';
 import { DataLanceSystem } from './systems/DataLanceSystem.ts';
 import { RailMovement } from './systems/RailMovement.ts';
+import { GameObjectManager } from './entities/GameObjectManager.ts';
+import { EnemySpawner } from './systems/EnemySpawner.ts';
 
 // --- Renderer Setup ---
 const container = document.getElementById('app');
@@ -69,6 +71,10 @@ const railMovement = new RailMovement(camera);
 // --- Data Lance System Setup ---
 const dataLanceSystem = new DataLanceSystem(scene, camera, inputManager, vectorMaterials, cockpitRenderer);
 
+// --- Entity Management Setup (Story 2-2) ---
+const gameObjectManager = new GameObjectManager();
+const enemySpawner = new EnemySpawner(scene, gameObjectManager, vectorMaterials);
+
 // Pre-allocated quaternion for banking effect (avoid per-frame allocation)
 const bankQuaternion = new THREE.Quaternion();
 const bankAxis = new THREE.Vector3(0, 0, 1);
@@ -95,6 +101,11 @@ renderer.setAnimationLoop((time: number) => {
   currentBankAngle += (targetBank - currentBankAngle) * Math.min(1, BANK_LERP_SPEED * dt);
   bankQuaternion.setFromAxisAngle(bankAxis, currentBankAngle);
   camera.quaternion.multiply(bankQuaternion);
+
+  // Enemy spawning based on rail progress (Story 2-2)
+  enemySpawner.update(railMovement.getRailProgress());
+  // Update all game objects (enemies patrol, etc.)
+  gameObjectManager.update(dt);
 
   // Update game systems
   dataLanceSystem.update(dt);

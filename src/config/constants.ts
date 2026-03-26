@@ -1,3 +1,5 @@
+import type { BehaviorParams } from '../ai/BehaviorParams.ts';
+
 export const BLOOM_LAYER = 1;
 export const DELTA_TIME_CAP = 1 / 20;
 export const MAX_POOL_SIZE = {
@@ -51,6 +53,39 @@ export const RAIL_PATH_POINTS: readonly [number, number, number][] = [
   [-65, 3, -65],
   [-25, 0, -50],
 ] as const;
+
+// Sentinel enemy defaults (Story 2-2)
+export const SENTINEL_BEHAVIOR_LEVEL1: BehaviorParams = {
+  patrolSpeed: 1.0,
+  attackCooldown: 2.0,
+  evasionChance: 0.0,
+  movementRandomness: 0.0,
+  attackDamage: 10,
+  projectileSpeed: 15,
+};
+export const SENTINEL_COLLIDER_RADIUS = 1.5;
+export const SENTINEL_HEALTH = 30;
+export const SENTINEL_SCORE_VALUE = 100;
+
+// Spawn event definitions (Story 2-2)
+// Hardcoded for now -- JSON loading comes later with LevelManager
+export interface SpawnEvent {
+  railProgress: number;  // 0-1, trigger point on rail
+  enemyType: 'sentinel'; // Extend later: 'watchdog' | 'gatekeeper' | 'overseer'
+  position: [number, number, number]; // world-space spawn position
+  count: number;          // how many to spawn
+}
+
+export const SPAWN_EVENTS: SpawnEvent[] = [
+  // Wave 1: ~10% into the loop (3-4 seconds in)
+  { railProgress: 0.10, enemyType: 'sentinel', position: [60, 5, -20], count: 3 },
+  // Wave 2: ~35% into the loop
+  { railProgress: 0.35, enemyType: 'sentinel', position: [-30, 3, 60], count: 3 },
+  // Wave 3: ~60% into the loop
+  { railProgress: 0.60, enemyType: 'sentinel', position: [-70, 4, -10], count: 2 },
+  // Wave 4: ~85% into the loop
+  { railProgress: 0.85, enemyType: 'sentinel', position: [30, 2, -55], count: 3 },
+];
 
 // Viewport movement constants (Story 1-4)
 export const VIEWPORT_MOVE_SPEED = 3.0;

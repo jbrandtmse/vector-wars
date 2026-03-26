@@ -1,4 +1,15 @@
+/**
+ * GameEvents — Typed event definitions and singleton EventBus instance.
+ *
+ * All game events are defined here with typed payloads.
+ * Systems subscribe/emit through the exported eventBus singleton.
+ *
+ * Updated by: Story 2-2 (added enemySpawned event, eventBus singleton)
+ */
+
 import type { WeaponType } from '../types/game.ts';
+import type { Enemy } from '../entities/enemies/Enemy.ts';
+import { EventBus } from './EventBus.ts';
 
 export interface WeaponFiredEvent {
   weapon: WeaponType;
@@ -6,6 +17,9 @@ export interface WeaponFiredEvent {
 }
 
 export interface GameEvents {
-  // Event definitions will be added as stories introduce new events
   weaponFired: WeaponFiredEvent;
+  enemySpawned: { enemy: Enemy; position: { x: number; y: number; z: number } };
 }
+
+/** Module-level singleton event bus */
+export const eventBus = new EventBus<GameEvents>();
