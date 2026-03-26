@@ -1,0 +1,71 @@
+# Epic Blitz Status
+# Generated: 2026-03-26
+# Last Updated: 2026-03-26
+
+epic: 2
+epic_title: "Core Game Loop"
+status: in-progress
+started: "2026-03-26"
+completed: null
+
+stories:
+  2-1-rail-path-movement:
+    status: reviewing
+    phase: code-review (attempt 1)
+    attempts: 0
+    committed: false
+    notes: ""
+  2-2-enemy-spawning-and-patrol:
+    status: pending
+    phase: null
+    attempts: 0
+    committed: false
+    notes: ""
+  2-3-destroy-enemies-with-data-lance:
+    status: pending
+    phase: null
+    attempts: 0
+    committed: false
+    notes: ""
+  2-4-vector-shard-explosions:
+    status: pending
+    phase: null
+    attempts: 0
+    committed: false
+    notes: ""
+  2-5-damage-from-enemy-data-bursts:
+    status: pending
+    phase: null
+    attempts: 0
+    committed: false
+    notes: ""
+  2-6-shields-hud-display:
+    status: pending
+    phase: null
+    attempts: 0
+    committed: false
+    notes: ""
+  2-7-screen-shake-and-damage-flash:
+    status: pending
+    phase: null
+    attempts: 0
+    committed: false
+    notes: ""
+  2-8-score-increment-on-kill:
+    status: pending
+    phase: null
+    attempts: 0
+    committed: false
+    notes: ""
+  2-9-stable-60fps-with-object-pooling:
+    status: pending
+    phase: null
+    attempts: 0
+    committed: false
+    notes: ""
+  2-10-game-over-state:
+    status: pending
+    phase: null
+    attempts: 0
+    committed: false
+    notes: ""

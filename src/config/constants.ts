@@ -31,6 +31,27 @@ export const STARFIELD_LIGHTNESS_OFFSET = -0.25;
 export const BANK_MAX_ANGLE = 0.12; // radians (~7 degrees)
 export const BANK_LERP_SPEED = 6.0; // how fast the bank rolls in/out
 
+// Rail movement constants (Story 2-1)
+export const RAIL_SPEED = 18; // units per second along arc length -- comfortable dogfight pace
+export const RAIL_CAMERA_LERP_SPEED = 5.0; // how fast camera orientation interpolates toward tangent
+
+// Dogfight-phase rail path: wide sweeping loop through open cyberspace
+// 11 control points forming a closed loop, ~+-115 X/Z, gentle Y variation
+// Path length ~624 units → ~35 second loop at 18 u/s (within AC #19 30-60s range)
+export const RAIL_PATH_POINTS: readonly [number, number, number][] = [
+  [0, 0, 0],
+  [50, 3, -40],
+  [100, 5, -15],
+  [115, 2, 40],
+  [80, -2, 80],
+  [25, -3, 90],
+  [-40, 0, 65],
+  [-80, 4, 25],
+  [-90, 6, -25],
+  [-65, 3, -65],
+  [-25, 0, -50],
+] as const;
+
 // Viewport movement constants (Story 1-4)
 export const VIEWPORT_MOVE_SPEED = 3.0;
 export const VIEWPORT_MAX_OFFSET_X = 3.0;

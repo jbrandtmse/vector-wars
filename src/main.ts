@@ -2,12 +2,13 @@ import * as THREE from 'three';
 import { calculateDeltaTime } from './core/DeltaTime.ts';
 import { InputManager } from './core/InputManager.ts';
 import { updateViewportOffset } from './core/ViewportMovement.ts';
-import { VIEWPORT_BASE_POSITION, BANK_MAX_ANGLE, BANK_LERP_SPEED } from './config/constants.ts';
+import { BANK_MAX_ANGLE, BANK_LERP_SPEED } from './config/constants.ts';
 import { vectorMaterials } from './rendering/VectorMaterials.ts';
 import { RenderPipeline } from './rendering/RenderPipeline.ts';
 import { CockpitRenderer } from './rendering/CockpitRenderer.ts';
 import { SceneEnvironment } from './rendering/SceneEnvironment.ts';
 import { DataLanceSystem } from './systems/DataLanceSystem.ts';
+import { RailMovement } from './systems/RailMovement.ts';
 
 // --- Renderer Setup ---
 const container = document.getElementById('app');
@@ -27,8 +28,7 @@ const camera = new THREE.PerspectiveCamera(
   0.01,
   1000
 );
-camera.position.set(0, 0, 3);
-camera.lookAt(0, 0, 0);
+// Camera position is now controlled by RailMovement -- no static position
 
 // --- Scene Setup ---
 const scene = new THREE.Scene();
@@ -63,12 +63,20 @@ window.addEventListener('resize', onWindowResize);
 // --- Input Manager Setup ---
 const inputManager = new InputManager();
 
+// --- Rail Movement Setup ---
+const railMovement = new RailMovement(camera);
+
 // --- Data Lance System Setup ---
 const dataLanceSystem = new DataLanceSystem(scene, camera, inputManager, vectorMaterials, cockpitRenderer);
+
+// Pre-allocated quaternion for banking effect (avoid per-frame allocation)
+const bankQuaternion = new THREE.Quaternion();
+const bankAxis = new THREE.Vector3(0, 0, 1);
 
 // --- Animation Loop with Delta Time ---
 let lastTime = 0;
 let viewportOffset = { x: 0, y: 0 };
+let currentBankAngle = 0;
 renderer.setAnimationLoop((time: number) => {
   const dt = calculateDeltaTime(time, lastTime);
   lastTime = time;
@@ -76,13 +84,17 @@ renderer.setAnimationLoop((time: number) => {
   // Update viewport offset based on arrow key input
   const prevX = viewportOffset.x;
   viewportOffset = updateViewportOffset(viewportOffset, inputManager, dt);
-  camera.position.x = VIEWPORT_BASE_POSITION.x + viewportOffset.x;
-  camera.position.y = VIEWPORT_BASE_POSITION.y + viewportOffset.y;
+
+  // Rail movement: camera follows spline path with viewport offset applied in local frame
+  railMovement.update(dt, viewportOffset);
 
   // Banking effect — roll camera based on horizontal movement direction
+  // Applied ON TOP of rail orientation via quaternion composition
   const horizontalDelta = viewportOffset.x - prevX;
   const targetBank = horizontalDelta !== 0 ? -Math.sign(horizontalDelta) * BANK_MAX_ANGLE : 0;
-  camera.rotation.z += (targetBank - camera.rotation.z) * Math.min(1, BANK_LERP_SPEED * dt);
+  currentBankAngle += (targetBank - currentBankAngle) * Math.min(1, BANK_LERP_SPEED * dt);
+  bankQuaternion.setFromAxisAngle(bankAxis, currentBankAngle);
+  camera.quaternion.multiply(bankQuaternion);
 
   // Update game systems
   dataLanceSystem.update(dt);

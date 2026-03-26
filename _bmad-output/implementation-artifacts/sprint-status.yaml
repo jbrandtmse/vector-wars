@@ -35,8 +35,8 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-03-26
-last_updated: "2026-03-26T10:52:00Z"
-last_story_created: 1-7-post-processing-pipeline-validation
+last_updated: "2026-03-26T13:00:00Z"
+last_story_created: 2-1-rail-path-movement
 project: vector-wars
 project_key: NOKEY
 tracking_system: file-system
@@ -55,8 +55,8 @@ development_status:
   epic-1-retrospective: optional
 
   # === Epic 2: Core Game Loop ===
-  epic-2: backlog
-  2-1-rail-path-movement: backlog
+  epic-2: in-progress
+  2-1-rail-path-movement: done
   2-2-enemy-spawning-and-patrol: backlog
   2-3-destroy-enemies-with-data-lance: backlog
   2-4-vector-shard-explosions: backlog
