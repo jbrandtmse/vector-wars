@@ -100,6 +100,19 @@ export const SHARD_MAX_LIFETIME = 0.8;   // seconds maximum before fade-out
 export const SHARD_LENGTH = 0.5;         // length of each shard line segment
 export const MAX_ACTIVE_EXPLOSIONS = 12; // max concurrent explosions (pre-allocated pool)
 
+// Enemy data burst constants (Story 2-5)
+export const ENEMY_DATA_BURST_POOL_SIZE = 30;
+export const ENEMY_DATA_BURST_LENGTH = 0.8;       // line segment length (units)
+export const ENEMY_DATA_BURST_MAX_RANGE = 80;      // deactivate beyond this distance
+export const ENEMY_DATA_BURST_COLLIDER_RADIUS = 0.3; // sphere for hit detection
+
+// Player constants (Story 2-5)
+export const PLAYER_MAX_SHIELDS = 100;
+export const PLAYER_COLLIDER_RADIUS = 1.0;
+
+// Attack state constants (Story 2-5)
+export const ATTACK_STATE_PATROL_DURATION = 3.0; // seconds in patrol before attacking
+
 // Viewport movement constants (Story 1-4)
 export const VIEWPORT_MOVE_SPEED = 3.0;
 export const VIEWPORT_MAX_OFFSET_X = 3.0;

@@ -34,8 +34,8 @@ stories:
     committed: false
     notes: ""
   2-5-damage-from-enemy-data-bursts:
-    status: pending
-    phase: null
+    status: reviewing
+    phase: code-review (attempt 1)
     attempts: 0
     committed: false
     notes: ""

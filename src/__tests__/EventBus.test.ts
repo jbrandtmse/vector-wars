@@ -98,4 +98,17 @@ describe('GameEvents and eventBus singleton', () => {
     // Clean up listener
     eventBus.off('enemyDestroyed', callback);
   });
+
+  it('should emit and receive playerHit event with damage and source fields (Story 2-5)', async () => {
+    const { eventBus } = await import('../core/GameEvents.ts');
+    const callback = vi.fn();
+    eventBus.on('playerHit', callback);
+    const payload = { damage: 10, source: 'enemyDataBurst' };
+    eventBus.emit('playerHit', payload);
+    expect(callback).toHaveBeenCalledWith(payload);
+    expect(callback.mock.calls[0][0]).toHaveProperty('damage', 10);
+    expect(callback.mock.calls[0][0]).toHaveProperty('source', 'enemyDataBurst');
+    // Clean up listener
+    eventBus.off('playerHit', callback);
+  });
 });

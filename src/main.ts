@@ -13,6 +13,8 @@ import { GameObjectManager } from './entities/GameObjectManager.ts';
 import { EnemySpawner } from './systems/EnemySpawner.ts';
 import { CollisionSystem } from './systems/CollisionSystem.ts';
 import { EffectsManager } from './systems/EffectsManager.ts';
+import { Player } from './entities/player/Player.ts';
+import { EnemyProjectileSystem } from './systems/EnemyProjectileSystem.ts';
 
 // --- Renderer Setup ---
 const container = document.getElementById('app');
@@ -73,9 +75,26 @@ const railMovement = new RailMovement(camera);
 // --- Data Lance System Setup ---
 const dataLanceSystem = new DataLanceSystem(scene, camera, inputManager, vectorMaterials, cockpitRenderer);
 
+// --- Player Setup (Story 2-5) ---
+const player = new Player();
+
 // --- Entity Management Setup (Story 2-2) ---
 const gameObjectManager = new GameObjectManager();
-const enemySpawner = new EnemySpawner(scene, gameObjectManager, vectorMaterials);
+
+// --- Enemy Projectile System Setup (Story 2-5) ---
+const enemyProjectileSystem = new EnemyProjectileSystem(
+  scene,
+  vectorMaterials,
+  player.collider,
+);
+
+const enemySpawner = new EnemySpawner(
+  scene,
+  gameObjectManager,
+  vectorMaterials,
+  (origin, target, speed, damage) => enemyProjectileSystem.fireAt(origin, target, speed, damage),
+  () => camera.position,
+);
 
 // --- Collision System Setup (Story 2-3) ---
 const collisionSystem = new CollisionSystem(
@@ -113,6 +132,9 @@ renderer.setAnimationLoop((time: number) => {
   bankQuaternion.setFromAxisAngle(bankAxis, currentBankAngle);
   camera.quaternion.multiply(bankQuaternion);
 
+  // Sync player collider to camera position (Story 2-5)
+  player.syncToCamera(camera);
+
   // Enemy spawning based on rail progress (Story 2-2)
   enemySpawner.update(railMovement.getRailProgress());
   // Update all game objects (enemies patrol, etc.)
@@ -123,6 +145,9 @@ renderer.setAnimationLoop((time: number) => {
 
   // Collision detection (after bolt movement and enemy updates)
   collisionSystem.update();
+
+  // Enemy projectile movement + player collision (Story 2-5)
+  enemyProjectileSystem.update(dt);
 
   // Update visual effects (explosions, etc.)
   effectsManager.update(dt);

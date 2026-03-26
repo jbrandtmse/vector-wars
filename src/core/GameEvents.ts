@@ -16,10 +16,16 @@ export interface WeaponFiredEvent {
   position: { x: number; y: number; z: number };
 }
 
+export interface PlayerHitEvent {
+  damage: number;
+  source: string;
+}
+
 export interface GameEvents {
   weaponFired: WeaponFiredEvent;
   enemySpawned: { enemy: Enemy; position: { x: number; y: number; z: number } };
   enemyDestroyed: { enemy: Enemy; position: { x: number; y: number; z: number } };
+  playerHit: PlayerHitEvent;
 }
 
 /** Module-level singleton event bus */
