@@ -45,9 +45,9 @@ describe('Placeholder Exports', () => {
     expect(mod.RENDERING_CONFIG.toneMapping).toBe('ACESFilmic');
   });
 
-  it('should export INPUT_CONFIG', async () => {
+  it('should export INPUT_ACTIONS', async () => {
     const mod = await import('../config/input.ts');
-    expect(mod.INPUT_CONFIG).toBeDefined();
+    expect(mod.INPUT_ACTIONS).toBeDefined();
   });
 
   it('should export GameState type from game.ts', async () => {

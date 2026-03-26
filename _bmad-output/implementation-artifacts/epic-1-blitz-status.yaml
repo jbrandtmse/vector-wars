@@ -34,11 +34,11 @@ stories:
     committed: false
     notes: "Code review passed with 1 HIGH fix (preventDefault on repeat events) and 2 LOW fixes (in-place mutation, file list). 179 tests pass."
   1-5-data-lance-bolt-firing:
-    status: pending
-    phase: null
-    attempts: 0
+    status: done
+    phase: code-review passed
+    attempts: 1
     committed: false
-    notes: ""
+    notes: "Code review passed with 1 MEDIUM fix (undocumented placeholder-exports.test.ts change added to File List). All 16 ACs verified, 200 tests pass, clean build."
   1-6-basic-vector-scene-grid-starfield:
     status: pending
     phase: null

@@ -9,13 +9,15 @@
  */
 
 import * as THREE from 'three';
-import { BLOOM_LAYER } from '../config/constants.ts';
+import { BLOOM_LAYER, RECOIL_INTENSITY, RECOIL_RECOVERY_SPEED } from '../config/constants.ts';
 import type { VectorMaterials } from './VectorMaterials.ts';
 
 export class CockpitRenderer {
   private cockpitGroup: THREE.Group;
   private camera: THREE.PerspectiveCamera;
   private geometries: THREE.BufferGeometry[] = [];
+  private recoilOffset = 0;
+  private restZ = -1.5;
 
   constructor(camera: THREE.PerspectiveCamera, vectorMaterials: VectorMaterials) {
     this.camera = camera;
@@ -134,11 +136,25 @@ export class CockpitRenderer {
 
   /**
    * Recoil animation for actuator arms when firing weapons.
+   * Applies an immediate backward offset on the cockpit group Z axis.
    * @param intensity Recoil strength (0-1)
    */
   recoilArms(intensity: number): void {
-    // Recoil animation implemented in Story 1-5
-    void intensity;
+    this.recoilOffset = -RECOIL_INTENSITY * intensity;
+    this.cockpitGroup.position.z = this.restZ + this.recoilOffset;
+  }
+
+  /**
+   * Updates the cockpit recoil recovery animation.
+   * Lerps the recoil offset back toward zero (rest position).
+   * @param dt Delta time in seconds
+   */
+  update(dt: number): void {
+    if (this.recoilOffset === 0) return;
+    this.recoilOffset = this.recoilOffset * Math.max(0, 1 - RECOIL_RECOVERY_SPEED * dt);
+    // Snap to zero when very close to prevent infinite approach
+    if (Math.abs(this.recoilOffset) < 0.001) this.recoilOffset = 0;
+    this.cockpitGroup.position.z = this.restZ + this.recoilOffset;
   }
 
   /**

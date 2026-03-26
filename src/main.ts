@@ -8,6 +8,7 @@ import { BLOOM_LAYER, VIEWPORT_BASE_POSITION } from './config/constants.ts';
 import { vectorMaterials } from './rendering/VectorMaterials.ts';
 import { RenderPipeline } from './rendering/RenderPipeline.ts';
 import { CockpitRenderer } from './rendering/CockpitRenderer.ts';
+import { DataLanceSystem } from './systems/DataLanceSystem.ts';
 
 // --- Renderer Setup ---
 const container = document.getElementById('app');
@@ -71,9 +72,7 @@ vectorMaterials.updateResolution(window.innerWidth, window.innerHeight);
 // --- Cockpit Setup ---
 // CRITICAL: camera must be added to scene for camera-parented geometry to render
 scene.add(camera);
-// CockpitRenderer is instantiated for its side effects (adds geometry to camera).
-// The reference will be used in Story 1-5 for recoilArms() integration.
-void new CockpitRenderer(camera, vectorMaterials);
+const cockpitRenderer = new CockpitRenderer(camera, vectorMaterials);
 
 // --- Render Pipeline Setup ---
 const renderPipeline = new RenderPipeline(renderer, scene, camera);
@@ -93,6 +92,9 @@ window.addEventListener('resize', onWindowResize);
 // --- Input Manager Setup ---
 const inputManager = new InputManager();
 
+// --- Data Lance System Setup ---
+const dataLanceSystem = new DataLanceSystem(scene, camera, inputManager, vectorMaterials, cockpitRenderer);
+
 // --- Animation Loop with Delta Time ---
 let lastTime = 0;
 let viewportOffset = { x: 0, y: 0 };
@@ -104,6 +106,10 @@ renderer.setAnimationLoop((time: number) => {
   viewportOffset = updateViewportOffset(viewportOffset, inputManager, dt);
   camera.position.x = VIEWPORT_BASE_POSITION.x + viewportOffset.x;
   camera.position.y = VIEWPORT_BASE_POSITION.y + viewportOffset.y;
+
+  // Update game systems
+  dataLanceSystem.update(dt);
+  cockpitRenderer.update(dt);
 
   // Slowly rotate test shapes to confirm animation works
   thinWireframe.rotation.x += 0.3 * dt;

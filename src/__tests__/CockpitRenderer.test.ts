@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { CockpitRenderer } from '../rendering/CockpitRenderer.ts';
 import { VectorMaterials } from '../rendering/VectorMaterials.ts';
 import { setActivePalette } from '../rendering/ColorPalette.ts';
-import { BLOOM_LAYER } from '../config/constants.ts';
+import { BLOOM_LAYER, RECOIL_INTENSITY } from '../config/constants.ts';
 
 describe('CockpitRenderer', () => {
   let camera: THREE.PerspectiveCamera;
@@ -120,6 +120,68 @@ describe('CockpitRenderer', () => {
 
       // After dispose, the cockpit group should be removed from camera
       expect(camera.children.length).toBe(0);
+    });
+  });
+
+  describe('Recoil animation (Story 1-5)', () => {
+    it('should shift cockpit group Z backward when recoilArms is called', () => {
+      const cockpitGroup = camera.children[0] as THREE.Group;
+      const restZ = cockpitGroup.position.z;
+      cockpit.recoilArms(1.0);
+      // After recoil, Z should be more negative (further back)
+      expect(cockpitGroup.position.z).toBeLessThan(restZ);
+    });
+
+    it('should apply recoil proportional to RECOIL_INTENSITY', () => {
+      const cockpitGroup = camera.children[0] as THREE.Group;
+      const restZ = cockpitGroup.position.z;
+      cockpit.recoilArms(1.0);
+      // The offset should be approximately -RECOIL_INTENSITY
+      expect(cockpitGroup.position.z).toBeCloseTo(restZ - RECOIL_INTENSITY, 3);
+    });
+
+    it('should recover toward rest position over time via update(dt)', () => {
+      const cockpitGroup = camera.children[0] as THREE.Group;
+      const restZ = cockpitGroup.position.z;
+      cockpit.recoilArms(1.0);
+      const recoiledZ = cockpitGroup.position.z;
+      // Simulate several update steps
+      cockpit.update(0.016);
+      cockpit.update(0.016);
+      cockpit.update(0.016);
+      // Should be closer to rest than the recoiled position
+      expect(Math.abs(cockpitGroup.position.z - restZ)).toBeLessThan(
+        Math.abs(recoiledZ - restZ)
+      );
+    });
+
+    it('should return exactly to rest position (no drift)', () => {
+      const cockpitGroup = camera.children[0] as THREE.Group;
+      const restZ = cockpitGroup.position.z;
+      cockpit.recoilArms(1.0);
+      // Simulate many update steps to fully recover
+      for (let i = 0; i < 60; i++) {
+        cockpit.update(0.016);
+      }
+      expect(cockpitGroup.position.z).toBe(restZ);
+    });
+
+    it('should handle multiple rapid recoils correctly (interrupting a recovery)', () => {
+      const cockpitGroup = camera.children[0] as THREE.Group;
+      const restZ = cockpitGroup.position.z;
+      // First recoil
+      cockpit.recoilArms(1.0);
+      cockpit.update(0.016);
+      cockpit.update(0.016);
+      // Second recoil interrupts recovery
+      cockpit.recoilArms(1.0);
+      // Should still be offset from rest
+      expect(cockpitGroup.position.z).toBeLessThan(restZ);
+      // After many updates, should still recover fully
+      for (let i = 0; i < 60; i++) {
+        cockpit.update(0.016);
+      }
+      expect(cockpitGroup.position.z).toBe(restZ);
     });
   });
 
