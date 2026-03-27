@@ -266,3 +266,73 @@ export const SURFACE_TARGETS: SurfaceTarget[] = [
   { type: 'firewallNode', position: [275, 1.5, 275] },
 ];
 // Total: 9 firewall nodes, 5 ICE towers
+
+// Data Corridor Phase constants (Story 3-4)
+export const CORRIDOR_OBSTACLE_DAMAGE = 15;
+export const CORRIDOR_HIT_COOLDOWN = 0.8;
+export const FIREWALL_CLOSE_DURATION = 1.5;
+export const FIREWALL_OPEN_DURATION = 2.0;
+export const FIREWALL_COLLIDER_DEPTH = 1.0;
+export const NETWORK_CABLE_COLLIDER_HEIGHT = 1.5;
+export const DATA_STREAM_SPEED = 6.0;
+export const DATA_STREAM_COLLIDER_SIZE = 1.5;
+export const CORRIDOR_WALL_WIDTH = 12.0;
+export const CORRIDOR_WALL_MIN_WIDTH = 6.0;
+export const CORRIDOR_HEIGHT = 8.0;
+export const CORRIDOR_LENGTH = 700;
+export const CORRIDOR_RAIL_SPEED_MULTIPLIER = 1.2;
+
+// Data Corridor Phase rail path (Story 3-4)
+// Non-looping straight-forward path through narrowing corridor
+// Very slight lateral variation for visual interest, centered at y~4
+export const CORRIDOR_RAIL_PATH_POINTS: readonly [number, number, number][] = [
+  [0, 4, 0],          // corridor entrance
+  [0.3, 4, -50],      // slight drift right
+  [-0.2, 4, -100],    // slight drift left
+  [0.5, 4.2, -150],   // tiny rise
+  [-0.3, 3.8, -200],  // slight drop and left
+  [0.4, 4, -250],     // back to center-right
+  [0, 4.1, -300],     // centered
+  [-0.5, 4, -350],    // drift left
+  [0.2, 3.9, -400],   // drift right, slight drop
+  [0, 4, -450],       // centered
+  [0.3, 4.2, -500],   // slight rise
+  [-0.2, 4, -550],    // drift left
+  [0, 4, -600],       // final approach
+  [0, 4, -700],       // corridor exit
+] as const;
+
+export type CorridorObstacleType = 'firewall' | 'networkCable' | 'dataStream';
+export interface CorridorObstacleConfig {
+  type: CorridorObstacleType;
+  position: [number, number, number];
+  phaseOffset?: number;
+  direction?: 'left' | 'right';
+}
+
+// Corridor obstacle placement (Story 3-4)
+// Level 1 = moderate density with generous timing windows
+export const CORRIDOR_OBSTACLES: CorridorObstacleConfig[] = [
+  // First section: gentle introduction — single firewalls with wide timing
+  { type: 'firewall', position: [0, 4, -80], phaseOffset: 0 },
+  { type: 'networkCable', position: [0, 2.5, -130] },
+  { type: 'firewall', position: [0, 4, -180], phaseOffset: 0.3 },
+
+  // Mid section: mixed obstacles, moderate density
+  { type: 'dataStream', position: [-2, 4, -230], direction: 'right' },
+  { type: 'networkCable', position: [0, 5.5, -280] },
+  { type: 'firewall', position: [0, 4, -320], phaseOffset: 0.6 },
+  { type: 'dataStream', position: [2, 4, -370], direction: 'left' },
+
+  // Late section: denser obstacles, corridor narrowing
+  { type: 'firewall', position: [0, 4, -420], phaseOffset: 0.15 },
+  { type: 'networkCable', position: [0, 3.0, -460] },
+  { type: 'dataStream', position: [0, 4, -500], direction: 'right' },
+  { type: 'firewall', position: [0, 4, -540], phaseOffset: 0.45 },
+  { type: 'networkCable', position: [0, 5.0, -580] },
+
+  // Final gauntlet: tight spacing before exit
+  { type: 'firewall', position: [0, 4, -620], phaseOffset: 0.7 },
+  { type: 'dataStream', position: [-1, 4, -650], direction: 'left' },
+];
+// Total: 6 firewalls, 4 network cables, 4 data streams

@@ -54,9 +54,10 @@ export class RailMovement {
    * Advances the camera along the rail path by dt seconds.
    * Applies viewport offset in the local rail frame (tangent/right/up).
    */
-  update(dt: number, viewportOffset: { x: number; y: number }): void {
+  update(dt: number, viewportOffset: { x: number; y: number }, speed?: number): void {
     // Advance progress along arc length
-    this.progress += (RAIL_SPEED * dt) / this.totalLength;
+    const effectiveSpeed = speed ?? RAIL_SPEED;
+    this.progress += (effectiveSpeed * dt) / this.totalLength;
 
     if (this.closed) {
       // Wrap for seamless looping
