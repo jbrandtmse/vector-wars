@@ -37,7 +37,7 @@ import type { GameOverManager } from './GameOverManager.ts';
 /** Interface matching the lifecycle of all phase classes */
 interface Phase {
   enter(): void;
-  update(dt: number): void;
+  update(dt: number, viewportOffset?: { x: number; y: number }): void;
   exit(): void;
   isComplete(): boolean;
 }
@@ -165,19 +165,19 @@ export class LevelManager {
    * Updates the current phase and handles transitions.
    * Called each frame from main.ts animation loop.
    */
-  update(dt: number): void {
+  update(dt: number, viewportOffset?: { x: number; y: number }): void {
     if (this.levelComplete) return;
 
     // If transition is active, drive the animation and keep the scene alive
     if (this.phaseTransition.isActive()) {
       this.phaseTransition.update(dt);
       // Still update the current phase during fade-out to prevent a frozen frame
-      this.phases[this.currentPhaseIndex].update(dt);
+      this.phases[this.currentPhaseIndex].update(dt, viewportOffset);
       return;
     }
 
     // Normal phase update
-    this.phases[this.currentPhaseIndex].update(dt);
+    this.phases[this.currentPhaseIndex].update(dt, viewportOffset);
 
     // Check if current phase completed
     if (this.phases[this.currentPhaseIndex].isComplete()) {

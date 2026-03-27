@@ -100,14 +100,14 @@ export class CorridorPhase {
     });
   }
 
-  update(dt: number): void {
+  update(dt: number, viewportOffset?: { x: number; y: number }): void {
     if (this.completed) return;
 
-    // Update rail movement with corridor speed multiplier
+    // Update rail movement with corridor speed multiplier and viewport offset
     if (this.railMovement) {
       this.railMovement.update(
         dt,
-        { x: 0, y: 0 },
+        viewportOffset ?? { x: 0, y: 0 },
         RAIL_SPEED * CORRIDOR_RAIL_SPEED_MULTIPLIER,
       );
     }

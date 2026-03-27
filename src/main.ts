@@ -210,7 +210,14 @@ renderer.setAnimationLoop((time: number) => {
 
   // === GAMEPLAY SYSTEMS (frozen on game over) ===
   if (!gameOverManager.isGameOver) {
-    levelManager.update(dt);
+    levelManager.update(dt, viewportOffset);
+
+    // Shared weapon/collision systems run in ALL phases (not just dogfight)
+    dataLanceSystem.update(dt);
+    collisionSystem.update();
+    enemyProjectileSystem.update(dt);
+    effectsManager.update(dt);
+    gameObjectManager.update(dt);
   }
 
   // === VISUAL SYSTEMS (always run) ===

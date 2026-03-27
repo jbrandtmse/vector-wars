@@ -26,29 +26,24 @@ import type { RailMovement } from '../../systems/RailMovement.ts';
 
 export class DogfightPhase {
   private enemySpawner: EnemySpawner;
-  private gameObjectManager: GameObjectManager;
-  private dataLanceSystem: DataLanceSystem;
-  private collisionSystem: CollisionSystem;
-  private enemyProjectileSystem: EnemyProjectileSystem;
-  private effectsManager: EffectsManager;
   private railMovement: RailMovement;
   private completed = false;
+  private loopsCompleted = 0;
+  private requiredLoops = 2;
+  private wasAboveThreshold = false;
 
   constructor(
     enemySpawner: EnemySpawner,
-    gameObjectManager: GameObjectManager,
-    dataLanceSystem: DataLanceSystem,
-    collisionSystem: CollisionSystem,
-    enemyProjectileSystem: EnemyProjectileSystem,
-    effectsManager: EffectsManager,
+    _gameObjectManager: GameObjectManager,
+    _dataLanceSystem: DataLanceSystem,
+    _collisionSystem: CollisionSystem,
+    _enemyProjectileSystem: EnemyProjectileSystem,
+    _effectsManager: EffectsManager,
     railMovement: RailMovement,
   ) {
     this.enemySpawner = enemySpawner;
-    this.gameObjectManager = gameObjectManager;
-    this.dataLanceSystem = dataLanceSystem;
-    this.collisionSystem = collisionSystem;
-    this.enemyProjectileSystem = enemyProjectileSystem;
-    this.effectsManager = effectsManager;
+    // Weapon/collision systems now run in main.ts for all phases.
+    // Constructor params kept for backward compatibility with LevelManager.
     this.railMovement = railMovement;
   }
 
@@ -60,6 +55,8 @@ export class DogfightPhase {
   enter(): void {
     Logger.info('DogfightPhase', 'Entering dogfight phase');
     this.completed = false;
+    this.loopsCompleted = 0;
+    this.wasAboveThreshold = false;
     Logger.info('DogfightPhase', 'Dogfight phase entered');
   }
 
@@ -67,24 +64,29 @@ export class DogfightPhase {
    * Updates all gameplay systems for the dogfight phase.
    * Called each frame by LevelManager.
    */
-  update(dt: number): void {
+  update(_dt: number): void {
     if (this.completed) return;
 
     const railProgress = this.railMovement.getRailProgress();
 
+    // Enemy spawning is phase-specific (only during dogfight)
     this.enemySpawner.update(railProgress);
-    this.gameObjectManager.update(dt);
-    this.dataLanceSystem.update(dt);
-    this.collisionSystem.update();
-    this.enemyProjectileSystem.update(dt);
-    this.effectsManager.update(dt);
 
-    // Check rail completion
+    // Detect loop completion by watching for progress crossing the threshold then wrapping
     if (railProgress >= RAIL_COMPLETION_THRESHOLD) {
-      this.completed = true;
-      Logger.info('DogfightPhase', 'Phase complete: rail path end reached', {
-        railProgress,
+      this.wasAboveThreshold = true;
+    } else if (this.wasAboveThreshold && railProgress < 0.1) {
+      // Wrapped around — count a completed loop
+      this.loopsCompleted++;
+      this.wasAboveThreshold = false;
+      Logger.info('DogfightPhase', 'Rail loop completed', {
+        loopsCompleted: this.loopsCompleted,
+        requiredLoops: this.requiredLoops,
       });
+      if (this.loopsCompleted >= this.requiredLoops) {
+        this.completed = true;
+        Logger.info('DogfightPhase', 'Phase complete after required loops');
+      }
     }
   }
 

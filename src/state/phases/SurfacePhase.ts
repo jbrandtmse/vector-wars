@@ -113,12 +113,12 @@ export class SurfacePhase {
     });
   }
 
-  update(dt: number): void {
+  update(dt: number, viewportOffset?: { x: number; y: number }): void {
     if (this.completed) return;
 
-    // Update rail movement (surface path)
+    // Update rail movement (surface path) with viewport offset for arrow key control
     if (this.railMovement) {
-      this.railMovement.update(dt, { x: 0, y: 0 });
+      this.railMovement.update(dt, viewportOffset ?? { x: 0, y: 0 });
     }
 
     // Update active targets

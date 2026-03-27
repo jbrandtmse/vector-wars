@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { DogfightPhase } from '../state/phases/DogfightPhase.ts';
-import { RAIL_COMPLETION_THRESHOLD } from '../config/constants.ts';
 
 // Mock Logger
 vi.mock('../core/Logger.ts', () => ({
@@ -54,27 +53,13 @@ describe('DogfightPhase (Story 3-10)', () => {
   });
 
   describe('update(dt)', () => {
-    it('calls all gameplay systems in order', () => {
+    it('calls enemySpawner with rail progress', () => {
       phase.enter();
-      const callOrder: string[] = [];
-
-      mocks.enemySpawner.update.mockImplementation(() => callOrder.push('enemySpawner'));
-      mocks.gameObjectManager.update.mockImplementation(() => callOrder.push('gameObjectManager'));
-      mocks.dataLanceSystem.update.mockImplementation(() => callOrder.push('dataLanceSystem'));
-      mocks.collisionSystem.update.mockImplementation(() => callOrder.push('collisionSystem'));
-      mocks.enemyProjectileSystem.update.mockImplementation(() => callOrder.push('enemyProjectileSystem'));
-      mocks.effectsManager.update.mockImplementation(() => callOrder.push('effectsManager'));
+      mocks.railMovement._setProgress(0.5);
 
       phase.update(0.016);
 
-      expect(callOrder).toEqual([
-        'enemySpawner',
-        'gameObjectManager',
-        'dataLanceSystem',
-        'collisionSystem',
-        'enemyProjectileSystem',
-        'effectsManager',
-      ]);
+      expect(mocks.enemySpawner.update).toHaveBeenCalledWith(0.5);
     });
 
     it('passes rail progress to enemySpawner', () => {
@@ -85,16 +70,6 @@ describe('DogfightPhase (Story 3-10)', () => {
 
       expect(mocks.enemySpawner.update).toHaveBeenCalledWith(0.5);
     });
-
-    it('passes dt to systems that accept it', () => {
-      phase.enter();
-      phase.update(0.033);
-
-      expect(mocks.gameObjectManager.update).toHaveBeenCalledWith(0.033);
-      expect(mocks.dataLanceSystem.update).toHaveBeenCalledWith(0.033);
-      expect(mocks.enemyProjectileSystem.update).toHaveBeenCalledWith(0.033);
-      expect(mocks.effectsManager.update).toHaveBeenCalledWith(0.033);
-    });
   });
 
   describe('isComplete()', () => {
@@ -103,19 +78,39 @@ describe('DogfightPhase (Story 3-10)', () => {
       expect(phase.isComplete()).toBe(false);
     });
 
-    it('returns true when rail progress >= RAIL_COMPLETION_THRESHOLD', () => {
+    it('returns false after one loop (requires 2 loops)', () => {
       phase.enter();
-      mocks.railMovement._setProgress(RAIL_COMPLETION_THRESHOLD);
+      // Simulate reaching threshold
+      mocks.railMovement._setProgress(0.99);
+      phase.update(0.016);
+      // Then wrapping around
+      mocks.railMovement._setProgress(0.05);
+      phase.update(0.016);
 
+      // Only 1 loop — should not be complete
+      expect(phase.isComplete()).toBe(false);
+    });
+
+    it('returns true after 2 complete loops', () => {
+      phase.enter();
+      // Loop 1: cross threshold then wrap
+      mocks.railMovement._setProgress(0.99);
+      phase.update(0.016);
+      mocks.railMovement._setProgress(0.05);
+      phase.update(0.016);
+
+      // Loop 2: cross threshold then wrap
+      mocks.railMovement._setProgress(0.99);
+      phase.update(0.016);
+      mocks.railMovement._setProgress(0.05);
       phase.update(0.016);
 
       expect(phase.isComplete()).toBe(true);
     });
 
-    it('returns false when rail progress < RAIL_COMPLETION_THRESHOLD', () => {
+    it('returns false when rail progress < threshold', () => {
       phase.enter();
-      mocks.railMovement._setProgress(RAIL_COMPLETION_THRESHOLD - 0.01);
-
+      mocks.railMovement._setProgress(0.5);
       phase.update(0.016);
 
       expect(phase.isComplete()).toBe(false);
