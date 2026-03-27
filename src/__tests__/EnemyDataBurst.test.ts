@@ -1,5 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import * as THREE from 'three';
+import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
+import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
 
 // Mock Logger to avoid console output
 vi.mock('../core/Logger.ts', () => ({
@@ -35,7 +37,7 @@ describe('EnemyDataBurst', () => {
 
   it('should construct with required properties', async () => {
     const { EnemyDataBurst } = await import('../entities/projectiles/EnemyDataBurst.ts');
-    const material = new THREE.LineBasicMaterial({ color: 0x00ff00 });
+    const material = new LineMaterial({ color: 0x00ff00, linewidth: 2 });
     const burst = new EnemyDataBurst(material);
 
     expect(burst.active).toBe(false);
@@ -43,13 +45,13 @@ describe('EnemyDataBurst', () => {
     expect(burst.damage).toBe(0);
     expect(burst.distance).toBe(0);
     expect(burst.direction).toBeInstanceOf(THREE.Vector3);
-    expect(burst.mesh).toBeInstanceOf(THREE.LineSegments);
+    expect(burst.mesh).toBeInstanceOf(LineSegments2);
     expect(burst.collider).toBeInstanceOf(THREE.Sphere);
   });
 
   it('should activate with correct state', async () => {
     const { EnemyDataBurst } = await import('../entities/projectiles/EnemyDataBurst.ts');
-    const material = new THREE.LineBasicMaterial({ color: 0x00ff00 });
+    const material = new LineMaterial({ color: 0x00ff00, linewidth: 2 });
     const burst = new EnemyDataBurst(material);
 
     const origin = new THREE.Vector3(1, 2, 3);
@@ -65,7 +67,7 @@ describe('EnemyDataBurst', () => {
 
   it('should deactivate correctly', async () => {
     const { EnemyDataBurst } = await import('../entities/projectiles/EnemyDataBurst.ts');
-    const material = new THREE.LineBasicMaterial({ color: 0x00ff00 });
+    const material = new LineMaterial({ color: 0x00ff00, linewidth: 2 });
     const burst = new EnemyDataBurst(material);
 
     burst.activate(new THREE.Vector3(), new THREE.Vector3(0, 0, -1), 15, 10);
@@ -78,7 +80,7 @@ describe('EnemyDataBurst', () => {
 
   it('should move along direction on update', async () => {
     const { EnemyDataBurst } = await import('../entities/projectiles/EnemyDataBurst.ts');
-    const material = new THREE.LineBasicMaterial({ color: 0x00ff00 });
+    const material = new LineMaterial({ color: 0x00ff00, linewidth: 2 });
     const burst = new EnemyDataBurst(material);
 
     const origin = new THREE.Vector3(0, 0, 0);
@@ -92,7 +94,7 @@ describe('EnemyDataBurst', () => {
 
   it('should not move when inactive', async () => {
     const { EnemyDataBurst } = await import('../entities/projectiles/EnemyDataBurst.ts');
-    const material = new THREE.LineBasicMaterial({ color: 0x00ff00 });
+    const material = new LineMaterial({ color: 0x00ff00, linewidth: 2 });
     const burst = new EnemyDataBurst(material);
 
     burst.update(1.0);
@@ -101,7 +103,7 @@ describe('EnemyDataBurst', () => {
 
   it('should sync collider center to mesh position on update', async () => {
     const { EnemyDataBurst } = await import('../entities/projectiles/EnemyDataBurst.ts');
-    const material = new THREE.LineBasicMaterial({ color: 0x00ff00 });
+    const material = new LineMaterial({ color: 0x00ff00, linewidth: 2 });
     const burst = new EnemyDataBurst(material);
 
     burst.activate(new THREE.Vector3(5, 10, 15), new THREE.Vector3(1, 0, 0), 10, 5);
@@ -115,7 +117,7 @@ describe('EnemyDataBurst', () => {
   it('should enable bloom layer on mesh', async () => {
     const { EnemyDataBurst } = await import('../entities/projectiles/EnemyDataBurst.ts');
     const { BLOOM_LAYER } = await import('../config/constants.ts');
-    const material = new THREE.LineBasicMaterial({ color: 0x00ff00 });
+    const material = new LineMaterial({ color: 0x00ff00, linewidth: 2 });
     const burst = new EnemyDataBurst(material);
 
     // Check that bloom layer is enabled by testing mesh.layers bitmask

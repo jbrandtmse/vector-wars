@@ -17,7 +17,7 @@ describe('Enemy Data Burst Constants (Story 2-5)', () => {
   });
 
   it('should export ENEMY_DATA_BURST_LENGTH as a positive number', () => {
-    expect(ENEMY_DATA_BURST_LENGTH).toBe(0.8);
+    expect(ENEMY_DATA_BURST_LENGTH).toBe(1.5);
     expect(ENEMY_DATA_BURST_LENGTH).toBeGreaterThan(0);
   });
 

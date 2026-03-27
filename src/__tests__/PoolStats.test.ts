@@ -43,8 +43,9 @@ describe('EnemyProjectileSystem.getPoolStats()', () => {
 
   it('should return { active: number, total: number } shape', async () => {
     const { EnemyProjectileSystem } = await import('../systems/EnemyProjectileSystem.ts');
+    const { LineMaterial } = await import('three/addons/lines/LineMaterial.js');
     const scene = new THREE.Scene();
-    const mockMaterials = { create: vi.fn().mockReturnValue(new THREE.LineBasicMaterial()) } as never;
+    const mockMaterials = { createFat: vi.fn().mockReturnValue(new LineMaterial({ linewidth: 2 })) } as never;
     const playerCollider = new THREE.Sphere(new THREE.Vector3(), 1.0);
     const system = new EnemyProjectileSystem(scene, mockMaterials, playerCollider);
     const stats = system.getPoolStats();

@@ -9,13 +9,16 @@
  */
 
 import * as THREE from 'three';
+import { LineSegmentsGeometry } from 'three/addons/lines/LineSegmentsGeometry.js';
+import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
+import type { LineMaterial } from 'three/addons/lines/LineMaterial.js';
 import { BLOOM_LAYER, ENEMY_DATA_BURST_LENGTH, ENEMY_DATA_BURST_COLLIDER_RADIUS } from '../../config/constants.ts';
 
 // Pre-allocated unit vector for setFromUnitVectors default axis (avoid per-activation allocation)
 const DEFAULT_LINE_AXIS = new THREE.Vector3(0, 0, 1);
 
 export class EnemyDataBurst {
-  public readonly mesh: THREE.LineSegments;
+  public readonly mesh: LineSegments2;
   public readonly collider: THREE.Sphere;
   public direction = new THREE.Vector3();
   public speed = 0;
@@ -23,21 +26,14 @@ export class EnemyDataBurst {
   public active = false;
   public distance = 0;
 
-  private geometry: THREE.BufferGeometry;
-  private positions: Float32Array;
+  private geometry: LineSegmentsGeometry;
 
-  constructor(material: THREE.LineBasicMaterial) {
-    // Pre-allocate position buffer: 1 line segment = 2 vertices = 6 floats
-    this.positions = new Float32Array(6);
+  constructor(material: LineMaterial) {
     const halfLen = ENEMY_DATA_BURST_LENGTH / 2;
-    this.positions[0] = 0; this.positions[1] = 0; this.positions[2] = halfLen;
-    this.positions[3] = 0; this.positions[4] = 0; this.positions[5] = -halfLen;
+    this.geometry = new LineSegmentsGeometry();
+    this.geometry.setPositions([0, 0, halfLen, 0, 0, -halfLen]);
 
-    this.geometry = new THREE.BufferGeometry();
-    const posAttr = new THREE.BufferAttribute(this.positions, 3);
-    this.geometry.setAttribute('position', posAttr);
-
-    this.mesh = new THREE.LineSegments(this.geometry, material);
+    this.mesh = new LineSegments2(this.geometry, material);
     this.mesh.layers.enable(BLOOM_LAYER);
     this.mesh.visible = false;
 

@@ -13,31 +13,31 @@ describe('HUD Constants (Story 2-6)', () => {
   it('should define HUD_SHIELD_BAR_WIDTH as a positive number', () => {
     expect(typeof HUD_SHIELD_BAR_WIDTH).toBe('number');
     expect(HUD_SHIELD_BAR_WIDTH).toBeGreaterThan(0);
-    expect(HUD_SHIELD_BAR_WIDTH).toBe(0.3);
+    expect(HUD_SHIELD_BAR_WIDTH).toBe(0.4);
   });
 
   it('should define HUD_SHIELD_BAR_HEIGHT as a positive number', () => {
     expect(typeof HUD_SHIELD_BAR_HEIGHT).toBe('number');
     expect(HUD_SHIELD_BAR_HEIGHT).toBeGreaterThan(0);
-    expect(HUD_SHIELD_BAR_HEIGHT).toBe(0.04);
+    expect(HUD_SHIELD_BAR_HEIGHT).toBe(0.05);
   });
 
   it('should define HUD_SCORE_DIGIT_WIDTH as a positive number', () => {
     expect(typeof HUD_SCORE_DIGIT_WIDTH).toBe('number');
     expect(HUD_SCORE_DIGIT_WIDTH).toBeGreaterThan(0);
-    expect(HUD_SCORE_DIGIT_WIDTH).toBe(0.06);
+    expect(HUD_SCORE_DIGIT_WIDTH).toBe(0.08);
   });
 
   it('should define HUD_SCORE_DIGIT_HEIGHT as a positive number', () => {
     expect(typeof HUD_SCORE_DIGIT_HEIGHT).toBe('number');
     expect(HUD_SCORE_DIGIT_HEIGHT).toBeGreaterThan(0);
-    expect(HUD_SCORE_DIGIT_HEIGHT).toBe(0.09);
+    expect(HUD_SCORE_DIGIT_HEIGHT).toBe(0.12);
   });
 
   it('should define HUD_SCORE_DIGIT_SPACING as a positive number', () => {
     expect(typeof HUD_SCORE_DIGIT_SPACING).toBe('number');
     expect(HUD_SCORE_DIGIT_SPACING).toBeGreaterThan(0);
-    expect(HUD_SCORE_DIGIT_SPACING).toBe(0.02);
+    expect(HUD_SCORE_DIGIT_SPACING).toBe(0.025);
   });
 
   it('should define HUD_SCORE_MAX_DIGITS as a positive integer', () => {

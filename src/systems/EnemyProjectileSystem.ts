@@ -35,8 +35,8 @@ export class EnemyProjectileSystem {
   ) {
     this.playerCollider = playerCollider;
 
-    // Create ONE shared material for all data bursts (slightly dimmer than base)
-    const burstMaterial = vectorMaterials.create('enemy-data-burst', -0.1);
+    // Create ONE shared fat material for all data bursts (visible streaks)
+    const burstMaterial = vectorMaterials.createFat('enemy-data-burst', 2.0, -0.1);
 
     // Pre-allocate projectile pool
     for (let i = 0; i < ENEMY_DATA_BURST_POOL_SIZE; i++) {

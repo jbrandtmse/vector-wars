@@ -94,16 +94,16 @@ export const SPAWN_EVENTS: SpawnEvent[] = [
 
 // Vector shard explosion constants (Story 2-4)
 export const SHARD_COUNT = 10;           // shards per explosion
-export const SHARD_MIN_SPEED = 8;        // units/sec minimum outward velocity
-export const SHARD_MAX_SPEED = 18;       // units/sec maximum outward velocity
+export const SHARD_MIN_SPEED = 12;       // units/sec minimum outward velocity
+export const SHARD_MAX_SPEED = 25;       // units/sec maximum outward velocity
 export const SHARD_MIN_LIFETIME = 0.4;   // seconds minimum before fade-out
 export const SHARD_MAX_LIFETIME = 0.8;   // seconds maximum before fade-out
-export const SHARD_LENGTH = 0.5;         // length of each shard line segment
+export const SHARD_LENGTH = 1.0;         // length of each shard line segment
 export const MAX_ACTIVE_EXPLOSIONS = 12; // max concurrent explosions (pre-allocated pool)
 
 // Enemy data burst constants (Story 2-5)
 export const ENEMY_DATA_BURST_POOL_SIZE = 30;
-export const ENEMY_DATA_BURST_LENGTH = 0.8;       // line segment length (units)
+export const ENEMY_DATA_BURST_LENGTH = 1.5;       // line segment length (units)
 export const ENEMY_DATA_BURST_MAX_RANGE = 80;      // deactivate beyond this distance
 export const ENEMY_DATA_BURST_COLLIDER_RADIUS = 0.3; // sphere for hit detection
 
@@ -115,11 +115,11 @@ export const PLAYER_COLLIDER_RADIUS = 1.0;
 export const ATTACK_STATE_PATROL_DURATION = 3.0; // seconds in patrol before attacking
 
 // HUD constants (Story 2-6)
-export const HUD_SHIELD_BAR_WIDTH = 0.3;       // total width in camera-local units
-export const HUD_SHIELD_BAR_HEIGHT = 0.04;      // total height in camera-local units
-export const HUD_SCORE_DIGIT_WIDTH = 0.06;      // width of each seven-segment digit
-export const HUD_SCORE_DIGIT_HEIGHT = 0.09;     // height of each seven-segment digit
-export const HUD_SCORE_DIGIT_SPACING = 0.02;    // gap between digits
+export const HUD_SHIELD_BAR_WIDTH = 0.4;       // total width in camera-local units
+export const HUD_SHIELD_BAR_HEIGHT = 0.05;      // total height in camera-local units
+export const HUD_SCORE_DIGIT_WIDTH = 0.08;      // width of each seven-segment digit
+export const HUD_SCORE_DIGIT_HEIGHT = 0.12;     // height of each seven-segment digit
+export const HUD_SCORE_DIGIT_SPACING = 0.025;   // gap between digits
 export const HUD_SCORE_MAX_DIGITS = 6;          // max displayable digits (999999)
 export const HUD_Z_DEPTH = -1.5;                // z position in camera-local space
 
@@ -134,7 +134,7 @@ export const DAMAGE_FLASH_COLOR = { r: 1.0, g: 0.1, b: 0.0 } as const; // red-or
 export const SCORE_POPUP_POOL_SIZE = 8;       // max concurrent popups
 export const SCORE_POPUP_LIFETIME = 0.8;       // seconds before full fade-out
 export const SCORE_POPUP_FLOAT_SPEED = 2.0;    // units/sec upward movement
-export const SCORE_POPUP_SCALE = 0.5;           // world-space scale factor
+export const SCORE_POPUP_SCALE = 1.2;           // world-space scale factor
 export const SCORE_POPUP_MAX_DIGITS = 4;        // max digits in popup (+9999)
 
 // Viewport movement constants (Story 1-4)
