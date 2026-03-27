@@ -12,7 +12,7 @@ import {
 describe('EMP Burst Constants', () => {
   it('should have EMP_BURST_COOLDOWN > 0', () => {
     expect(EMP_BURST_COOLDOWN).toBeGreaterThan(0);
-    expect(EMP_BURST_COOLDOWN).toBe(8.0);
+    expect(EMP_BURST_COOLDOWN).toBe(3.0);
   });
 
   it('should have EMP_BURST_RADIUS > 0', () => {

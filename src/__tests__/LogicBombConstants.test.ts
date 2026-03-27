@@ -41,8 +41,8 @@ describe('Logic Bomb Constants', () => {
     expect(LOGIC_BOMB_DAMAGE).toBeGreaterThan(DATA_LANCE_BOLT_DAMAGE);
   });
 
-  it('LOGIC_BOMB_MAX_AMMO should be exactly 5 per phase', () => {
-    expect(LOGIC_BOMB_MAX_AMMO).toBe(5);
+  it('LOGIC_BOMB_MAX_AMMO should be exactly 10 per phase', () => {
+    expect(LOGIC_BOMB_MAX_AMMO).toBe(10);
   });
 
   it('LOGIC_BOMB_POOL_SIZE should match MAX_POOL_SIZE.logicBomb', () => {
@@ -54,7 +54,7 @@ describe('Logic Bomb Constants', () => {
     expect(LOGIC_BOMB_DAMAGE).toBe(40);
     expect(LOGIC_BOMB_MAX_RANGE).toBe(80);
     expect(LOGIC_BOMB_MAX_LIFETIME).toBe(4.0);
-    expect(LOGIC_BOMB_FIRE_COOLDOWN).toBe(1.0);
+    expect(LOGIC_BOMB_FIRE_COOLDOWN).toBe(0.5);
     expect(LOGIC_BOMB_TURN_RATE).toBe(3.0);
     expect(LOGIC_BOMB_LOCK_CONE_ANGLE).toBe(0.35);
     expect(LOGIC_BOMB_LOCK_RANGE).toBe(60);

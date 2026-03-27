@@ -272,17 +272,17 @@ export const LOGIC_BOMB_SPEED = 30;
 export const LOGIC_BOMB_DAMAGE = 40;
 export const LOGIC_BOMB_MAX_RANGE = 80;
 export const LOGIC_BOMB_MAX_LIFETIME = 4.0;
-export const LOGIC_BOMB_FIRE_COOLDOWN = 1.0;
+export const LOGIC_BOMB_FIRE_COOLDOWN = 0.5;
 export const LOGIC_BOMB_TURN_RATE = 3.0;
 export const LOGIC_BOMB_LOCK_CONE_ANGLE = 0.35;
 export const LOGIC_BOMB_LOCK_RANGE = 60;
-export const LOGIC_BOMB_MAX_AMMO = 5;
+export const LOGIC_BOMB_MAX_AMMO = 10;
 export const LOGIC_BOMB_POOL_SIZE = 10;
 export const LOGIC_BOMB_COLLIDER_RADIUS = 0.8;
 export const LOGIC_BOMB_LENGTH = 2.0;
 
 // EMP Burst constants (Story 3-6)
-export const EMP_BURST_COOLDOWN = 8.0;
+export const EMP_BURST_COOLDOWN = 3.0;
 export const EMP_BURST_RADIUS = 25;
 export const EMP_BURST_STUN_DURATION = 3.0;
 export const EMP_BURST_SLOW_FACTOR = 0.2;
