@@ -52,7 +52,7 @@ export class AttackState implements AIState {
     this.fireCallback(
       this.tempOrigin,
       playerPos,
-      enemy.params.projectileSpeed,
+      enemy.getEffectiveParams().projectileSpeed,
       enemy.params.attackDamage,
     );
 

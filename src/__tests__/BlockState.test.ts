@@ -106,6 +106,7 @@ describe('BlockState (Story 3-2)', () => {
     const mockEnemy = {
       getObject3D: () => enemyObj,
       params: { patrolSpeed: 0.8 },
+      getEffectiveParams() { return this.params; },
       transitionToState: vi.fn(),
     };
 
@@ -135,6 +136,7 @@ describe('BlockState (Story 3-2)', () => {
     const mockEnemy = {
       getObject3D: () => enemyObj,
       params: { patrolSpeed: 0.8 },
+      getEffectiveParams() { return this.params; },
       transitionToState: vi.fn(),
     };
 
@@ -170,6 +172,7 @@ describe('BlockState (Story 3-2)', () => {
     const mockEnemy = {
       getObject3D: () => enemyObj,
       params: { patrolSpeed: 0.8 },
+      getEffectiveParams() { return this.params; },
       transitionToState: vi.fn(),
     };
 
@@ -197,6 +200,7 @@ describe('BlockState (Story 3-2)', () => {
     const mockEnemy = {
       getObject3D: () => enemyObj,
       params: { patrolSpeed: 0.8 },
+      getEffectiveParams() { return this.params; },
       transitionToState: vi.fn(),
     };
 
@@ -225,6 +229,7 @@ describe('BlockState (Story 3-2)', () => {
     const mockEnemy = {
       getObject3D: () => enemyObj,
       params: { patrolSpeed: 0.8 },
+      getEffectiveParams() { return this.params; },
       transitionToState: vi.fn(),
     };
 
@@ -257,6 +262,7 @@ describe('BlockState (Story 3-2)', () => {
     const mockEnemy = {
       getObject3D: () => enemyObj,
       params: { patrolSpeed: 0.8 },
+      getEffectiveParams() { return this.params; },
       transitionToState: vi.fn(),
     };
 

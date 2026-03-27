@@ -35,6 +35,11 @@ export interface LogicBombLockOnEvent {
   target: Enemy;
 }
 
+export interface EMPBurstActivatedEvent {
+  position: { x: number; y: number; z: number };
+  radius: number;
+}
+
 export interface GameEvents {
   weaponFired: WeaponFiredEvent;
   enemySpawned: { enemy: Enemy; position: { x: number; y: number; z: number } };
@@ -45,6 +50,7 @@ export interface GameEvents {
   playerDied: Record<string, never>;
   logicBombLockOn: LogicBombLockOnEvent;
   logicBombLockLost: Record<string, never>;
+  empBurstActivated: EMPBurstActivatedEvent;
 }
 
 /** Module-level singleton event bus */

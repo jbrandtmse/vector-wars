@@ -57,12 +57,12 @@ export class PursuitState implements AIState {
     // Move toward player if beyond minimum engagement distance
     if (distance > WATCHDOG_MIN_ENGAGE_DISTANCE) {
       this.direction.normalize();
-      const speed = enemy.params.patrolSpeed * WATCHDOG_PURSUIT_SPEED_MULTIPLIER;
+      const speed = enemy.getEffectiveParams().patrolSpeed * WATCHDOG_PURSUIT_SPEED_MULTIPLIER;
       enemyObj.position.addScaledVector(this.direction, speed * dt);
     } else {
       // Within engagement range -- strafe/orbit around player
       // Use a simple orbit in the XZ plane relative to player position
-      const orbitSpeed = enemy.params.patrolSpeed * ORBIT_SPEED_FACTOR;
+      const orbitSpeed = enemy.getEffectiveParams().patrolSpeed * ORBIT_SPEED_FACTOR;
       const angle = this.attackTimer * orbitSpeed;
       this.targetPos.set(
         playerPos.x + Math.cos(angle) * WATCHDOG_MIN_ENGAGE_DISTANCE,

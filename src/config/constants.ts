@@ -281,6 +281,15 @@ export const LOGIC_BOMB_POOL_SIZE = 10;
 export const LOGIC_BOMB_COLLIDER_RADIUS = 0.8;
 export const LOGIC_BOMB_LENGTH = 2.0;
 
+// EMP Burst constants (Story 3-6)
+export const EMP_BURST_COOLDOWN = 8.0;
+export const EMP_BURST_RADIUS = 25;
+export const EMP_BURST_STUN_DURATION = 3.0;
+export const EMP_BURST_SLOW_FACTOR = 0.2;
+export const EMP_BURST_VISUAL_DURATION = 0.6;
+export const EMP_BURST_POOL_SIZE = 3;
+export const EMP_BURST_STUN_PULSE_RATE = 6.0;
+
 // Data Corridor Phase constants (Story 3-4)
 export const CORRIDOR_OBSTACLE_DAMAGE = 15;
 export const CORRIDOR_HIT_COOLDOWN = 0.8;

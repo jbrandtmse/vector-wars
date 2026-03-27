@@ -65,7 +65,7 @@ export class BlockState implements AIState {
     this.blockTarget.addScaledVector(this.lateralDir, swayOffset);
 
     // Smooth, weighty movement toward blocking position
-    const lerpSpeed = enemy.params.patrolSpeed * GATEKEEPER_BLOCK_SPEED_MULTIPLIER;
+    const lerpSpeed = enemy.getEffectiveParams().patrolSpeed * GATEKEEPER_BLOCK_SPEED_MULTIPLIER;
     enemyObj.position.lerp(this.blockTarget, lerpSpeed * dt);
 
     // Attack timer -- transition to AttackState after interval

@@ -2,7 +2,7 @@
  * Input action type — named actions that the game logic queries.
  * Systems use InputManager.isActive(action) rather than checking raw key codes.
  */
-export type InputAction = 'moveUp' | 'moveDown' | 'moveLeft' | 'moveRight' | 'fire' | 'logicBomb';
+export type InputAction = 'moveUp' | 'moveDown' | 'moveLeft' | 'moveRight' | 'fire' | 'logicBomb' | 'emp';
 
 /**
  * Action-to-key mapping using KeyboardEvent.code values.
@@ -15,4 +15,5 @@ export const INPUT_ACTIONS: Readonly<Record<InputAction, string>> = {
   moveRight: 'ArrowRight',
   fire: 'Space',
   logicBomb: 'KeyZ',
+  emp: 'KeyX',
 } as const;

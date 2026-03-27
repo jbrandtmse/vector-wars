@@ -36,7 +36,7 @@ export class PatrolState implements AIState {
 
   update(enemy: Enemy, dt: number): void {
     // Existing orbit patrol logic (unchanged)
-    this.angle += enemy.params.patrolSpeed * dt;
+    this.angle += enemy.getEffectiveParams().patrolSpeed * dt;
     const spawnPos = enemy.getSpawnPosition();
     enemy.getObject3D().position.set(
       spawnPos.x + Math.cos(this.angle) * ORBIT_RADIUS,

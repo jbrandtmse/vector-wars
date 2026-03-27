@@ -13,6 +13,7 @@ import { GameObject } from '../GameObject.ts';
 import { DestroyedState } from '../../ai/states/DestroyedState.ts';
 import { eventBus } from '../../core/GameEvents.ts';
 import { Logger } from '../../core/Logger.ts';
+import { EMP_BURST_SLOW_FACTOR, EMP_BURST_STUN_PULSE_RATE } from '../../config/constants.ts';
 import type { AIState } from '../../ai/AIState.ts';
 import type { BehaviorParams } from '../../ai/BehaviorParams.ts';
 import type { Poolable } from '../../core/ObjectPool.ts';
@@ -28,6 +29,9 @@ export abstract class Enemy extends GameObject implements Poolable {
   protected currentState: AIState | null = null;
   private spawnPosition = new THREE.Vector3();
   private flashTimer = 0;
+  private stunTimer = 0;
+  // Pre-allocated stunned params object to avoid per-frame allocation
+  private stunnedParams: BehaviorParams | null = null;
 
   constructor(
     health: number,
@@ -50,6 +54,7 @@ export abstract class Enemy extends GameObject implements Poolable {
     this.object3D.scale.setScalar(1.0);
     this.currentState = null;
     this.flashTimer = 0;
+    this.stunTimer = 0;
   }
 
   setSpawnPosition(pos: THREE.Vector3): void {
@@ -101,11 +106,50 @@ export abstract class Enemy extends GameObject implements Poolable {
     this.object3D.scale.setScalar(scale);
   }
 
+  applyStun(duration: number): void {
+    this.stunTimer = duration; // Resets timer; does not stack
+  }
+
+  get isStunned(): boolean {
+    return this.stunTimer > 0;
+  }
+
+  getEffectiveParams(): BehaviorParams {
+    if (this.stunTimer <= 0) return this.params;
+    // Reuse pre-allocated object to avoid per-frame allocation during stun
+    if (!this.stunnedParams) {
+      this.stunnedParams = { ...this.params };
+    }
+    this.stunnedParams.patrolSpeed = this.params.patrolSpeed * EMP_BURST_SLOW_FACTOR;
+    this.stunnedParams.attackCooldown = this.params.attackCooldown / EMP_BURST_SLOW_FACTOR;
+    this.stunnedParams.projectileSpeed = this.params.projectileSpeed * EMP_BURST_SLOW_FACTOR;
+    this.stunnedParams.attackDamage = this.params.attackDamage;
+    this.stunnedParams.evasionChance = this.params.evasionChance;
+    this.stunnedParams.movementRandomness = this.params.movementRandomness;
+    return this.stunnedParams;
+  }
+
   update(dt: number): void {
     // Hit flash timer
     if (this.flashTimer > 0) {
       this.flashTimer -= dt;
       this.setFlashState(this.flashTimer > 0);
+    }
+
+    // Stun timer and visual pulse
+    if (this.stunTimer > 0) {
+      this.stunTimer = Math.max(0, this.stunTimer - dt);
+      // Visual stutter: oscillate scale while stunned (hit flash takes priority)
+      if (this.flashTimer <= 0) {
+        if (this.stunTimer > 0) {
+          const pulse = Math.sin(this.stunTimer * EMP_BURST_STUN_PULSE_RATE * Math.PI * 2);
+          const scale = 1.0 + pulse * 0.2; // oscillates between 0.8 and 1.2
+          this.object3D.scale.setScalar(scale);
+        } else {
+          // Stun just expired, reset scale
+          this.object3D.scale.setScalar(1.0);
+        }
+      }
     }
 
     if (this.currentState) {

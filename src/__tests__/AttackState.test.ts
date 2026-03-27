@@ -49,9 +49,11 @@ describe('AttackState', () => {
 
     const attackState = new AttackState(fireCallback, playerPositionGetter, nextState);
 
+    const params = { projectileSpeed: 15, attackDamage: 10 };
     const mockEnemy = {
       getObject3D: () => ({ position: new THREE.Vector3(10, 5, 10) }),
-      params: { projectileSpeed: 15, attackDamage: 10 },
+      params,
+      getEffectiveParams: () => params,
       transitionToState: vi.fn(),
     } as never;
 
@@ -72,9 +74,11 @@ describe('AttackState', () => {
 
     const attackState = new AttackState(fireCallback, playerPositionGetter, nextState);
 
+    const params = { projectileSpeed: 15, attackDamage: 10 };
     const mockEnemy = {
       getObject3D: () => ({ position: new THREE.Vector3() }),
-      params: { projectileSpeed: 15, attackDamage: 10 },
+      params,
+      getEffectiveParams: () => params,
       transitionToState: vi.fn(),
     } as never;
 

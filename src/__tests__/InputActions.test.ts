@@ -25,4 +25,18 @@ describe('Input Actions', () => {
     const action: InputAction = 'logicBomb';
     expect(action).toBe('logicBomb');
   });
+
+  it('should have emp action defined in INPUT_ACTIONS', () => {
+    expect(INPUT_ACTIONS).toHaveProperty('emp');
+  });
+
+  it('should map emp to KeyX (physical key code)', () => {
+    expect(INPUT_ACTIONS.emp).toBe('KeyX');
+  });
+
+  it('should include emp in the InputAction type', () => {
+    // TypeScript compile-time check: this assignment must not error
+    const action: InputAction = 'emp';
+    expect(action).toBe('emp');
+  });
 });

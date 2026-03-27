@@ -101,6 +101,7 @@ describe('PursuitState (Story 3-1)', () => {
     const mockEnemy = {
       getObject3D: () => enemyObj,
       params: { patrolSpeed: 1.5 },
+      getEffectiveParams() { return this.params; },
       transitionToState: vi.fn(),
     };
 
@@ -127,6 +128,7 @@ describe('PursuitState (Story 3-1)', () => {
     const mockEnemy = {
       getObject3D: () => enemyObj,
       params: { patrolSpeed: 1.5 },
+      getEffectiveParams() { return this.params; },
       transitionToState: vi.fn(),
     };
 
@@ -158,6 +160,7 @@ describe('PursuitState (Story 3-1)', () => {
     const mockEnemy = {
       getObject3D: () => enemyObj,
       params: { patrolSpeed: 1.5 },
+      getEffectiveParams() { return this.params; },
       transitionToState: vi.fn(),
     };
 
@@ -184,6 +187,7 @@ describe('PursuitState (Story 3-1)', () => {
     const mockEnemy = {
       getObject3D: () => enemyObj,
       params: { patrolSpeed: 1.5 },
+      getEffectiveParams() { return this.params; },
       transitionToState: vi.fn(),
     };
 
@@ -210,6 +214,7 @@ describe('PursuitState (Story 3-1)', () => {
     const mockEnemy = {
       getObject3D: () => enemyObj,
       params: { patrolSpeed: 1.5 },
+      getEffectiveParams() { return this.params; },
       transitionToState: vi.fn(),
     };
 
