@@ -6,7 +6,7 @@ import {
   VIEWPORT_MAX_OFFSET_Y_DOWN,
 } from '../config/constants.ts';
 
-const RECENTER_SPEED = 2.0; // units/sec drift back toward center
+const RECENTER_SPEED = 1.0; // units/sec drift back toward center
 
 /**
  * Represents the current viewport offset from the base camera position.
