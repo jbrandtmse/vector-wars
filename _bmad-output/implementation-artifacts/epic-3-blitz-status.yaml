@@ -16,8 +16,8 @@ stories:
     committed: false
     notes: ""
   3-2-gatekeeper-enemy-type:
-    status: pending
-    phase: null
+    status: reviewing
+    phase: code-review (attempt 1)
     attempts: 0
     committed: false
     notes: ""

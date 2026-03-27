@@ -110,6 +110,47 @@ describe('RailMovement', () => {
       expect(dist).toBeGreaterThan(0);
     });
 
+    it('should have a getCurrentDirection method on the prototype', () => {
+      expect(typeof RailMovement.prototype.getCurrentDirection).toBe('function');
+    });
+  });
+
+  describe('getCurrentDirection()', () => {
+    it('should return a Vector3 representing current rail tangent', () => {
+      const THREE = require('three');
+      const camera = new THREE.PerspectiveCamera(70, 16 / 9, 0.01, 1000);
+      const rail = new RailMovement(camera);
+
+      const dir = rail.getCurrentDirection();
+      expect(dir).toBeDefined();
+      expect(typeof dir.x).toBe('number');
+      expect(typeof dir.y).toBe('number');
+      expect(typeof dir.z).toBe('number');
+    });
+
+    it('should return a roughly unit-length direction vector', () => {
+      const THREE = require('three');
+      const camera = new THREE.PerspectiveCamera(70, 16 / 9, 0.01, 1000);
+      const rail = new RailMovement(camera);
+
+      rail.update(0.5, { x: 0, y: 0 });
+      const dir = rail.getCurrentDirection();
+      const length = Math.sqrt(dir.x * dir.x + dir.y * dir.y + dir.z * dir.z);
+      expect(length).toBeCloseTo(1.0, 1);
+    });
+
+    it('should write into optional target vector when provided', () => {
+      const THREE = require('three');
+      const camera = new THREE.PerspectiveCamera(70, 16 / 9, 0.01, 1000);
+      const rail = new RailMovement(camera);
+
+      const target = new THREE.Vector3();
+      const result = rail.getCurrentDirection(target);
+      expect(result).toBe(target);
+    });
+  });
+
+  describe('Camera positioning (continued)', () => {
     it('should apply viewport offset relative to rail frame', () => {
       const THREE = require('three');
       const camera = new THREE.PerspectiveCamera(70, 16 / 9, 0.01, 1000);

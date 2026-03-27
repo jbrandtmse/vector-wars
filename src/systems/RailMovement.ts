@@ -94,6 +94,17 @@ export class RailMovement {
   }
 
   /**
+   * Get the current forward direction (tangent) of the rail at the player's position.
+   * Returns a normalized tangent vector. Optional target parameter follows Three.js
+   * conventions for reusable output vectors.
+   */
+  getCurrentDirection(target?: THREE.Vector3): THREE.Vector3 {
+    const t = target ?? new THREE.Vector3();
+    this.curve.getTangentAt(this.progress, t);
+    return t;
+  }
+
+  /**
    * Returns the current normalized progress (0-1) along the rail path.
    */
   getRailProgress(): number {

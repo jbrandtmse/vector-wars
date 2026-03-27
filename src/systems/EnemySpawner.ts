@@ -13,16 +13,19 @@
  * Updated by: Story 2-5 (added fire callback and attack-patrol cycle wiring)
  * Updated by: Story 2-9 (refactored to use ObjectPool<Sentinel>)
  * Updated by: Story 3-1 (added Watchdog pool and pursuit AI state wiring)
+ * Updated by: Story 3-2 (added Gatekeeper pool and block AI state wiring)
  */
 
 import * as THREE from 'three';
-import { SPAWN_EVENTS, SENTINEL_POOL_SIZE, WATCHDOG_POOL_SIZE } from '../config/constants.ts';
+import { SPAWN_EVENTS, SENTINEL_POOL_SIZE, WATCHDOG_POOL_SIZE, GATEKEEPER_POOL_SIZE } from '../config/constants.ts';
 import { GameObjectManager } from '../entities/GameObjectManager.ts';
 import { Sentinel } from '../entities/enemies/Sentinel.ts';
 import { Watchdog } from '../entities/enemies/Watchdog.ts';
+import { Gatekeeper } from '../entities/enemies/Gatekeeper.ts';
 import { SpawnState } from '../ai/states/SpawnState.ts';
 import { PatrolState } from '../ai/states/PatrolState.ts';
 import { PursuitState } from '../ai/states/PursuitState.ts';
+import { BlockState } from '../ai/states/BlockState.ts';
 import { AttackState, type FireCallback } from '../ai/states/AttackState.ts';
 import { ObjectPool } from '../core/ObjectPool.ts';
 import { eventBus } from '../core/GameEvents.ts';
@@ -40,8 +43,10 @@ export class EnemySpawner {
   private playerPositionGetter: () => THREE.Vector3;
   private sentinelPool: ObjectPool<Sentinel>;
   private watchdogPool: ObjectPool<Watchdog>;
+  private gatekeeperPool: ObjectPool<Gatekeeper>;
   private railMovement: RailMovement | null;
   private tempSpawnPos = new THREE.Vector3();
+  private tempRailDir = new THREE.Vector3();
 
   constructor(
     scene: THREE.Scene,
@@ -85,12 +90,27 @@ export class EnemySpawner {
       WATCHDOG_POOL_SIZE,
     );
 
+    // Pre-warm Gatekeeper pool (Story 3-2)
+    this.gatekeeperPool = new ObjectPool<Gatekeeper>(
+      () => {
+        const gatekeeper = new Gatekeeper(this.vectorMaterials);
+        this.scene.add(gatekeeper.getObject3D());
+        gatekeeper.getObject3D().visible = false;
+        gatekeeper.setActive(false);
+        this.gameObjectManager.add(gatekeeper);
+        return gatekeeper;
+      },
+      GATEKEEPER_POOL_SIZE,
+    );
+
     // Release enemies back to pool when destroyed
     eventBus.on('enemyDestroyed', ({ enemy }) => {
       if (enemy instanceof Sentinel) {
         this.sentinelPool.release(enemy);
       } else if (enemy instanceof Watchdog) {
         this.watchdogPool.release(enemy);
+      } else if (enemy instanceof Gatekeeper) {
+        this.gatekeeperPool.release(enemy);
       }
     });
   }
@@ -103,6 +123,19 @@ export class EnemySpawner {
   /** Expose the watchdog pool for diagnostics registration */
   getWatchdogPool(): ObjectPool<Watchdog> {
     return this.watchdogPool;
+  }
+
+  /** Expose the gatekeeper pool for diagnostics registration (Story 3-2) */
+  getGatekeeperPool(): ObjectPool<Gatekeeper> {
+    return this.gatekeeperPool;
+  }
+
+  /** Get the current rail direction, or fallback to (0, 0, -1) for tests */
+  private getRailDirection(): THREE.Vector3 {
+    if (this.railMovement) {
+      return this.railMovement.getCurrentDirection(this.tempRailDir);
+    }
+    return this.tempRailDir.set(0, 0, -1);
   }
 
   update(currentProgress: number): void {
@@ -133,9 +166,14 @@ export class EnemySpawner {
 
   private spawnWave(event: typeof SPAWN_EVENTS[number], _eventIndex: number): void {
     for (let j = 0; j < event.count; j++) {
-      const enemy = event.enemyType === 'watchdog'
-        ? this.watchdogPool.acquire()
-        : this.sentinelPool.acquire();
+      let enemy: Sentinel | Watchdog | Gatekeeper | undefined;
+      if (event.enemyType === 'gatekeeper') {
+        enemy = this.gatekeeperPool.acquire();
+      } else if (event.enemyType === 'watchdog') {
+        enemy = this.watchdogPool.acquire();
+      } else {
+        enemy = this.sentinelPool.acquire();
+      }
       if (!enemy) continue; // pool exhausted (should not happen with proper sizing)
 
       // Reactivate for use
@@ -162,7 +200,21 @@ export class EnemySpawner {
       // already added during pool prewarm. It starts inactive, so update() skips it.
 
       // Wire AI state chain based on enemy type
-      if (event.enemyType === 'watchdog') {
+      if (event.enemyType === 'gatekeeper') {
+        // Gatekeeper: Spawn -> Block -> Attack -> Block cycle (Story 3-2)
+        const getRailDir = () => this.getRailDirection();
+        const createBlockState = (): BlockState => new BlockState(
+          this.playerPositionGetter,
+          getRailDir,
+          createAttackFromBlock,
+        );
+        const createAttackFromBlock = (): AttackState => new AttackState(
+          this.fireCallback,
+          this.playerPositionGetter,
+          createBlockState(),  // attack returns to blocking
+        );
+        enemy.transitionToState(new SpawnState(createBlockState()));
+      } else if (event.enemyType === 'watchdog') {
         // Watchdog: Spawn -> Pursuit -> Attack -> Pursuit cycle (Story 3-1)
         const createPursuitState = (): PursuitState => new PursuitState(
           this.playerPositionGetter,

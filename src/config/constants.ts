@@ -89,11 +89,30 @@ export const WATCHDOG_PURSUIT_SPEED_MULTIPLIER = 1.8;
 export const WATCHDOG_MIN_ENGAGE_DISTANCE = 8.0;
 export const WATCHDOG_ATTACK_INTERVAL = 2.5;
 
-// Spawn event definitions (Story 2-2, extended Story 3-1)
+// Gatekeeper enemy defaults (Story 3-2)
+export const GATEKEEPER_BEHAVIOR_LEVEL1: BehaviorParams = {
+  patrolSpeed: 0.8,
+  attackCooldown: 2.5,
+  evasionChance: 0.0,
+  movementRandomness: 0.0,
+  attackDamage: 15,
+  projectileSpeed: 12,
+};
+export const GATEKEEPER_COLLIDER_RADIUS = 2.0;
+export const GATEKEEPER_HEALTH = 80;
+export const GATEKEEPER_SCORE_VALUE = 300;
+export const GATEKEEPER_POOL_SIZE = 6;
+export const GATEKEEPER_BLOCK_DISTANCE = 15.0;
+export const GATEKEEPER_BLOCK_SPEED_MULTIPLIER = 1.2;
+export const GATEKEEPER_LATERAL_SWAY = 2.5;
+export const GATEKEEPER_SWAY_FREQUENCY = 0.6;
+export const GATEKEEPER_ATTACK_INTERVAL = 3.5;
+
+// Spawn event definitions (Story 2-2, extended Story 3-1, extended Story 3-2)
 // Hardcoded for now -- JSON loading comes later with LevelManager
 export interface SpawnEvent {
   railProgress: number;  // 0-1, trigger point on rail
-  enemyType: 'sentinel' | 'watchdog';
+  enemyType: 'sentinel' | 'watchdog' | 'gatekeeper';
   position: [number, number, number]; // world-space spawn position
   count: number;          // how many to spawn
 }
@@ -107,8 +126,12 @@ export const SPAWN_EVENTS: SpawnEvent[] = [
   { railProgress: 0.35, enemyType: 'sentinel', position: [-30, 3, 60], count: 3 },
   // Watchdog wave 2 (Story 3-1)
   { railProgress: 0.50, enemyType: 'watchdog', position: [-50, 4, 40], count: 2 },
+  // Gatekeeper wave 1 (Story 3-2) -- blocker enemy that forces sustained engagement
+  { railProgress: 0.40, enemyType: 'gatekeeper', position: [30, 3, 50], count: 1 },
   // Wave 3: ~60% into the loop
   { railProgress: 0.60, enemyType: 'sentinel', position: [-70, 4, -10], count: 2 },
+  // Gatekeeper wave 2 (Story 3-2) -- second blocker, later in the loop
+  { railProgress: 0.70, enemyType: 'gatekeeper', position: [-60, 3, -20], count: 1 },
   // Wave 4: ~85% into the loop
   { railProgress: 0.85, enemyType: 'sentinel', position: [30, 2, -55], count: 3 },
 ];
