@@ -16,8 +16,8 @@ import type { AIState } from '../AIState.ts';
 import type { Enemy } from '../../entities/enemies/Enemy.ts';
 import { ATTACK_STATE_PATROL_DURATION } from '../../config/constants.ts';
 
-const ORBIT_RADIUS = 5;
-const Y_BOB_AMPLITUDE = 1.5;
+const ORBIT_RADIUS = 2.5;
+const Y_BOB_AMPLITUDE = 0.8;
 const Y_BOB_FREQUENCY = 0.5;
 
 export class PatrolState implements AIState {

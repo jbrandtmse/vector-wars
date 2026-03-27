@@ -83,6 +83,17 @@ export class RailMovement {
   }
 
   /**
+   * Returns a world position on the rail at a given progress offset ahead of the player.
+   * Used by spawner to place enemies in the player's path.
+   */
+  getPointAhead(progressOffset: number, out: THREE.Vector3): THREE.Vector3 {
+    let t = (this.progress + progressOffset) % 1;
+    if (t < 0) t += 1;
+    this.curve.getPointAt(t, out);
+    return out;
+  }
+
+  /**
    * Returns the current normalized progress (0-1) along the rail path.
    */
   getRailProgress(): number {

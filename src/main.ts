@@ -100,6 +100,7 @@ const enemySpawner = new EnemySpawner(
   vectorMaterials,
   (origin, target, speed, damage) => enemyProjectileSystem.fireAt(origin, target, speed, damage),
   () => camera.position,
+  railMovement,
 );
 
 // --- Collision System Setup (Story 2-3) ---

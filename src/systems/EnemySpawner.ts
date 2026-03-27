@@ -25,6 +25,7 @@ import { ObjectPool } from '../core/ObjectPool.ts';
 import { eventBus } from '../core/GameEvents.ts';
 import { Logger } from '../core/Logger.ts';
 import type { VectorMaterials } from '../rendering/VectorMaterials.ts';
+import type { RailMovement } from './RailMovement.ts';
 
 export class EnemySpawner {
   private firedEvents: Set<number> = new Set();
@@ -35,6 +36,8 @@ export class EnemySpawner {
   private fireCallback: FireCallback;
   private playerPositionGetter: () => THREE.Vector3;
   private sentinelPool: ObjectPool<Sentinel>;
+  private railMovement: RailMovement | null;
+  private tempSpawnPos = new THREE.Vector3();
 
   constructor(
     scene: THREE.Scene,
@@ -42,12 +45,14 @@ export class EnemySpawner {
     vectorMaterials: VectorMaterials,
     fireCallback?: FireCallback,
     playerPositionGetter?: () => THREE.Vector3,
+    railMovement?: RailMovement,
   ) {
     this.scene = scene;
     this.gameObjectManager = gameObjectManager;
     this.vectorMaterials = vectorMaterials;
     this.fireCallback = fireCallback ?? (() => {});
     this.playerPositionGetter = playerPositionGetter ?? (() => new THREE.Vector3());
+    this.railMovement = railMovement ?? null;
 
     // Pre-warm Sentinel pool. Each sentinel is added to the scene and
     // GameObjectManager at creation time (inactive, invisible).
@@ -111,13 +116,20 @@ export class EnemySpawner {
       enemy.setActive(true);
       enemy.getObject3D().visible = true;
 
-      // Position and offset (same as before)
-      const offset = new THREE.Vector3(
-        (j - event.count / 2) * 3, // spread horizontally
-        0,
-        (j % 2) * 2, // slight depth offset
-      );
-      const spawnPos = new THREE.Vector3(...event.position).add(offset);
+      // Place enemies ahead on the rail path with small lateral offsets
+      // Each enemy staggers further ahead (0.05-0.15 progress units apart)
+      const aheadOffset = 0.05 + j * 0.03;
+      if (this.railMovement) {
+        this.railMovement.getPointAhead(aheadOffset, this.tempSpawnPos);
+      } else {
+        // Fallback to fixed positions (for tests without rail)
+        this.tempSpawnPos.set(...event.position);
+      }
+      // Small lateral offset so enemies aren't all stacked on the rail center
+      const lateralSpread = (j - (event.count - 1) / 2) * 1.5;
+      const spawnPos = new THREE.Vector3().copy(this.tempSpawnPos);
+      spawnPos.x += lateralSpread;
+      spawnPos.y += 0.5; // Slightly above rail level for visibility
       enemy.setSpawnPosition(spawnPos);
 
       // NOTE: Do NOT call gameObjectManager.add(enemy) here -- sentinel was
