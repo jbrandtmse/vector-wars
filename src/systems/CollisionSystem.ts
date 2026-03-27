@@ -15,11 +15,18 @@ import type { BoltData } from './DataLanceSystem.ts';
 import type { GameObjectManager } from '../entities/GameObjectManager.ts';
 import type { Enemy } from '../entities/enemies/Enemy.ts';
 import { DATA_LANCE_BOLT_DAMAGE } from '../config/constants.ts';
+import { eventBus } from '../core/GameEvents.ts';
 import { Logger } from '../core/Logger.ts';
+
+const RAM_DAMAGE_TO_PLAYER = 15;
+const RAM_DAMAGE_TO_ENEMY = 9999; // instant kill
+const RAM_COOLDOWN = 0.5;
 
 export class CollisionSystem {
   private gameObjectManager: GameObjectManager;
   private bolts: readonly BoltData[];
+  private playerCollider: THREE.Sphere | null;
+  private ramCooldown = 0;
 
   // Pre-allocated temp vectors for zero-allocation collision checks
   private tempRay = new THREE.Ray();
@@ -28,13 +35,43 @@ export class CollisionSystem {
   constructor(
     gameObjectManager: GameObjectManager,
     bolts: readonly BoltData[],
+    playerCollider?: THREE.Sphere,
   ) {
     this.gameObjectManager = gameObjectManager;
     this.bolts = bolts;
+    this.playerCollider = playerCollider ?? null;
   }
 
-  update(): void {
+  update(dt?: number): void {
     this.checkBoltEnemyCollisions();
+    if (this.playerCollider && dt !== undefined) {
+      this.checkPlayerEnemyCollisions(dt);
+    }
+  }
+
+  private checkPlayerEnemyCollisions(dt: number): void {
+    if (this.ramCooldown > 0) {
+      this.ramCooldown -= dt;
+      return;
+    }
+
+    const entities = this.gameObjectManager.getAll();
+    for (const entity of entities) {
+      if (!entity.isActive) continue;
+      if (!('takeDamage' in entity)) continue;
+
+      const enemy = entity as Enemy;
+      const collider = enemy.getCollider();
+
+      if (this.playerCollider!.intersectsSphere(collider)) {
+        // Ram: destroy enemy and damage player
+        enemy.takeDamage(RAM_DAMAGE_TO_ENEMY);
+        eventBus.emit('playerHit', { damage: RAM_DAMAGE_TO_PLAYER, source: 'ram' });
+        this.ramCooldown = RAM_COOLDOWN;
+        Logger.debug('Collision', 'Player rammed enemy', { enemyId: enemy.id });
+        break; // One ram per cooldown
+      }
+    }
   }
 
   private checkBoltEnemyCollisions(): void {

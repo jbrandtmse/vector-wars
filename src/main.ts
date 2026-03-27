@@ -110,6 +110,7 @@ const enemySpawner = new EnemySpawner(
 const collisionSystem = new CollisionSystem(
   gameObjectManager,
   dataLanceSystem.getActiveBolts(),
+  player.collider,
 );
 
 // --- Logic Bomb System Setup (Story 3-5) ---
@@ -237,7 +238,7 @@ renderer.setAnimationLoop((time: number) => {
     dataLanceSystem.update(dt);
     logicBombSystem.update(dt);
     empBurstSystem.update(dt);
-    collisionSystem.update();
+    collisionSystem.update(dt);
     enemyProjectileSystem.update(dt);
     effectsManager.update(dt);
     gameObjectManager.update(dt);
