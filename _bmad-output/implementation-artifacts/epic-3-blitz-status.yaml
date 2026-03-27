@@ -34,11 +34,11 @@ stories:
     committed: false
     notes: "Story created successfully"
   3-5-logic-bombs-weapon:
-    status: pending
-    phase: null
+    status: reviewing
+    phase: code-review (attempt 1)
     attempts: 0
     committed: false
-    notes: ""
+    notes: "Story created successfully"
   3-6-emp-burst-weapon:
     status: pending
     phase: null

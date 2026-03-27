@@ -267,6 +267,20 @@ export const SURFACE_TARGETS: SurfaceTarget[] = [
 ];
 // Total: 9 firewall nodes, 5 ICE towers
 
+// Logic Bomb constants (Story 3-5)
+export const LOGIC_BOMB_SPEED = 30;
+export const LOGIC_BOMB_DAMAGE = 40;
+export const LOGIC_BOMB_MAX_RANGE = 80;
+export const LOGIC_BOMB_MAX_LIFETIME = 4.0;
+export const LOGIC_BOMB_FIRE_COOLDOWN = 1.0;
+export const LOGIC_BOMB_TURN_RATE = 3.0;
+export const LOGIC_BOMB_LOCK_CONE_ANGLE = 0.35;
+export const LOGIC_BOMB_LOCK_RANGE = 60;
+export const LOGIC_BOMB_MAX_AMMO = 5;
+export const LOGIC_BOMB_POOL_SIZE = 10;
+export const LOGIC_BOMB_COLLIDER_RADIUS = 0.8;
+export const LOGIC_BOMB_LENGTH = 2.0;
+
 // Data Corridor Phase constants (Story 3-4)
 export const CORRIDOR_OBSTACLE_DAMAGE = 15;
 export const CORRIDOR_HIT_COOLDOWN = 0.8;

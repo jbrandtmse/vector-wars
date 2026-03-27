@@ -35,8 +35,8 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-03-26
-last_updated: "2026-03-27T06:40:00Z"
-last_story_created: 3-4-data-corridor-phase
+last_updated: "2026-03-26T23:03:00Z"
+last_story_created: 3-5-logic-bombs-weapon
 project: vector-wars
 project_key: NOKEY
 tracking_system: file-system
@@ -74,7 +74,7 @@ development_status:
   3-2-gatekeeper-enemy-type: done
   3-3-surface-attack-phase: done
   3-4-data-corridor-phase: done
-  3-5-logic-bombs-weapon: backlog
+  3-5-logic-bombs-weapon: done
   3-6-emp-burst-weapon: backlog
   3-7-gatekeeper-boss-encounter: backlog
   3-8-virus-payload-weapon: backlog

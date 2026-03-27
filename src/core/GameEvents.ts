@@ -31,6 +31,10 @@ export interface ScoreChangedEvent {
   delta: number;
 }
 
+export interface LogicBombLockOnEvent {
+  target: Enemy;
+}
+
 export interface GameEvents {
   weaponFired: WeaponFiredEvent;
   enemySpawned: { enemy: Enemy; position: { x: number; y: number; z: number } };
@@ -39,6 +43,8 @@ export interface GameEvents {
   shieldChanged: ShieldChangedEvent;
   scoreChanged: ScoreChangedEvent;
   playerDied: Record<string, never>;
+  logicBombLockOn: LogicBombLockOnEvent;
+  logicBombLockLost: Record<string, never>;
 }
 
 /** Module-level singleton event bus */
