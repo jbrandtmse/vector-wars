@@ -24,6 +24,7 @@ export class RailMovement {
   private curve: CatmullRomCurve3;
   private progress: number = 0;
   private totalLength: number;
+  private closed: boolean;
 
   // Pre-allocated temp vectors to avoid per-frame GC
   private railPosition = new THREE.Vector3();
@@ -34,13 +35,18 @@ export class RailMovement {
   private tempMatrix = new THREE.Matrix4();
   private lookTarget = new THREE.Vector3();
 
-  constructor(camera: THREE.PerspectiveCamera) {
+  constructor(
+    camera: THREE.PerspectiveCamera,
+    points?: readonly [number, number, number][],
+    closed?: boolean,
+  ) {
     this.camera = camera;
+    this.closed = closed ?? true;
 
-    const points = RAIL_PATH_POINTS.map(
+    const pts = (points ?? RAIL_PATH_POINTS).map(
       ([x, y, z]) => new THREE.Vector3(x, y, z),
     );
-    this.curve = new CatmullRomCurve3(points, true, 'catmullrom', 0.5);
+    this.curve = new CatmullRomCurve3(pts, this.closed, 'catmullrom', 0.5);
     this.totalLength = this.curve.getLength();
   }
 
@@ -51,9 +57,16 @@ export class RailMovement {
   update(dt: number, viewportOffset: { x: number; y: number }): void {
     // Advance progress along arc length
     this.progress += (RAIL_SPEED * dt) / this.totalLength;
-    // Wrap for seamless looping
-    this.progress = this.progress % 1;
-    if (this.progress < 0) this.progress += 1;
+
+    if (this.closed) {
+      // Wrap for seamless looping
+      this.progress = this.progress % 1;
+      if (this.progress < 0) this.progress += 1;
+    } else {
+      // Clamp for open (non-looping) paths
+      this.progress = Math.min(this.progress, 1.0);
+      if (this.progress < 0) this.progress = 0;
+    }
 
     // Get rail position and tangent at current progress
     this.curve.getPointAt(this.progress, this.railPosition);
@@ -87,8 +100,13 @@ export class RailMovement {
    * Used by spawner to place enemies in the player's path.
    */
   getPointAhead(progressOffset: number, out: THREE.Vector3): THREE.Vector3 {
-    let t = (this.progress + progressOffset) % 1;
-    if (t < 0) t += 1;
+    let t = this.progress + progressOffset;
+    if (this.closed) {
+      t = t % 1;
+      if (t < 0) t += 1;
+    } else {
+      t = Math.max(0, Math.min(t, 1.0));
+    }
     this.curve.getPointAt(t, out);
     return out;
   }

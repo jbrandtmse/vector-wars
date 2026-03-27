@@ -108,11 +108,11 @@ export const GATEKEEPER_LATERAL_SWAY = 2.5;
 export const GATEKEEPER_SWAY_FREQUENCY = 0.6;
 export const GATEKEEPER_ATTACK_INTERVAL = 3.5;
 
-// Spawn event definitions (Story 2-2, extended Story 3-1, extended Story 3-2)
+// Spawn event definitions (Story 2-2, extended Story 3-1, extended Story 3-2, extended Story 3-3)
 // Hardcoded for now -- JSON loading comes later with LevelManager
 export interface SpawnEvent {
   railProgress: number;  // 0-1, trigger point on rail
-  enemyType: 'sentinel' | 'watchdog' | 'gatekeeper';
+  enemyType: 'sentinel' | 'watchdog' | 'gatekeeper' | 'firewallNode' | 'iceTower';
   position: [number, number, number]; // world-space spawn position
   count: number;          // how many to spawn
 }
@@ -187,3 +187,82 @@ export const VIEWPORT_MAX_OFFSET_X = 3.0;
 export const VIEWPORT_MAX_OFFSET_Y_UP = 2.5;
 export const VIEWPORT_MAX_OFFSET_Y_DOWN = 1.2;
 export const VIEWPORT_BASE_POSITION = { x: 0, y: 0, z: 3 } as const;
+
+// Surface Attack Phase — FirewallNode (Story 3-3)
+export const FIREWALL_NODE_HEALTH = 20;
+export const FIREWALL_NODE_SCORE_VALUE = 150;
+export const FIREWALL_NODE_COLLIDER_RADIUS = 1.0;
+export const FIREWALL_NODE_POOL_SIZE = 12;
+
+// Surface Attack Phase — ICETower (Story 3-3)
+export const ICE_TOWER_HEALTH = 50;
+export const ICE_TOWER_SCORE_VALUE = 250;
+export const ICE_TOWER_COLLIDER_RADIUS = 0.8;
+export const ICE_TOWER_POOL_SIZE = 8;
+export const ICE_TOWER_ATTACK_COOLDOWN = 3.0;
+export const ICE_TOWER_ATTACK_DAMAGE = 12;
+export const ICE_TOWER_PROJECTILE_SPEED = 14;
+
+export const ICE_TOWER_BEHAVIOR: BehaviorParams = {
+  patrolSpeed: 0,
+  attackCooldown: 3.0,
+  evasionChance: 0.0,
+  movementRandomness: 0.0,
+  attackDamage: 12,
+  projectileSpeed: 14,
+};
+
+// Surface Attack Phase rail path (Story 3-3)
+// Non-looping approach run: starts high, descends to skim ~3-5 units above
+// the fortress surface (y=0 plane), weaves between structures, exits at far end
+export const SURFACE_RAIL_PATH_POINTS: readonly [number, number, number][] = [
+  [0, 25, -100],      // approach from altitude
+  [10, 18, -70],      // descending
+  [20, 10, -40],      // steep descent toward surface
+  [30, 5, -10],       // leveling off above surface
+  [50, 4, 20],        // skimming — first firewall node cluster
+  [80, 3.5, 50],      // low pass over fortress surface
+  [110, 4, 70],       // slight rise over wall structure
+  [130, 3, 90],       // back down, ICE tower zone
+  [150, 4.5, 120],    // weaving between structures
+  [170, 3.5, 150],    // second firewall node cluster
+  [200, 4, 180],      // approach ICE tower battery
+  [230, 5, 210],      // slight climb over ridge
+  [250, 3.5, 240],    // final low pass
+  [270, 4, 270],      // last target zone
+  [290, 6, 300],      // pulling up at fortress edge
+  [300, 12, 330],     // climbing away from surface
+  [310, 20, 360],     // exit altitude — phase end
+] as const;
+
+// Surface target positions (Story 3-3)
+// Placed on/near the fortress surface (y~0) along the rail path
+export interface SurfaceTarget {
+  type: 'firewallNode' | 'iceTower';
+  position: [number, number, number];
+}
+
+export const SURFACE_TARGETS: SurfaceTarget[] = [
+  // First cluster — firewall nodes near path start
+  { type: 'firewallNode', position: [45, 1, 15] },
+  { type: 'firewallNode', position: [55, 1, 25] },
+  { type: 'firewallNode', position: [60, 1.5, 18] },
+  // ICE tower guarding first cluster
+  { type: 'iceTower', position: [70, 0, 35] },
+  // Mid-section nodes
+  { type: 'firewallNode', position: [120, 1, 85] },
+  { type: 'firewallNode', position: [140, 0.5, 100] },
+  // ICE tower battery mid-section
+  { type: 'iceTower', position: [155, 0, 130] },
+  { type: 'iceTower', position: [165, 0, 140] },
+  // Second cluster — more nodes
+  { type: 'firewallNode', position: [190, 1, 170] },
+  { type: 'firewallNode', position: [205, 1, 185] },
+  { type: 'firewallNode', position: [215, 0.5, 195] },
+  // Final ICE tower battery
+  { type: 'iceTower', position: [240, 0, 250] },
+  { type: 'iceTower', position: [255, 0, 260] },
+  // Final node — bonus target near exit
+  { type: 'firewallNode', position: [275, 1.5, 275] },
+];
+// Total: 9 firewall nodes, 5 ICE towers
