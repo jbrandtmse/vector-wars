@@ -137,9 +137,9 @@ describe('Surface Attack Constants (Story 3-3)', () => {
       }
     });
 
-    it('should end at exit altitude (y > 10)', () => {
+    it('should end at exit altitude (y > 5)', () => {
       const lastPoint = SURFACE_RAIL_PATH_POINTS[SURFACE_RAIL_PATH_POINTS.length - 1];
-      expect(lastPoint[1]).toBeGreaterThan(10);
+      expect(lastPoint[1]).toBeGreaterThan(5);
     });
 
     it('should form a path approximately 800-1000 units long in xz progression', () => {

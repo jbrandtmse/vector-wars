@@ -216,10 +216,10 @@ export const ICE_TOWER_BEHAVIOR: BehaviorParams = {
 // Non-looping approach run: starts high, descends to skim ~3-5 units above
 // the fortress surface (y=0 plane), weaves between structures, exits at far end
 export const SURFACE_RAIL_PATH_POINTS: readonly [number, number, number][] = [
-  [0, 25, -100],      // approach from altitude
-  [10, 18, -70],      // descending
-  [20, 10, -40],      // steep descent toward surface
-  [30, 5, -10],       // leveling off above surface
+  [0, 12, -30],       // approach from moderate altitude
+  [10, 8, -15],       // descending
+  [20, 6, 0],         // leveling off toward surface
+  [30, 5, 15],        // entering fortress area
   [50, 4, 20],        // skimming — first firewall node cluster
   [80, 3.5, 50],      // low pass over fortress surface
   [110, 4, 70],       // slight rise over wall structure
@@ -230,9 +230,9 @@ export const SURFACE_RAIL_PATH_POINTS: readonly [number, number, number][] = [
   [230, 5, 210],      // slight climb over ridge
   [250, 3.5, 240],    // final low pass
   [270, 4, 270],      // last target zone
-  [290, 6, 300],      // pulling up at fortress edge
-  [300, 12, 330],     // climbing away from surface
-  [310, 20, 360],     // exit altitude — phase end
+  [290, 5, 300],      // pulling up at fortress edge
+  [300, 8, 315],      // climbing away from surface
+  [305, 10, 325],     // exit — phase end
 ] as const;
 
 // Surface target positions (Story 3-3)
