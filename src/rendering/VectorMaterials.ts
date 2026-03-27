@@ -35,9 +35,9 @@ export class VectorMaterials {
    * @param lightnessOffset Optional offset applied to base palette lightness (-1 to 1)
    */
   create(id: string, lightnessOffset: number = 0): THREE.LineBasicMaterial {
-    if (__DEV__ && (this.thinMaterials.has(id) || this.fatMaterials.has(id))) {
-      throw new Error(`VectorMaterials: duplicate material id "${id}"`);
-    }
+    // Return existing material if already registered (safe for phase re-entry)
+    const existing = this.thinMaterials.get(id);
+    if (existing) return existing.material;
 
     const palette = getActivePalette();
     const color = new THREE.Color();
@@ -59,9 +59,9 @@ export class VectorMaterials {
    * @param lightnessOffset Optional offset applied to base palette lightness (-1 to 1)
    */
   createFat(id: string, linewidth: number, lightnessOffset: number = 0): LineMaterial {
-    if (__DEV__ && (this.thinMaterials.has(id) || this.fatMaterials.has(id))) {
-      throw new Error(`VectorMaterials: duplicate material id "${id}"`);
-    }
+    // Return existing material if already registered (safe for phase re-entry)
+    const existing = this.fatMaterials.get(id);
+    if (existing) return existing.material;
 
     const palette = getActivePalette();
     const color = new THREE.Color();

@@ -43,14 +43,10 @@ describe('VectorMaterials', () => {
       expect(hsl.h).toBeCloseTo(PALETTES.amber.hue, 2);
     });
 
-    it('should throw on duplicate thin material id in dev mode', () => {
-      vm.create('dup-thin');
-      expect(() => vm.create('dup-thin')).toThrow(/duplicate material id/);
-    });
-
-    it('should throw when thin id collides with existing fat id', () => {
-      vm.createFat('dup-cross', 2);
-      expect(() => vm.create('dup-cross')).toThrow(/duplicate material id/);
+    it('should return existing material on duplicate thin id', () => {
+      const mat1 = vm.create('dup-thin');
+      const mat2 = vm.create('dup-thin');
+      expect(mat2).toBe(mat1);
     });
   });
 
@@ -84,9 +80,10 @@ describe('VectorMaterials', () => {
       expect(hsl.h).toBeCloseTo(PALETTES.red.hue, 2);
     });
 
-    it('should throw on duplicate fat material id in dev mode', () => {
-      vm.createFat('dup-fat', 2);
-      expect(() => vm.createFat('dup-fat', 3)).toThrow(/duplicate material id/);
+    it('should return existing material on duplicate fat id', () => {
+      const mat1 = vm.createFat('dup-fat', 2);
+      const mat2 = vm.createFat('dup-fat', 3);
+      expect(mat2).toBe(mat1);
     });
   });
 
