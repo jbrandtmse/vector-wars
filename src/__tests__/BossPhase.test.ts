@@ -158,7 +158,7 @@ describe('BossPhase', () => {
       expect(phase.isBossDefeated()).toBe(true);
     });
 
-    it('should mark phase complete after boss is defeated and update runs', () => {
+    it('should NOT mark phase complete on bossDefeated alone (Story 3-10)', () => {
       phase.enter();
 
       eventBus.emit('bossDefeated', {
@@ -167,6 +167,36 @@ describe('BossPhase', () => {
       });
 
       phase.update(0.016);
+      // bossDefeated no longer triggers completion; bossDestroyed does
+      expect(phase.isComplete()).toBe(false);
+    });
+
+    it('should mark phase complete on bossDestroyed event (Story 3-10)', () => {
+      phase.enter();
+
+      // First boss is defeated (health = 0)
+      eventBus.emit('bossDefeated', {
+        position: { x: 0, y: 0, z: 0 },
+        scoreValue: 5000,
+      });
+      expect(phase.isComplete()).toBe(false);
+
+      // Then destruction sequence completes
+      eventBus.emit('bossDestroyed', {
+        position: { x: 0, y: 0, z: 0 },
+        scoreValue: 5000,
+      });
+      expect(phase.isComplete()).toBe(true);
+    });
+
+    it('should mark phase complete on bossDestroyed even without bossDefeated', () => {
+      phase.enter();
+
+      eventBus.emit('bossDestroyed', {
+        position: { x: 0, y: 0, z: 0 },
+        scoreValue: 5000,
+      });
+
       expect(phase.isComplete()).toBe(true);
     });
   });

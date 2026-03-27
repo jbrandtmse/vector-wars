@@ -300,6 +300,13 @@ export const VIRUS_PAYLOAD_POOL_SIZE = 5;
 export const VIRUS_PAYLOAD_COLLIDER_RADIUS = 1.0;
 export const VIRUS_PAYLOAD_LENGTH = 3.0;
 
+// Phase transition constants (Story 3-10)
+export const PHASE_TRANSITION_FADE_DURATION = 0.75;
+export const PHASE_SHIELD_RECHARGE_AMOUNT = 30;
+
+// Rail completion threshold (used by phases to detect rail end)
+export const RAIL_COMPLETION_THRESHOLD = 0.98;
+
 // Boss Destruction Sequence constants (Story 3-9)
 export const BOSS_DESTRUCTION_PEEL_DURATION = 2.0;
 export const BOSS_DESTRUCTION_STRIP_DURATION = 1.5;

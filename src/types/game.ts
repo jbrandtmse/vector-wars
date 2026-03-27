@@ -4,3 +4,5 @@
 export type GameState = 'loading' | 'menu' | 'playing' | 'paused' | 'gameOver';
 
 export type WeaponType = 'dataLance' | 'logicBomb' | 'emp' | 'virusPayload';
+
+export type PhaseType = 'dogfight' | 'surface' | 'corridor' | 'boss';

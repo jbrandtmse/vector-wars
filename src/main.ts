@@ -21,6 +21,7 @@ import { ScreenShake } from './systems/ScreenShake.ts';
 import { DamageEffectsManager } from './systems/DamageEffectsManager.ts';
 import { ScorePopup } from './ui/hud/ScorePopup.ts';
 import { GameOverManager } from './systems/GameOverManager.ts';
+import { LevelManager } from './systems/LevelManager.ts';
 
 // --- Renderer Setup ---
 const container = document.getElementById('app');
@@ -134,6 +135,24 @@ const screenShake = new ScreenShake();
 const damageEffectsManager = new DamageEffectsManager(screenShake, renderPipeline);
 void damageEffectsManager; // event-driven lifecycle, no per-frame calls
 
+// --- Level Manager Setup (Story 3-10) ---
+const levelManager = new LevelManager(
+  scene,
+  camera,
+  vectorMaterials,
+  gameObjectManager,
+  player,
+  renderPipeline,
+  railMovement,
+  enemySpawner,
+  collisionSystem,
+  effectsManager,
+  enemyProjectileSystem,
+  dataLanceSystem,
+  gameOverManager,
+);
+levelManager.enter();
+
 // --- Pool Diagnostics Setup (Story 2-9, debug-only) ---
 let poolDiagnosticsUpdate: ((dt: number) => void) | null = null;
 
@@ -173,7 +192,10 @@ renderer.setAnimationLoop((time: number) => {
   viewportOffset = updateViewportOffset(viewportOffset, inputManager, dt);
 
   // Rail movement: camera follows spline path with viewport offset applied in local frame
-  railMovement.update(dt, viewportOffset);
+  // Only update during dogfight phase -- other phases manage their own camera/rail.
+  if (levelManager.isUsingMainRail()) {
+    railMovement.update(dt, viewportOffset);
+  }
 
   // Banking effect — roll camera based on horizontal movement direction
   // Applied ON TOP of rail orientation via quaternion composition
@@ -188,12 +210,7 @@ renderer.setAnimationLoop((time: number) => {
 
   // === GAMEPLAY SYSTEMS (frozen on game over) ===
   if (!gameOverManager.isGameOver) {
-    enemySpawner.update(railMovement.getRailProgress());
-    gameObjectManager.update(dt);
-    dataLanceSystem.update(dt);
-    collisionSystem.update();
-    enemyProjectileSystem.update(dt);
-    effectsManager.update(dt);
+    levelManager.update(dt);
   }
 
   // === VISUAL SYSTEMS (always run) ===

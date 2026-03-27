@@ -18,6 +18,13 @@ export class GameOverManager {
   private hudManager: HUDManager;
   private gameOverActive = false;
 
+  /**
+   * When true, triggerGameOver() is a no-op. Set by LevelManager
+   * during level play to enable phase checkpoint restarts instead
+   * of game over on death.
+   */
+  public preventGameOver = false;
+
   constructor(scoreManager: ScoreManager, hudManager: HUDManager) {
     this.scoreManager = scoreManager;
     this.hudManager = hudManager;
@@ -32,6 +39,7 @@ export class GameOverManager {
 
   private triggerGameOver(): void {
     if (this.gameOverActive) return; // guard against duplicate events
+    if (this.preventGameOver) return; // LevelManager handles death via checkpoint (Story 3-10)
     this.gameOverActive = true;
 
     const finalScore = this.scoreManager.getScore();

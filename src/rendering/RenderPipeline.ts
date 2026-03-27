@@ -20,6 +20,7 @@ import { BLOOM_LAYER, DAMAGE_FLASH_DECAY_RATE } from '../config/constants.ts';
 import { RENDERING_CONFIG } from '../config/rendering.ts';
 import { CRTShader } from './shaders/CRTShader.ts';
 import { DamageFlashShader } from './shaders/DamageFlashShader.ts';
+import { PhaseTransitionShader } from './shaders/PhaseTransitionShader.ts';
 
 /**
  * Additive bloom mix shader.
@@ -55,6 +56,7 @@ export class RenderPipeline {
   private fxaaPass: ShaderPass;
   private crtPass: ShaderPass;
   private damageFlashPass: ShaderPass;
+  private transitionPass: ShaderPass;
   private camera: THREE.Camera;
   private cameraLayersCache: THREE.Layers;
 
@@ -121,6 +123,10 @@ export class RenderPipeline {
     // 3.5. Damage flash pass (Story 2-7)
     this.damageFlashPass = new ShaderPass(DamageFlashShader);
     this.finalComposer.addPass(this.damageFlashPass);
+
+    // 3.6. Phase transition pass (Story 3-10) — fade-to-black overlay
+    this.transitionPass = new ShaderPass(PhaseTransitionShader);
+    this.finalComposer.addPass(this.transitionPass);
 
     // 4. OutputPass (tone mapping + color space conversion)
     const outputPass = new OutputPass();
@@ -199,6 +205,23 @@ export class RenderPipeline {
     if (uniform.value <= 0) return;
     uniform.value *= Math.max(0, 1 - DAMAGE_FLASH_DECAY_RATE * dt);
     if (uniform.value < 0.01) uniform.value = 0.0;
+  }
+
+  /**
+   * Sets the phase transition overlay progress (clamped 0-1).
+   * 0.0 = no overlay (passthrough), 1.0 = fully black.
+   * Called by PhaseTransition to animate fade-out/fade-in.
+   */
+  setTransitionProgress(progress: number): void {
+    const clamped = Math.min(1.0, Math.max(0.0, progress));
+    this.transitionPass.material.uniforms['transitionProgress'].value = clamped;
+  }
+
+  /**
+   * Returns the current phase transition overlay progress value.
+   */
+  getTransitionProgress(): number {
+    return this.transitionPass.material.uniforms['transitionProgress'].value as number;
   }
 
   /**

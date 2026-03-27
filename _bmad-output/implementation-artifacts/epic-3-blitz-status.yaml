@@ -64,8 +64,8 @@ stories:
     committed: false
     notes: ""
   3-10-phase-transitions:
-    status: pending
-    phase: null
+    status: developing
+    phase: dev-story
     attempts: 0
     committed: false
     notes: ""

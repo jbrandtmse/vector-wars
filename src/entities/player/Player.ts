@@ -65,6 +65,39 @@ export class Player {
   }
 
   /**
+   * Recharges shields by the specified amount, clamped to maxShields.
+   * Emits shieldChanged event for HUD update.
+   * Called by LevelManager between phases.
+   */
+  rechargeShields(amount: number): void {
+    this.shields = Math.min(this.maxShields, this.shields + amount);
+    eventBus.emit('shieldChanged', {
+      shields: this.shields,
+      maxShields: this.maxShields,
+    });
+    Logger.info('Player', 'Shields recharged', {
+      amount,
+      shields: this.shields,
+    });
+  }
+
+  /**
+   * Resets the player to full shields and clears the dead flag.
+   * Used by phase checkpoint system to restart the current phase.
+   */
+  reset(): void {
+    this.shields = this.maxShields;
+    this.dead = false;
+    eventBus.emit('shieldChanged', {
+      shields: this.shields,
+      maxShields: this.maxShields,
+    });
+    Logger.info('Player', 'Player reset', {
+      shields: this.shields,
+    });
+  }
+
+  /**
    * Sync collider center to camera position each frame.
    * Called from main.ts animation loop.
    */

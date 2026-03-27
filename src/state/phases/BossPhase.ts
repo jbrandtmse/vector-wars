@@ -56,6 +56,7 @@ export class BossPhase {
 
   // Event listener references for cleanup
   private onBossDefeated: ((data: { position: { x: number; y: number; z: number }; scoreValue: number }) => void) | null = null;
+  private onBossDestroyed: ((data: { position: { x: number; y: number; z: number }; scoreValue: number }) => void) | null = null;
 
   constructor(
     scene: THREE.Scene,
@@ -94,12 +95,21 @@ export class BossPhase {
     this.scene.add(this.boss.getObject3D());
     this.gameObjectManager.add(this.boss);
 
-    // Subscribe to boss defeated event
+    // Subscribe to boss defeated event (for state tracking, NOT completion)
     this.onBossDefeated = () => {
       this.bossDefeated = true;
-      Logger.info('BossPhase', 'Boss defeated, phase signaling completion');
+      Logger.info('BossPhase', 'Boss defeated, awaiting destruction sequence');
     };
     eventBus.on('bossDefeated', this.onBossDefeated);
+
+    // Subscribe to boss destroyed event (fires after destruction sequence completes)
+    // This is the actual completion trigger -- ensures the 5.5s destruction
+    // sequence plays fully before the phase transition begins.
+    this.onBossDestroyed = () => {
+      this.completed = true;
+      Logger.info('BossPhase', 'Boss destroyed, phase signaling completion');
+    };
+    eventBus.on('bossDestroyed', this.onBossDestroyed);
 
     Logger.info('BossPhase', 'Boss phase entered', {
       bossHealth: this.boss.health,
@@ -129,10 +139,9 @@ export class BossPhase {
     // Update boss entity
     this.boss.update(dt);
 
-    // If boss defeated, mark phase as complete
-    if (this.bossDefeated) {
-      this.completed = true;
-    }
+    // NOTE: Phase completion is now triggered by bossDestroyed event,
+    // NOT by bossDefeated. This ensures the destruction sequence plays
+    // fully before the phase transition begins. (Story 3-10)
   }
 
   exit(): void {
@@ -142,6 +151,10 @@ export class BossPhase {
     if (this.onBossDefeated) {
       eventBus.off('bossDefeated', this.onBossDefeated);
       this.onBossDefeated = null;
+    }
+    if (this.onBossDestroyed) {
+      eventBus.off('bossDestroyed', this.onBossDestroyed);
+      this.onBossDestroyed = null;
     }
 
     // Dispose boss

@@ -51,4 +51,14 @@ describe('RenderPipeline', () => {
     const mod = await import('../rendering/RenderPipeline.ts');
     expect(typeof mod.RenderPipeline.prototype.updateDamageFlash).toBe('function');
   });
+
+  it('should have setTransitionProgress method on prototype', async () => {
+    const mod = await import('../rendering/RenderPipeline.ts');
+    expect(typeof mod.RenderPipeline.prototype.setTransitionProgress).toBe('function');
+  });
+
+  it('should have getTransitionProgress method on prototype', async () => {
+    const mod = await import('../rendering/RenderPipeline.ts');
+    expect(typeof mod.RenderPipeline.prototype.getTransitionProgress).toBe('function');
+  });
 });

@@ -7,7 +7,7 @@
  * Updated by: Story 2-2 (added enemySpawned event, eventBus singleton)
  */
 
-import type { WeaponType } from '../types/game.ts';
+import type { WeaponType, PhaseType } from '../types/game.ts';
 import type { Enemy } from '../entities/enemies/Enemy.ts';
 import { EventBus } from './EventBus.ts';
 
@@ -81,6 +81,25 @@ export interface BossDestroyedEvent {
   scoreValue: number;
 }
 
+export interface PhaseStartEvent {
+  phase: PhaseType;
+  level: number;
+}
+
+export interface PhaseEndEvent {
+  phase: PhaseType;
+  level: number;
+}
+
+export interface LevelCompleteEvent {
+  level: number;
+}
+
+export interface PhaseRestartEvent {
+  phase: PhaseType;
+  level: number;
+}
+
 export interface GameEvents {
   weaponFired: WeaponFiredEvent;
   enemySpawned: { enemy: Enemy; position: { x: number; y: number; z: number } };
@@ -100,6 +119,10 @@ export interface GameEvents {
   bossDestructionStage: BossDestructionStageEvent;
   bossDestroyed: BossDestroyedEvent;
   virusPayloadDelivered: VirusPayloadDeliveredEvent;
+  phaseStart: PhaseStartEvent;
+  phaseEnd: PhaseEndEvent;
+  levelComplete: LevelCompleteEvent;
+  phaseRestart: PhaseRestartEvent;
 }
 
 /** Module-level singleton event bus */
