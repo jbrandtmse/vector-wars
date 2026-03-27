@@ -103,13 +103,15 @@ describe('ViewportMovement', () => {
     expect(result.y).toBe(-VIEWPORT_MAX_OFFSET_Y_DOWN);
   });
 
-  it('should return unchanged offset when no keys are pressed (no drift)', () => {
+  it('should drift toward center when no keys are pressed', () => {
     const dt = 1 / 60;
     const current: ViewportOffset = { x: 0.5, y: 0.3 };
 
     const result = updateViewportOffset(current, inputManager, dt);
-    expect(result.x).toBe(0.5);
-    expect(result.y).toBe(0.3);
+    expect(result.x).toBeLessThan(0.5);
+    expect(result.y).toBeLessThan(0.3);
+    expect(result.x).toBeGreaterThan(0);
+    expect(result.y).toBeGreaterThan(0);
   });
 
   it('should cancel out opposing keys (moveLeft + moveRight = zero net movement)', () => {
