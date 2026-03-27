@@ -188,7 +188,6 @@ renderer.setAnimationLoop((time: number) => {
   lastTime = time;
 
   // Update viewport offset based on arrow key input
-  const prevX = viewportOffset.x;
   viewportOffset = updateViewportOffset(viewportOffset, inputManager, dt);
 
   // Rail movement: camera follows spline path with viewport offset applied in local frame
@@ -197,10 +196,10 @@ renderer.setAnimationLoop((time: number) => {
     railMovement.update(dt, viewportOffset);
   }
 
-  // Banking effect — roll camera based on horizontal movement direction
-  // Applied ON TOP of rail orientation via quaternion composition
-  const horizontalDelta = viewportOffset.x - prevX;
-  const targetBank = horizontalDelta !== 0 ? -Math.sign(horizontalDelta) * BANK_MAX_ANGLE : 0;
+  // Banking effect — roll camera based on PLAYER INPUT only (not auto-recenter drift)
+  const activeLeft = inputManager.isActive('moveLeft');
+  const activeRight = inputManager.isActive('moveRight');
+  const targetBank = activeRight ? -BANK_MAX_ANGLE : activeLeft ? BANK_MAX_ANGLE : 0;
   currentBankAngle += (targetBank - currentBankAngle) * Math.min(1, BANK_LERP_SPEED * dt);
   bankQuaternion.setFromAxisAngle(bankAxis, currentBankAngle);
   camera.quaternion.multiply(bankQuaternion);
