@@ -65,6 +65,11 @@ export interface BossDefeatedEvent {
   scoreValue: number;
 }
 
+export interface VirusPayloadDeliveredEvent {
+  position: { x: number; y: number; z: number };
+  damage: number;
+}
+
 export interface GameEvents {
   weaponFired: WeaponFiredEvent;
   enemySpawned: { enemy: Enemy; position: { x: number; y: number; z: number } };
@@ -81,6 +86,7 @@ export interface GameEvents {
   bossAttack: BossAttackEvent;
   bossVulnerable: BossVulnerableEvent;
   bossDefeated: BossDefeatedEvent;
+  virusPayloadDelivered: VirusPayloadDeliveredEvent;
 }
 
 /** Module-level singleton event bus */

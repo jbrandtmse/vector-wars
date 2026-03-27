@@ -20,7 +20,7 @@ describe('Input Configuration', () => {
   });
 
   it('should export INPUT_ACTIONS as a readonly object', () => {
-    // Verify it has exactly 7 keys (5 original + logicBomb from Story 3-5 + emp from Story 3-6)
-    expect(Object.keys(INPUT_ACTIONS)).toHaveLength(7);
+    // Verify it has exactly 8 keys (5 original + logicBomb from Story 3-5 + emp from Story 3-6 + virusPayload from Story 3-8)
+    expect(Object.keys(INPUT_ACTIONS)).toHaveLength(8);
   });
 });

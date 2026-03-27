@@ -290,6 +290,16 @@ export const EMP_BURST_VISUAL_DURATION = 0.6;
 export const EMP_BURST_POOL_SIZE = 3;
 export const EMP_BURST_STUN_PULSE_RATE = 6.0;
 
+// Virus Payload constants (Story 3-8)
+export const VIRUS_PAYLOAD_SPEED = 20;
+export const VIRUS_PAYLOAD_DAMAGE = 100;
+export const VIRUS_PAYLOAD_FIRE_COOLDOWN = 1.5;
+export const VIRUS_PAYLOAD_MAX_RANGE = 80;
+export const VIRUS_PAYLOAD_MAX_LIFETIME = 5.0;
+export const VIRUS_PAYLOAD_POOL_SIZE = 5;
+export const VIRUS_PAYLOAD_COLLIDER_RADIUS = 1.0;
+export const VIRUS_PAYLOAD_LENGTH = 3.0;
+
 // Gatekeeper Boss constants (Story 3-7)
 export const BOSS_GATEKEEPER_HEALTH = 500;
 export const BOSS_GATEKEEPER_COLLIDER_RADIUS = 6.0;

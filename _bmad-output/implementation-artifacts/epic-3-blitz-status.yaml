@@ -52,11 +52,11 @@ stories:
     committed: false
     notes: ""
   3-8-virus-payload-weapon:
-    status: pending
-    phase: null
+    status: developing
+    phase: dev-story
     attempts: 0
     committed: false
-    notes: ""
+    notes: "Story created successfully"
   3-9-boss-destruction-sequence:
     status: pending
     phase: null
