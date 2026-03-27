@@ -9,10 +9,10 @@ export const RENDERING_CONFIG = {
   },
   crt: {
     enabled: true,
-    scanlineIntensity: 0.4,
-    scanlineCount: 300,
-    chromaticAberration: 0.003,
-    vignetteIntensity: 0.4,
+    scanlineIntensity: 0.7,
+    scanlineCount: 180,
+    chromaticAberration: 0.004,
+    vignetteIntensity: 0.5,
   },
   fxaa: true,
 } as const;
