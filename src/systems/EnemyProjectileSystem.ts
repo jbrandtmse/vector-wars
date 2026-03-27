@@ -9,6 +9,7 @@
  * Does NOT import any other system (CollisionSystem, DataLanceSystem, etc.).
  *
  * Created by: Story 2-5
+ * Updated by: Story 3-7 (subscribe to bossAttack events)
  */
 
 import * as THREE from 'three';
@@ -25,8 +26,10 @@ export class EnemyProjectileSystem {
   private bursts: EnemyDataBurst[] = [];
   private playerCollider: THREE.Sphere;
 
-  // Pre-allocated temp vector for direction calculation
+  // Pre-allocated temp vectors for direction calculation and boss attack handling
   private tempDirection = new THREE.Vector3();
+  private tempBossOrigin = new THREE.Vector3();
+  private tempBossTarget = new THREE.Vector3();
 
   constructor(
     scene: THREE.Scene,
@@ -44,6 +47,15 @@ export class EnemyProjectileSystem {
       scene.add(burst.mesh);
       this.bursts.push(burst);
     }
+
+    // Subscribe to bossAttack events (Story 3-7)
+    eventBus.on('bossAttack', (event) => {
+      this.tempBossTarget.set(event.targetPosition.x, event.targetPosition.y, event.targetPosition.z);
+      for (const pos of event.positions) {
+        this.tempBossOrigin.set(pos.x, pos.y, pos.z);
+        this.fireAt(this.tempBossOrigin, this.tempBossTarget, event.speed, event.damage);
+      }
+    });
 
     Logger.info('EnemyProjectile', 'EnemyProjectileSystem initialized', {
       poolSize: ENEMY_DATA_BURST_POOL_SIZE,

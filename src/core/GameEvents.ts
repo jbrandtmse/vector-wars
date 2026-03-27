@@ -40,6 +40,31 @@ export interface EMPBurstActivatedEvent {
   radius: number;
 }
 
+export interface BossHealthChangedEvent {
+  health: number;
+  maxHealth: number;
+}
+
+export interface BossPhaseChangedEvent {
+  phase: 'barrage' | 'sweep' | 'vulnerable';
+}
+
+export interface BossAttackEvent {
+  positions: Array<{ x: number; y: number; z: number }>;
+  targetPosition: { x: number; y: number; z: number };
+  speed: number;
+  damage: number;
+}
+
+export interface BossVulnerableEvent {
+  vulnerable: boolean;
+}
+
+export interface BossDefeatedEvent {
+  position: { x: number; y: number; z: number };
+  scoreValue: number;
+}
+
 export interface GameEvents {
   weaponFired: WeaponFiredEvent;
   enemySpawned: { enemy: Enemy; position: { x: number; y: number; z: number } };
@@ -51,6 +76,11 @@ export interface GameEvents {
   logicBombLockOn: LogicBombLockOnEvent;
   logicBombLockLost: Record<string, never>;
   empBurstActivated: EMPBurstActivatedEvent;
+  bossHealthChanged: BossHealthChangedEvent;
+  bossPhaseChanged: BossPhaseChangedEvent;
+  bossAttack: BossAttackEvent;
+  bossVulnerable: BossVulnerableEvent;
+  bossDefeated: BossDefeatedEvent;
 }
 
 /** Module-level singleton event bus */

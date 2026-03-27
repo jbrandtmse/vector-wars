@@ -290,6 +290,47 @@ export const EMP_BURST_VISUAL_DURATION = 0.6;
 export const EMP_BURST_POOL_SIZE = 3;
 export const EMP_BURST_STUN_PULSE_RATE = 6.0;
 
+// Gatekeeper Boss constants (Story 3-7)
+export const BOSS_GATEKEEPER_HEALTH = 500;
+export const BOSS_GATEKEEPER_COLLIDER_RADIUS = 6.0;
+export const BOSS_GATEKEEPER_SCORE_VALUE = 5000;
+export const BOSS_GATEKEEPER_OUTER_RADIUS = 8;
+export const BOSS_GATEKEEPER_MID_RADIUS = 5.5;
+export const BOSS_GATEKEEPER_CORE_RADIUS = 3;
+export const BOSS_GATEKEEPER_ROTATION_SPEED = 0.3;
+export const BOSS_GATEKEEPER_CORE_PULSE_RATE = 1.5;
+export const BOSS_GATEKEEPER_CORE_PULSE_AMPLITUDE = 0.1;
+
+// Gatekeeper Boss attack phase timing constants (Story 3-7)
+export const BOSS_GATEKEEPER_BARRAGE_DURATION = 6.0;
+export const BOSS_GATEKEEPER_SWEEP_DURATION = 5.0;
+export const BOSS_GATEKEEPER_VULNERABLE_DURATION = 4.0;
+export const BOSS_GATEKEEPER_BARRAGE_INTERVAL = 0.5;
+export const BOSS_GATEKEEPER_BARRAGE_COUNT = 3;
+export const BOSS_GATEKEEPER_BARRAGE_SPREAD = 0.3;
+export const BOSS_GATEKEEPER_SWEEP_SPEED = 1.5;
+export const BOSS_GATEKEEPER_DAMAGE_REDUCTION = 0.25;
+export const BOSS_GATEKEEPER_ATTACK_DAMAGE = 15;
+export const BOSS_GATEKEEPER_PROJECTILE_SPEED = 16;
+
+// Boss arena rail constants (Story 3-7)
+export const BOSS_ARENA_RAIL_SPEED = 10;
+export const BOSS_CAMERA_LOOK_LERP = 5.0;
+export const BOSS_ARENA_RAIL_POINTS: readonly [number, number, number][] = [
+  [35, 10, 0],
+  [25, 12, 25],
+  [0, 15, 35],
+  [-25, 12, 25],
+  [-35, 8, 0],
+  [-25, 6, -25],
+  [0, 5, -35],
+  [25, 8, -25],
+  [30, 10, -10],
+  [35, 12, 5],
+  [32, 11, 15],
+  [35, 10, 0],
+] as const;
+
 // Data Corridor Phase constants (Story 3-4)
 export const CORRIDOR_OBSTACLE_DAMAGE = 15;
 export const CORRIDOR_HIT_COOLDOWN = 0.8;
