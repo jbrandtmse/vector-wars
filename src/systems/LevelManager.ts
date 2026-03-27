@@ -125,6 +125,7 @@ export class LevelManager {
       this.camera,
       this.vectorMaterials,
       this.player.collider,
+      this.gameObjectManager,
     );
 
     const corridorPhase = new CorridorPhase(
@@ -211,7 +212,11 @@ export class LevelManager {
           this.player.rechargeShields(PHASE_SHIELD_RECHARGE_AMOUNT);
 
           // Enter new phase
-          this.phases[this.currentPhaseIndex].enter();
+          try {
+            this.phases[this.currentPhaseIndex].enter();
+          } catch (err) {
+            Logger.error('LevelManager', 'Phase enter() failed', { phase: newType, error: String(err) });
+          }
           eventBus.emit('phaseStart', { phase: newType, level: 1 });
 
           Logger.info('LevelManager', 'Phase swapped', {

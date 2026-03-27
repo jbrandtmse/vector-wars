@@ -28,6 +28,7 @@ import {
 } from '../../config/constants.ts';
 import type { VectorMaterials } from '../../rendering/VectorMaterials.ts';
 import type { Enemy } from '../../entities/enemies/Enemy.ts';
+import type { GameObjectManager } from '../../entities/GameObjectManager.ts';
 
 /** Completion threshold for rail progress — near the end of the path */
 const RAIL_COMPLETION_THRESHOLD = 0.98;
@@ -59,6 +60,9 @@ export class SurfacePhase {
   private playerCollider: THREE.Sphere | null = null;
   private hitCooldownTimer = 0;
 
+  // Game object tracking
+  private gameObjectManager: GameObjectManager | null = null;
+
   // Phase state
   private firewallNodesRemaining = 0;
   private completed = false;
@@ -71,11 +75,13 @@ export class SurfacePhase {
     camera: THREE.PerspectiveCamera,
     vectorMaterials: VectorMaterials,
     playerCollider?: THREE.Sphere,
+    gameObjectManager?: GameObjectManager,
   ) {
     this.scene = scene;
     this.camera = camera;
     this.vectorMaterials = vectorMaterials;
     this.playerCollider = playerCollider ?? null;
+    this.gameObjectManager = gameObjectManager ?? null;
   }
 
   enter(): void {
@@ -347,6 +353,7 @@ export class SurfacePhase {
           node.setActive(true);
           node.getObject3D().visible = true;
           this.scene.add(node.getObject3D());
+          if (this.gameObjectManager) this.gameObjectManager.add(node);
           this.activeFirewallNodes.push(node);
           this.firewallNodesRemaining++;
         }
@@ -362,6 +369,7 @@ export class SurfacePhase {
           tower.setActive(true);
           tower.getObject3D().visible = true;
           this.scene.add(tower.getObject3D());
+          if (this.gameObjectManager) this.gameObjectManager.add(tower);
           this.activeICETowers.push(tower);
         }
       }
