@@ -54,6 +54,11 @@ export class SurfacePhase {
   // Rail movement
   private railMovement: RailMovement | null = null;
 
+  // Structure collision
+  private structureBounds: THREE.Box3[] = [];
+  private playerCollider: THREE.Sphere | null = null;
+  private hitCooldownTimer = 0;
+
   // Phase state
   private firewallNodesRemaining = 0;
   private completed = false;
@@ -65,10 +70,12 @@ export class SurfacePhase {
     scene: THREE.Scene,
     camera: THREE.PerspectiveCamera,
     vectorMaterials: VectorMaterials,
+    playerCollider?: THREE.Sphere,
   ) {
     this.scene = scene;
     this.camera = camera;
     this.vectorMaterials = vectorMaterials;
+    this.playerCollider = playerCollider ?? null;
   }
 
   enter(): void {
@@ -133,6 +140,19 @@ export class SurfacePhase {
       }
     }
 
+    // Environmental collision: structures damage the player
+    if (this.hitCooldownTimer > 0) {
+      this.hitCooldownTimer -= dt;
+    } else if (this.playerCollider) {
+      for (const bounds of this.structureBounds) {
+        if (bounds.intersectsSphere(this.playerCollider)) {
+          eventBus.emit('playerHit', { damage: 10, source: 'structure' });
+          this.hitCooldownTimer = 0.5; // prevent multi-hit stacking
+          break;
+        }
+      }
+    }
+
     // Check phase completion conditions
     this.checkCompletion();
   }
@@ -169,6 +189,7 @@ export class SurfacePhase {
     }
     this.staticStructures = [];
     this.structureGeometries = [];
+    this.structureBounds = [];
     if (this.structureMaterial) {
       this.structureMaterial.dispose();
       this.structureMaterial = null;
@@ -273,6 +294,25 @@ export class SurfacePhase {
 
       this.scene.add(structure);
       this.staticStructures.push(structure);
+
+      // Create collision bound for environmental damage
+      if (def.type === 'box') {
+        const halfX = def.size[0] / 2;
+        const halfY = def.size[1] / 2;
+        const halfZ = def.size[2] / 2;
+        this.structureBounds.push(new THREE.Box3(
+          new THREE.Vector3(def.pos[0] - halfX, def.pos[1] - halfY, def.pos[2] - halfZ),
+          new THREE.Vector3(def.pos[0] + halfX, def.pos[1] + halfY, def.pos[2] + halfZ),
+        ));
+      } else {
+        // Cylinder approximated as box
+        const r = Math.max(def.size[0], def.size[1]);
+        const halfH = def.size[2] / 2;
+        this.structureBounds.push(new THREE.Box3(
+          new THREE.Vector3(def.pos[0] - r, def.pos[1] - halfH, def.pos[2] - r),
+          new THREE.Vector3(def.pos[0] + r, def.pos[1] + halfH, def.pos[2] + r),
+        ));
+      }
     }
   }
 

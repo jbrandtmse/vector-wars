@@ -22,6 +22,8 @@ import { DamageEffectsManager } from './systems/DamageEffectsManager.ts';
 import { ScorePopup } from './ui/hud/ScorePopup.ts';
 import { GameOverManager } from './systems/GameOverManager.ts';
 import { LevelManager } from './systems/LevelManager.ts';
+import { LogicBombSystem } from './systems/LogicBombSystem.ts';
+import { EMPBurstSystem } from './systems/EMPBurstSystem.ts';
 
 // --- Renderer Setup ---
 const container = document.getElementById('app');
@@ -108,6 +110,26 @@ const enemySpawner = new EnemySpawner(
 const collisionSystem = new CollisionSystem(
   gameObjectManager,
   dataLanceSystem.getActiveBolts(),
+);
+
+// --- Logic Bomb System Setup (Story 3-5) ---
+const logicBombSystem = new LogicBombSystem(
+  scene,
+  camera,
+  inputManager,
+  vectorMaterials,
+  cockpitRenderer,
+  gameObjectManager,
+);
+
+// --- EMP Burst System Setup (Story 3-6) ---
+const empBurstSystem = new EMPBurstSystem(
+  scene,
+  camera,
+  inputManager,
+  vectorMaterials,
+  cockpitRenderer,
+  gameObjectManager,
 );
 
 // --- Effects Manager Setup (Story 2-4) ---
@@ -213,6 +235,8 @@ renderer.setAnimationLoop((time: number) => {
 
     // Shared weapon/collision systems run in ALL phases (not just dogfight)
     dataLanceSystem.update(dt);
+    logicBombSystem.update(dt);
+    empBurstSystem.update(dt);
     collisionSystem.update();
     enemyProjectileSystem.update(dt);
     effectsManager.update(dt);

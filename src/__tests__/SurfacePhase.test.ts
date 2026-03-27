@@ -105,6 +105,15 @@ vi.mock('three', () => {
     LineSegments: MockLineSegments,
     LineBasicMaterial: MockLineBasicMaterial,
     CatmullRomCurve3: MockCatmullRomCurve3,
+    Box3: class MockBox3 {
+      min: MockVector3;
+      max: MockVector3;
+      constructor(min?: MockVector3, max?: MockVector3) {
+        this.min = min ?? new MockVector3();
+        this.max = max ?? new MockVector3();
+      }
+      intersectsSphere = vi.fn().mockReturnValue(false);
+    },
   };
 });
 

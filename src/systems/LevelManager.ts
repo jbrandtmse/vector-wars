@@ -124,6 +124,7 @@ export class LevelManager {
       this.scene,
       this.camera,
       this.vectorMaterials,
+      this.player.collider,
     );
 
     const corridorPhase = new CorridorPhase(
