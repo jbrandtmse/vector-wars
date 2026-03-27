@@ -16,6 +16,8 @@
 
 import * as THREE from 'three';
 import { Boss } from './Boss.ts';
+import { DestructionSequence } from './DestructionSequence.ts';
+import type { DestructionStage } from './DestructionSequence.ts';
 import { eventBus } from '../../core/GameEvents.ts';
 import { Logger } from '../../core/Logger.ts';
 import {
@@ -39,6 +41,14 @@ import {
   BOSS_GATEKEEPER_DAMAGE_REDUCTION,
   BOSS_GATEKEEPER_ATTACK_DAMAGE,
   BOSS_GATEKEEPER_PROJECTILE_SPEED,
+  BOSS_DESTRUCTION_PEEL_DURATION,
+  BOSS_DESTRUCTION_STRIP_DURATION,
+  BOSS_DESTRUCTION_SHATTER_DURATION,
+  BOSS_DESTRUCTION_PEEL_SCALE_END,
+  BOSS_DESTRUCTION_STRIP_SCALE_END,
+  BOSS_DESTRUCTION_ROTATION_MULTIPLIER_PEEL,
+  BOSS_DESTRUCTION_ROTATION_MULTIPLIER_STRIP,
+  BOSS_DESTRUCTION_SHATTER_PULSE_FREQUENCY,
 } from '../../config/constants.ts';
 import type { VectorMaterials } from '../../rendering/VectorMaterials.ts';
 
@@ -86,6 +96,7 @@ export class GatekeeperBoss extends Boss {
   private tempPlayerPos = new THREE.Vector3();
   private tempAttackDir = new THREE.Vector3();
   private tempBarragePos = new THREE.Vector3();
+
 
   constructor(vectorMaterials: VectorMaterials, playerPositionGetter: () => THREE.Vector3) {
     super(BOSS_GATEKEEPER_HEALTH, BOSS_GATEKEEPER_SCORE_VALUE, BOSS_GATEKEEPER_COLLIDER_RADIUS);
@@ -318,6 +329,7 @@ export class GatekeeperBoss extends Boss {
   }
 
   onDefeated(): void {
+    // Emit bossDefeated event (existing behavior - signals health reached 0)
     eventBus.emit('bossDefeated', {
       position: {
         x: this.object3D.position.x,
@@ -327,9 +339,123 @@ export class GatekeeperBoss extends Boss {
       scoreValue: this.scoreValue,
     });
 
-    Logger.info('Boss', 'GatekeeperBoss defeated', {
+    Logger.info('Boss', 'GatekeeperBoss defeated, starting destruction sequence', {
       scoreValue: this.scoreValue,
     });
+
+    // Capture mid material HSL for interpolation during strip stage
+    const midHSL = { h: 0, s: 0, l: 0 };
+    this.midMaterial.color.getHSL(midHSL);
+    const baseMidHue = midHSL.h;
+    const baseMidSaturation = midHSL.s;
+    const baseMidLightness = midHSL.l;
+
+    // Helper to get boss position for event emission
+    const getBossPos = () => ({
+      x: this.object3D.position.x,
+      y: this.object3D.position.y,
+      z: this.object3D.position.z,
+    });
+
+    // Define three destruction stages: peel, strip, shatter
+    const stages: DestructionStage[] = [
+      // === PEEL STAGE ===
+      {
+        name: 'peel',
+        duration: BOSS_DESTRUCTION_PEEL_DURATION,
+        onStart: () => {
+          this.outerMaterial.transparent = true;
+          this.outerMaterial.depthWrite = false;
+          Logger.info('Boss', 'Destruction peel stage started');
+        },
+        onUpdate: (progress: number, dt: number) => {
+          // Scale outer shell from 1.0 to PEEL_SCALE_END
+          this.outerShell.scale.setScalar(1.0 + progress * (BOSS_DESTRUCTION_PEEL_SCALE_END - 1.0));
+          // Fade opacity
+          this.outerMaterial.opacity = 1.0 - progress;
+          // Increase rotation speed
+          this.outerShell.rotation.y -= BOSS_GATEKEEPER_ROTATION_SPEED * BOSS_DESTRUCTION_ROTATION_MULTIPLIER_PEEL * dt;
+          // Emit destruction stage event
+          eventBus.emit('bossDestructionStage', { stage: 'peel', progress, position: getBossPos() });
+        },
+        onEnd: () => {
+          this.object3D.remove(this.outerShell);
+          this.outerGeometry.dispose();
+          this.outerBaseGeometry.dispose();
+          this.outerMaterial.dispose();
+          Logger.info('Boss', 'Destruction peel stage complete - outer shell removed');
+        },
+      },
+      // === STRIP STAGE ===
+      {
+        name: 'strip',
+        duration: BOSS_DESTRUCTION_STRIP_DURATION,
+        onStart: () => {
+          this.midMaterial.transparent = true;
+          this.midMaterial.depthWrite = false;
+          Logger.info('Boss', 'Destruction strip stage started');
+        },
+        onUpdate: (progress: number, dt: number) => {
+          // Scale mid structure
+          this.midStructure.scale.setScalar(1.0 + progress * (BOSS_DESTRUCTION_STRIP_SCALE_END - 1.0));
+          // Fade opacity
+          this.midMaterial.opacity = 1.0 - progress;
+          // Shift color toward white
+          this.midMaterial.color.setHSL(
+            baseMidHue,
+            baseMidSaturation,
+            baseMidLightness + progress * (1.0 - baseMidLightness),
+          );
+          // Increase rotation speed
+          this.midStructure.rotation.x += BOSS_GATEKEEPER_ROTATION_SPEED * BOSS_DESTRUCTION_ROTATION_MULTIPLIER_STRIP * dt;
+          // Emit destruction stage event
+          eventBus.emit('bossDestructionStage', { stage: 'strip', progress, position: getBossPos() });
+        },
+        onEnd: () => {
+          this.object3D.remove(this.midStructure);
+          this.midGeometry.dispose();
+          this.midBaseGeometry.dispose();
+          this.midMaterial.dispose();
+          Logger.info('Boss', 'Destruction strip stage complete - mid structure removed');
+        },
+      },
+      // === SHATTER STAGE ===
+      {
+        name: 'shatter',
+        duration: BOSS_DESTRUCTION_SHATTER_DURATION,
+        onStart: () => {
+          // Pure white flash - the ONLY time pure white appears in the game
+          this.coreMaterial.color.setHSL(0, 0, 1.0);
+          this.coreMaterial.transparent = true;
+          Logger.info('Boss', 'Destruction shatter stage started - pure white flash');
+        },
+        onUpdate: (progress: number, _dt: number) => {
+          // Pulse core scale at high frequency
+          const pulse = Math.sin(progress * BOSS_DESTRUCTION_SHATTER_PULSE_FREQUENCY * Math.PI);
+          this.innerCore.scale.setScalar(1.0 + pulse * (1.0 - progress));
+          // Fade opacity in final 50%
+          if (progress > 0.5) {
+            this.coreMaterial.opacity = 1.0 - ((progress - 0.5) * 2.0);
+          } else {
+            this.coreMaterial.opacity = 1.0;
+          }
+          this.coreMaterial.depthWrite = false;
+          // Emit destruction stage event
+          eventBus.emit('bossDestructionStage', { stage: 'shatter', progress, position: getBossPos() });
+        },
+        onEnd: () => {
+          this.object3D.remove(this.innerCore);
+          this.coreGeometry.dispose();
+          this.coreBaseGeometry.dispose();
+          this.coreMaterial.dispose();
+          // Emit final shatter event for explosion spawning
+          eventBus.emit('bossDestructionStage', { stage: 'shatter', progress: 1.0, position: getBossPos() });
+          Logger.info('Boss', 'Destruction shatter stage complete - inner core removed');
+        },
+      },
+    ];
+
+    this.destructionSequence = new DestructionSequence(stages);
   }
 
   /** Returns the current attack phase */
@@ -358,6 +484,10 @@ export class GatekeeperBoss extends Boss {
   /** Returns materials for testing */
   getOuterMaterial(): THREE.LineBasicMaterial {
     return this.outerMaterial;
+  }
+
+  getMidMaterial(): THREE.LineBasicMaterial {
+    return this.midMaterial;
   }
 
   getCoreMaterial(): THREE.LineBasicMaterial {

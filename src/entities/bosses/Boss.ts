@@ -13,6 +13,7 @@
 
 import { GameObject } from '../GameObject.ts';
 import { eventBus } from '../../core/GameEvents.ts';
+import type { DestructionSequence } from './DestructionSequence.ts';
 
 export abstract class Boss extends GameObject {
   public health: number;
@@ -20,6 +21,8 @@ export abstract class Boss extends GameObject {
   public scoreValue: number;
   public vulnerable: boolean = false;
   public defeated: boolean = false;
+  protected destructionSequence: DestructionSequence | null = null;
+  private destroyedEmitted: boolean = false;
 
   constructor(maxHealth: number, scoreValue: number, colliderRadius: number) {
     super(colliderRadius);
@@ -58,13 +61,35 @@ export abstract class Boss extends GameObject {
   }
 
   /**
-   * Called every frame. Drives subclass update if not defeated. Syncs collider.
+   * Called every frame. Drives subclass update if not defeated.
+   * When defeated, drives the destruction sequence if present.
+   * Emits bossDestroyed when the destruction sequence completes.
+   * Syncs collider regardless.
    */
   update(dt: number): void {
     if (!this.defeated) {
       this.updateBoss(dt);
+    } else if (this.destructionSequence && !this.destructionSequence.complete) {
+      this.destructionSequence.update(dt);
+    } else if (this.destructionSequence && this.destructionSequence.complete && !this.destroyedEmitted) {
+      this.destroyedEmitted = true;
+      eventBus.emit('bossDestroyed', {
+        position: {
+          x: this.object3D.position.x,
+          y: this.object3D.position.y,
+          z: this.object3D.position.z,
+        },
+        scoreValue: this.scoreValue,
+      });
     }
     this.syncCollider();
+  }
+
+  /**
+   * Returns true when the destruction sequence has fully completed.
+   */
+  isDestructionComplete(): boolean {
+    return this.destructionSequence?.complete ?? false;
   }
 
   /** Subclass implements hit visual feedback */

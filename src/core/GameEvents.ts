@@ -70,6 +70,17 @@ export interface VirusPayloadDeliveredEvent {
   damage: number;
 }
 
+export interface BossDestructionStageEvent {
+  stage: string;
+  progress: number;
+  position: { x: number; y: number; z: number };
+}
+
+export interface BossDestroyedEvent {
+  position: { x: number; y: number; z: number };
+  scoreValue: number;
+}
+
 export interface GameEvents {
   weaponFired: WeaponFiredEvent;
   enemySpawned: { enemy: Enemy; position: { x: number; y: number; z: number } };
@@ -86,6 +97,8 @@ export interface GameEvents {
   bossAttack: BossAttackEvent;
   bossVulnerable: BossVulnerableEvent;
   bossDefeated: BossDefeatedEvent;
+  bossDestructionStage: BossDestructionStageEvent;
+  bossDestroyed: BossDestroyedEvent;
   virusPayloadDelivered: VirusPayloadDeliveredEvent;
 }
 

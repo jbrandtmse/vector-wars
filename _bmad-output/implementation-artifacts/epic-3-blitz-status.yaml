@@ -58,8 +58,8 @@ stories:
     committed: false
     notes: "Story created successfully"
   3-9-boss-destruction-sequence:
-    status: pending
-    phase: null
+    status: developing
+    phase: dev-story
     attempts: 0
     committed: false
     notes: ""
