@@ -26,6 +26,7 @@ vi.mock('three', () => {
     }
   }
   class MockOctahedronGeometry { dispose = vi.fn(); }
+  class MockConeGeometry { dispose = vi.fn(); }
   class MockEdgesGeometry {}
   class MockLineSegments {
     layers = { enable: vi.fn() };
@@ -36,6 +37,7 @@ vi.mock('three', () => {
     Sphere: MockSphere,
     Vector3: MockVector3,
     OctahedronGeometry: MockOctahedronGeometry,
+    ConeGeometry: MockConeGeometry,
     EdgesGeometry: MockEdgesGeometry,
     LineSegments: MockLineSegments,
   };
@@ -97,11 +99,26 @@ describe('SPAWN_EVENTS configuration', () => {
     }
   });
 
-  it('should total 8-12 enemies across all spawn events', async () => {
+  it('should total 8-20 enemies across all spawn events', async () => {
     const mod = await import('../config/constants.ts');
     const total = mod.SPAWN_EVENTS.reduce((sum: number, e: { count: number }) => sum + e.count, 0);
     expect(total).toBeGreaterThanOrEqual(8);
-    expect(total).toBeLessThanOrEqual(12);
+    expect(total).toBeLessThanOrEqual(20);
+  });
+});
+
+describe('SpawnEvent Watchdog Support (Story 3-1)', () => {
+  it('should accept watchdog as enemyType in SpawnEvent', async () => {
+    const mod = await import('../config/constants.ts');
+    const watchdogEvents = mod.SPAWN_EVENTS.filter(
+      (e: { enemyType: string }) => e.enemyType === 'watchdog'
+    );
+    expect(watchdogEvents.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('should expose getWatchdogPool method', async () => {
+    const { EnemySpawner } = await import('../systems/EnemySpawner.ts');
+    expect(typeof EnemySpawner.prototype.getWatchdogPool).toBe('function');
   });
 });
 
@@ -153,18 +170,18 @@ describe('EnemySpawner Trigger Logic', () => {
     expect(gom.getActiveCount()).toBe(countAfterFirst);
   });
 
-  it('should pre-warm sentinels into GameObjectManager at construction', async () => {
+  it('should pre-warm sentinels and watchdogs into GameObjectManager at construction', async () => {
     const { EnemySpawner } = await import('../systems/EnemySpawner.ts');
     const { GameObjectManager } = await import('../entities/GameObjectManager.ts');
-    const { SENTINEL_POOL_SIZE } = await import('../config/constants.ts');
+    const { SENTINEL_POOL_SIZE, WATCHDOG_POOL_SIZE } = await import('../config/constants.ts');
 
     const mockScene = { add: vi.fn() } as never;
     const gom = new GameObjectManager();
     const mockVectorMaterials = { create: vi.fn().mockReturnValue({}) } as never;
 
     new EnemySpawner(mockScene, gom, mockVectorMaterials);
-    // All pre-warmed sentinels should be in the GOM (inactive)
-    expect(gom.getAll().length).toBe(SENTINEL_POOL_SIZE);
+    // All pre-warmed sentinels + watchdogs should be in the GOM (inactive)
+    expect(gom.getAll().length).toBe(SENTINEL_POOL_SIZE + WATCHDOG_POOL_SIZE);
     expect(gom.getActiveCount()).toBe(0);
   });
 });

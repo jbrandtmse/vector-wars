@@ -72,11 +72,28 @@ export const SENTINEL_HEALTH = 30;
 export const SENTINEL_SCORE_VALUE = 100;
 export const SENTINEL_POOL_SIZE = 20;
 
-// Spawn event definitions (Story 2-2)
+// Watchdog enemy defaults (Story 3-1)
+export const WATCHDOG_BEHAVIOR_LEVEL1: BehaviorParams = {
+  patrolSpeed: 1.5,
+  attackCooldown: 1.5,
+  evasionChance: 0.0,
+  movementRandomness: 0.0,
+  attackDamage: 12,
+  projectileSpeed: 18,
+};
+export const WATCHDOG_COLLIDER_RADIUS = 1.2;
+export const WATCHDOG_HEALTH = 40;
+export const WATCHDOG_SCORE_VALUE = 200;
+export const WATCHDOG_POOL_SIZE = 10;
+export const WATCHDOG_PURSUIT_SPEED_MULTIPLIER = 1.8;
+export const WATCHDOG_MIN_ENGAGE_DISTANCE = 8.0;
+export const WATCHDOG_ATTACK_INTERVAL = 2.5;
+
+// Spawn event definitions (Story 2-2, extended Story 3-1)
 // Hardcoded for now -- JSON loading comes later with LevelManager
 export interface SpawnEvent {
   railProgress: number;  // 0-1, trigger point on rail
-  enemyType: 'sentinel'; // Extend later: 'watchdog' | 'gatekeeper' | 'overseer'
+  enemyType: 'sentinel' | 'watchdog';
   position: [number, number, number]; // world-space spawn position
   count: number;          // how many to spawn
 }
@@ -84,8 +101,12 @@ export interface SpawnEvent {
 export const SPAWN_EVENTS: SpawnEvent[] = [
   // Wave 1: ~10% into the loop (3-4 seconds in)
   { railProgress: 0.10, enemyType: 'sentinel', position: [60, 5, -20], count: 3 },
+  // Watchdog wave 1 (Story 3-1) -- pursuit enemies at different rail points
+  { railProgress: 0.25, enemyType: 'watchdog', position: [80, 3, 20], count: 2 },
   // Wave 2: ~35% into the loop
   { railProgress: 0.35, enemyType: 'sentinel', position: [-30, 3, 60], count: 3 },
+  // Watchdog wave 2 (Story 3-1)
+  { railProgress: 0.50, enemyType: 'watchdog', position: [-50, 4, 40], count: 2 },
   // Wave 3: ~60% into the loop
   { railProgress: 0.60, enemyType: 'sentinel', position: [-70, 4, -10], count: 2 },
   // Wave 4: ~85% into the loop

@@ -12,14 +12,17 @@
  * Created by: Story 2-2
  * Updated by: Story 2-5 (added fire callback and attack-patrol cycle wiring)
  * Updated by: Story 2-9 (refactored to use ObjectPool<Sentinel>)
+ * Updated by: Story 3-1 (added Watchdog pool and pursuit AI state wiring)
  */
 
 import * as THREE from 'three';
-import { SPAWN_EVENTS, SENTINEL_POOL_SIZE } from '../config/constants.ts';
+import { SPAWN_EVENTS, SENTINEL_POOL_SIZE, WATCHDOG_POOL_SIZE } from '../config/constants.ts';
 import { GameObjectManager } from '../entities/GameObjectManager.ts';
 import { Sentinel } from '../entities/enemies/Sentinel.ts';
+import { Watchdog } from '../entities/enemies/Watchdog.ts';
 import { SpawnState } from '../ai/states/SpawnState.ts';
 import { PatrolState } from '../ai/states/PatrolState.ts';
+import { PursuitState } from '../ai/states/PursuitState.ts';
 import { AttackState, type FireCallback } from '../ai/states/AttackState.ts';
 import { ObjectPool } from '../core/ObjectPool.ts';
 import { eventBus } from '../core/GameEvents.ts';
@@ -36,6 +39,7 @@ export class EnemySpawner {
   private fireCallback: FireCallback;
   private playerPositionGetter: () => THREE.Vector3;
   private sentinelPool: ObjectPool<Sentinel>;
+  private watchdogPool: ObjectPool<Watchdog>;
   private railMovement: RailMovement | null;
   private tempSpawnPos = new THREE.Vector3();
 
@@ -68,10 +72,25 @@ export class EnemySpawner {
       SENTINEL_POOL_SIZE,
     );
 
-    // Release sentinels back to pool when destroyed
+    // Pre-warm Watchdog pool (Story 3-1)
+    this.watchdogPool = new ObjectPool<Watchdog>(
+      () => {
+        const watchdog = new Watchdog(this.vectorMaterials);
+        this.scene.add(watchdog.getObject3D());
+        watchdog.getObject3D().visible = false;
+        watchdog.setActive(false);
+        this.gameObjectManager.add(watchdog);
+        return watchdog;
+      },
+      WATCHDOG_POOL_SIZE,
+    );
+
+    // Release enemies back to pool when destroyed
     eventBus.on('enemyDestroyed', ({ enemy }) => {
       if (enemy instanceof Sentinel) {
         this.sentinelPool.release(enemy);
+      } else if (enemy instanceof Watchdog) {
+        this.watchdogPool.release(enemy);
       }
     });
   }
@@ -79,6 +98,11 @@ export class EnemySpawner {
   /** Expose the sentinel pool for diagnostics registration */
   getSentinelPool(): ObjectPool<Sentinel> {
     return this.sentinelPool;
+  }
+
+  /** Expose the watchdog pool for diagnostics registration */
+  getWatchdogPool(): ObjectPool<Watchdog> {
+    return this.watchdogPool;
   }
 
   update(currentProgress: number): void {
@@ -109,7 +133,9 @@ export class EnemySpawner {
 
   private spawnWave(event: typeof SPAWN_EVENTS[number], _eventIndex: number): void {
     for (let j = 0; j < event.count; j++) {
-      const enemy = this.sentinelPool.acquire();
+      const enemy = event.enemyType === 'watchdog'
+        ? this.watchdogPool.acquire()
+        : this.sentinelPool.acquire();
       if (!enemy) continue; // pool exhausted (should not happen with proper sizing)
 
       // Reactivate for use
@@ -132,24 +158,38 @@ export class EnemySpawner {
       spawnPos.y += 0.5; // Slightly above rail level for visibility
       enemy.setSpawnPosition(spawnPos);
 
-      // NOTE: Do NOT call gameObjectManager.add(enemy) here -- sentinel was
+      // NOTE: Do NOT call gameObjectManager.add(enemy) here -- enemy was
       // already added during pool prewarm. It starts inactive, so update() skips it.
 
-      // Each enemy gets its own state instances for independent behavior
-      // Patrol -> Attack -> Patrol cycle via factory functions (Story 2-5)
-      const createAttackState = (): AttackState => new AttackState(
-        this.fireCallback,
-        this.playerPositionGetter,
-        new PatrolState(createAttackState),  // attack returns to patrol which attacks again
-      );
-      const patrolState = new PatrolState(createAttackState);
-      enemy.transitionToState(new SpawnState(patrolState));
+      // Wire AI state chain based on enemy type
+      if (event.enemyType === 'watchdog') {
+        // Watchdog: Spawn -> Pursuit -> Attack -> Pursuit cycle (Story 3-1)
+        const createPursuitState = (): PursuitState => new PursuitState(
+          this.playerPositionGetter,
+          createAttackFromPursuit,
+        );
+        const createAttackFromPursuit = (): AttackState => new AttackState(
+          this.fireCallback,
+          this.playerPositionGetter,
+          createPursuitState(),  // attack returns to pursuit
+        );
+        enemy.transitionToState(new SpawnState(createPursuitState()));
+      } else {
+        // Sentinel: Spawn -> Patrol -> Attack -> Patrol cycle (existing logic)
+        const createAttackState = (): AttackState => new AttackState(
+          this.fireCallback,
+          this.playerPositionGetter,
+          new PatrolState(createAttackState),  // attack returns to patrol which attacks again
+        );
+        const patrolState = new PatrolState(createAttackState);
+        enemy.transitionToState(new SpawnState(patrolState));
+      }
 
       eventBus.emit('enemySpawned', {
         enemy,
         position: { x: spawnPos.x, y: spawnPos.y, z: spawnPos.z },
       });
-      Logger.info('Spawner', 'Sentinel acquired from pool', { id: enemy.id });
+      Logger.info('Spawner', `${event.enemyType} acquired from pool`, { id: enemy.id });
     }
   }
 }

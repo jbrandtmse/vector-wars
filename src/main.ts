@@ -144,6 +144,7 @@ if (import.meta.env.DEV) {
     poolDiagnostics.registerSource('enemyProjectile', enemyProjectileSystem);
     poolDiagnostics.registerSource('effects', effectsManager);
     poolDiagnostics.registerGenericPool('sentinels', enemySpawner.getSentinelPool());
+    poolDiagnostics.registerGenericPool('watchdogs', enemySpawner.getWatchdogPool());
     poolDiagnostics.setRenderer(renderer);
     poolDiagnosticsUpdate = (dt: number) => poolDiagnostics.update(dt);
 

@@ -35,8 +35,8 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-03-26
-last_updated: "2026-03-26T15:30:00Z"
-last_story_created: 2-10-game-over-state
+last_updated: "2026-03-26T21:15:00Z"
+last_story_created: 3-1-watchdog-enemy-type
 project: vector-wars
 project_key: NOKEY
 tracking_system: file-system
@@ -69,8 +69,8 @@ development_status:
   epic-2-retrospective: optional
 
   # === Epic 3: Complete Level 1 ===
-  epic-3: backlog
-  3-1-watchdog-enemy-type: backlog
+  epic-3: in-progress
+  3-1-watchdog-enemy-type: done
   3-2-gatekeeper-enemy-type: backlog
   3-3-surface-attack-phase: backlog
   3-4-data-corridor-phase: backlog
