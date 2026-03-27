@@ -8,15 +8,19 @@
  */
 
 import * as THREE from 'three';
+import { LineSegmentsGeometry } from 'three/addons/lines/LineSegmentsGeometry.js';
+import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
 import { BLOOM_LAYER, HUD_SHIELD_BAR_WIDTH, HUD_SHIELD_BAR_HEIGHT } from '../../config/constants.ts';
 import { eventBus } from '../../core/GameEvents.ts';
 import type { VectorMaterials } from '../../rendering/VectorMaterials.ts';
+
+const HUD_LINE_WIDTH = 2.0;
 
 export class ShieldBar {
   public readonly group: THREE.Group;
   private fillPositions: Float32Array;
   private fillGeometry: THREE.BufferGeometry;
-  private borderGeometry: THREE.BufferGeometry;
+  private borderGeometry: LineSegmentsGeometry;
   private fullWidth: number;
   private shieldChangedHandler: (data: { shields: number; maxShields: number }) => void;
 
@@ -26,21 +30,16 @@ export class ShieldBar {
     const h = HUD_SHIELD_BAR_HEIGHT;
     const w = HUD_SHIELD_BAR_WIDTH;
 
-    // --- Outer border (static, dimmer) ---
-    const borderPositions = new Float32Array([
-      // bottom-left to bottom-right
-      0, 0, 0,       w, 0, 0,
-      // bottom-right to top-right
-      w, 0, 0,       w, h, 0,
-      // top-right to top-left
-      w, h, 0,       0, h, 0,
-      // top-left to bottom-left
-      0, h, 0,       0, 0, 0,
+    // --- Outer border (fat lines for visibility) ---
+    this.borderGeometry = new LineSegmentsGeometry();
+    this.borderGeometry.setPositions([
+      0, 0, 0,  w, 0, 0,
+      w, 0, 0,  w, h, 0,
+      w, h, 0,  0, h, 0,
+      0, h, 0,  0, 0, 0,
     ]);
-    this.borderGeometry = new THREE.BufferGeometry();
-    this.borderGeometry.setAttribute('position', new THREE.BufferAttribute(borderPositions, 3));
-    const borderMat = vectorMaterials.create('hud-shield-border', -0.15);
-    const borderMesh = new THREE.LineSegments(this.borderGeometry, borderMat);
+    const borderMat = vectorMaterials.createFat('hud-shield-border', HUD_LINE_WIDTH, -0.15);
+    const borderMesh = new LineSegments2(this.borderGeometry, borderMat);
     borderMesh.layers.enable(BLOOM_LAYER);
     this.group.add(borderMesh);
 

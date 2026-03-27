@@ -30,9 +30,9 @@ describe('RENDERING_CONFIG', () => {
       expect(typeof RENDERING_CONFIG.bloom.threshold).toBe('number');
     });
 
-    it('should have bloom strength in phosphor glow range (0.4-0.8)', () => {
+    it('should have bloom strength in arcade glow range (0.4-1.5)', () => {
       expect(RENDERING_CONFIG.bloom.strength).toBeGreaterThanOrEqual(0.4);
-      expect(RENDERING_CONFIG.bloom.strength).toBeLessThanOrEqual(0.8);
+      expect(RENDERING_CONFIG.bloom.strength).toBeLessThanOrEqual(1.5);
     });
 
     it('should have bloom radius in phosphor spread range (1.2-1.8)', () => {

@@ -211,6 +211,7 @@ export class RenderPipeline {
       1 / width,
       1 / height,
     );
-    this.crtPass.material.uniforms['scanlineCount'].value = height;
+    // Don't override scanlineCount with height — keep it at the configured
+    // value (300) for visible 3-4px thick bands. Per-pixel scanlines are invisible.
   }
 }
