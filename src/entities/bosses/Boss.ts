@@ -100,4 +100,7 @@ export abstract class Boss extends GameObject {
 
   /** Subclass implements per-frame logic (animation, attack phases, etc.) */
   abstract updateBoss(dt: number): void;
+
+  /** Subclass implements resource cleanup (geometries, materials, etc.) */
+  abstract dispose(): void;
 }

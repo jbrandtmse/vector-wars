@@ -344,6 +344,31 @@ export const BOSS_GATEKEEPER_DAMAGE_REDUCTION = 0.25;
 export const BOSS_GATEKEEPER_ATTACK_DAMAGE = 15;
 export const BOSS_GATEKEEPER_PROJECTILE_SPEED = 16;
 
+// Avenger Boss constants (Story 5-2)
+export const BOSS_AVENGER_HEALTH = 650;
+export const BOSS_AVENGER_COLLIDER_RADIUS = 5.5;
+export const BOSS_AVENGER_SCORE_VALUE = 7500;
+export const BOSS_AVENGER_OUTER_RADIUS = 9;
+export const BOSS_AVENGER_MID_RADIUS = 6;
+export const BOSS_AVENGER_CORE_RADIUS = 3;
+export const BOSS_AVENGER_ROTATION_SPEED = 0.5;
+export const BOSS_AVENGER_CORE_PULSE_RATE = 2.0;
+export const BOSS_AVENGER_CORE_PULSE_AMPLITUDE = 0.15;
+
+// Avenger Boss attack phase timing constants (Story 5-2)
+export const BOSS_AVENGER_RUSH_DURATION = 4.0;
+export const BOSS_AVENGER_RUSH_CHARGE_SPEED = 25;
+export const BOSS_AVENGER_RUSH_PROJECTILE_INTERVAL = 0.3;
+export const BOSS_AVENGER_RUSH_DAMAGE = 20;
+export const BOSS_AVENGER_BARRAGE_DURATION = 5.0;
+export const BOSS_AVENGER_BARRAGE_INTERVAL = 0.35;
+export const BOSS_AVENGER_BARRAGE_COUNT = 5;
+export const BOSS_AVENGER_BARRAGE_SPREAD = 0.4;
+export const BOSS_AVENGER_VULNERABLE_DURATION = 3.0;
+export const BOSS_AVENGER_DAMAGE_REDUCTION = 0.15;
+export const BOSS_AVENGER_ATTACK_DAMAGE = 20;
+export const BOSS_AVENGER_PROJECTILE_SPEED = 20;
+
 // Boss arena rail constants (Story 3-7)
 export const BOSS_ARENA_RAIL_SPEED = 10;
 export const BOSS_CAMERA_LOOK_LERP = 5.0;

@@ -138,6 +138,16 @@ describe('VoiceLineGenerator (Story 4-9)', () => {
       expect(generator.hasSound('gk_defeated')).toBe(true);
     });
 
+    it('should return true for known avenger voice line IDs', () => {
+      expect(generator.hasSound('av_encounter_start')).toBe(true);
+      expect(generator.hasSound('av_health_below_75')).toBe(true);
+      expect(generator.hasSound('av_health_below_50')).toBe(true);
+      expect(generator.hasSound('av_health_below_25')).toBe(true);
+      expect(generator.hasSound('av_rush_phase')).toBe(true);
+      expect(generator.hasSound('av_vulnerable')).toBe(true);
+      expect(generator.hasSound('av_defeated')).toBe(true);
+    });
+
     it('should return false for unknown IDs', () => {
       expect(generator.hasSound('nonexistent')).toBe(false);
       expect(generator.hasSound('data_lance_fire')).toBe(false);
@@ -150,12 +160,13 @@ describe('VoiceLineGenerator (Story 4-9)', () => {
       expect(ids).toContain('handler_phase1_start');
       expect(ids).toContain('tutorial_welcome');
       expect(ids).toContain('gk_encounter_start');
+      expect(ids).toContain('av_encounter_start');
     });
 
-    it('should include all 32 voice line definitions', () => {
+    it('should include all 39 voice line definitions', () => {
       const ids = generator.getSoundIds();
-      // 8 handler L1 + 5 handler L2 + 10 tutorial + 9 gatekeeper = 32
-      expect(ids.length).toBe(32);
+      // 8 handler L1 + 5 handler L2 + 10 tutorial + 9 gatekeeper + 7 avenger = 39
+      expect(ids.length).toBe(39);
     });
   });
 
@@ -230,7 +241,7 @@ describe('VoiceLineGenerator (Story 4-9)', () => {
       expect(Logger.info).toHaveBeenCalledWith(
         'Audio',
         'Voice line generation complete',
-        expect.objectContaining({ total: 32 })
+        expect.objectContaining({ total: 39 })
       );
     });
 
@@ -239,7 +250,7 @@ describe('VoiceLineGenerator (Story 4-9)', () => {
       expect(Logger.info).toHaveBeenCalledWith(
         'Audio',
         'Voice line generation complete',
-        expect.objectContaining({ generated: 32, failed: 0, total: 32 })
+        expect.objectContaining({ generated: 39, failed: 0, total: 39 })
       );
     });
 

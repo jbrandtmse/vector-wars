@@ -20,9 +20,12 @@ import { DogfightPhase } from '../state/phases/DogfightPhase.ts';
 import { SurfacePhase } from '../state/phases/SurfacePhase.ts';
 import { CorridorPhase } from '../state/phases/CorridorPhase.ts';
 import { BossPhase } from '../state/phases/BossPhase.ts';
+import type { BossFactory } from '../state/phases/BossPhase.ts';
 import { TutorialPhase } from '../state/phases/TutorialPhase.ts';
 import { BriefingPhase } from '../state/phases/BriefingPhase.ts';
 import { PhaseTransition } from '../state/phases/PhaseTransition.ts';
+import { GatekeeperBoss } from '../entities/bosses/GatekeeperBoss.ts';
+import { AvengerBoss } from '../entities/bosses/AvengerBoss.ts';
 import { eventBus } from '../core/GameEvents.ts';
 import { Logger } from '../core/Logger.ts';
 import {
@@ -87,6 +90,12 @@ const LEVEL_SURFACE_TARGETS: Record<number, typeof SURFACE_TARGETS> = {
 const LEVEL_CORRIDOR_OBSTACLES: Record<number, typeof CORRIDOR_OBSTACLES> = {
   1: CORRIDOR_OBSTACLES,
   2: CORRIDOR_OBSTACLES_LEVEL2,
+};
+
+/** Per-level boss factories (Story 5-2) */
+const LEVEL_BOSS_FACTORIES: Record<number, BossFactory> = {
+  1: (vm, ppg) => new GatekeeperBoss(vm, ppg),
+  2: (vm, ppg) => new AvengerBoss(vm, ppg),
 };
 
 export class LevelManager {
@@ -186,12 +195,13 @@ export class LevelManager {
     // Get level-specific configs
     const surfaceTargets = LEVEL_SURFACE_TARGETS[level];
     const corridorObstacles = LEVEL_CORRIDOR_OBSTACLES[level];
+    const bossFactory = LEVEL_BOSS_FACTORIES[level];
 
     // Build phase list based on level
     if (level === 1) {
-      this.buildLevel1Phases(surfaceTargets, corridorObstacles);
+      this.buildLevel1Phases(surfaceTargets, corridorObstacles, bossFactory);
     } else {
-      this.buildLevelPhases(surfaceTargets, corridorObstacles);
+      this.buildLevelPhases(surfaceTargets, corridorObstacles, bossFactory);
     }
 
     // Enter first phase
@@ -218,6 +228,7 @@ export class LevelManager {
   private buildLevel1Phases(
     surfaceTargets?: typeof SURFACE_TARGETS,
     corridorObstacles?: typeof CORRIDOR_OBSTACLES,
+    bossFactory?: BossFactory,
   ): void {
     const tutorialPhase = new TutorialPhase(
       this.scene,
@@ -265,6 +276,7 @@ export class LevelManager {
       this.vectorMaterials,
       this.gameObjectManager,
       () => this.camera.position.clone(),
+      bossFactory,
     );
 
     if (briefingPhase) {
@@ -283,6 +295,7 @@ export class LevelManager {
   private buildLevelPhases(
     surfaceTargets?: typeof SURFACE_TARGETS,
     corridorObstacles?: typeof CORRIDOR_OBSTACLES,
+    bossFactory?: BossFactory,
   ): void {
     const briefingPhase = this.briefingDataMap.has(this.currentLevel)
       ? new BriefingPhase(this.briefingDataMap.get(this.currentLevel)!)
@@ -321,6 +334,7 @@ export class LevelManager {
       this.vectorMaterials,
       this.gameObjectManager,
       () => this.camera.position.clone(),
+      bossFactory,
     );
 
     if (briefingPhase) {

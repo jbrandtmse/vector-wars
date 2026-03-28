@@ -240,11 +240,36 @@ const GATEKEEPER_DEFINITIONS: Record<string, VoiceDefinition> = {
   gk_defeated: createVoiceDefinition(GATEKEEPER_PROFILE, 2.0, hashString('gk_defeated')),
 };
 
+// Avenger lines — aggressive, fast AI (Story 5-2)
+const AVENGER_PROFILE: VoiceProfile = {
+  baseFreq: 140,
+  waveform: 'sawtooth',
+  freqDrift: 50,
+  modRate: 12,
+  modDepth: 0.4,
+  noiseLevel: 0.25,
+  noiseFreq: 2500,
+  attack: 0.005,
+  release: 0.03,
+  sampleRate: 11025,
+};
+
+const AVENGER_DEFINITIONS: Record<string, VoiceDefinition> = {
+  av_encounter_start: createVoiceDefinition(AVENGER_PROFILE, 2.0, hashString('av_encounter_start')),
+  av_health_below_75: createVoiceDefinition(AVENGER_PROFILE, 1.5, hashString('av_health_below_75')),
+  av_health_below_50: createVoiceDefinition(AVENGER_PROFILE, 1.5, hashString('av_health_below_50')),
+  av_health_below_25: createVoiceDefinition(AVENGER_PROFILE, 1.5, hashString('av_health_below_25')),
+  av_rush_phase: createVoiceDefinition(AVENGER_PROFILE, 1.0, hashString('av_rush_phase')),
+  av_vulnerable: createVoiceDefinition(AVENGER_PROFILE, 1.0, hashString('av_vulnerable')),
+  av_defeated: createVoiceDefinition(AVENGER_PROFILE, 2.0, hashString('av_defeated')),
+};
+
 /** Combined definitions for all voice lines. */
 const VOICE_DEFINITIONS: Record<string, VoiceDefinition> = {
   ...HANDLER_DEFINITIONS,
   ...TUTORIAL_DEFINITIONS,
   ...GATEKEEPER_DEFINITIONS,
+  ...AVENGER_DEFINITIONS,
 };
 
 export class VoiceLineGenerator {

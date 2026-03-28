@@ -2,12 +2,13 @@
  * BossPhase -- Phase 4 state: boss encounter arena.
  *
  * Manages the boss arena lifecycle: creates arena environment, spawns
- * the GatekeeperBoss, drives a closed-loop orbit rail path, and handles
- * camera lookAt toward the boss.
+ * a boss via factory function, drives a closed-loop orbit rail path,
+ * and handles camera lookAt toward the boss.
  *
  * Pattern: Same lifecycle as SurfacePhase/CorridorPhase -- enter/update/exit.
  *
  * Created by: Story 3-7
+ * Updated by: Story 5-2 (boss factory pattern for per-level boss selection)
  */
 
 import * as THREE from 'three';
@@ -20,8 +21,12 @@ import {
   BOSS_ARENA_RAIL_SPEED,
   BOSS_CAMERA_LOOK_LERP,
 } from '../../config/constants.ts';
+import type { Boss } from '../../entities/bosses/Boss.ts';
 import type { VectorMaterials } from '../../rendering/VectorMaterials.ts';
 import type { GameObjectManager } from '../../entities/GameObjectManager.ts';
+
+/** Factory function type for creating boss instances */
+export type BossFactory = (vectorMaterials: VectorMaterials, playerPositionGetter: () => THREE.Vector3) => Boss;
 
 export class BossPhase {
   private scene: THREE.Scene;
@@ -29,9 +34,10 @@ export class BossPhase {
   private vectorMaterials: VectorMaterials;
   private gameObjectManager: GameObjectManager;
   private playerPositionGetter: () => THREE.Vector3;
+  private bossFactory: BossFactory;
 
   // Boss entity
-  private boss: GatekeeperBoss | null = null;
+  private boss: Boss | null = null;
 
   // Rail path
   private curve: THREE.CatmullRomCurve3 | null = null;
@@ -64,12 +70,15 @@ export class BossPhase {
     vectorMaterials: VectorMaterials,
     gameObjectManager: GameObjectManager,
     playerPositionGetter: () => THREE.Vector3,
+    bossFactory?: BossFactory,
   ) {
     this.scene = scene;
     this.camera = camera;
     this.vectorMaterials = vectorMaterials;
     this.gameObjectManager = gameObjectManager;
     this.playerPositionGetter = playerPositionGetter;
+    // Default to GatekeeperBoss if no factory provided (backward compatibility)
+    this.bossFactory = bossFactory ?? ((vm, ppg) => new GatekeeperBoss(vm, ppg));
   }
 
   enter(): void {
@@ -89,8 +98,8 @@ export class BossPhase {
     this.curve = new THREE.CatmullRomCurve3(pts, true, 'catmullrom', 0.5);
     this.totalLength = this.curve.getLength();
 
-    // Spawn the GatekeeperBoss at world origin
-    this.boss = new GatekeeperBoss(this.vectorMaterials, this.playerPositionGetter);
+    // Spawn boss at world origin using factory
+    this.boss = this.bossFactory(this.vectorMaterials, this.playerPositionGetter);
     this.boss.getObject3D().position.set(0, 0, 0);
     this.scene.add(this.boss.getObject3D());
     this.gameObjectManager.add(this.boss);
@@ -191,7 +200,7 @@ export class BossPhase {
   }
 
   /** Returns the boss entity (for testing/inspection) */
-  getBoss(): GatekeeperBoss | null {
+  getBoss(): Boss | null {
     return this.boss;
   }
 

@@ -6,6 +6,7 @@ import { GameObjectManager } from '../entities/GameObjectManager.ts';
 import { setActivePalette } from '../rendering/ColorPalette.ts';
 import { eventBus } from '../core/GameEvents.ts';
 import { GatekeeperBoss } from '../entities/bosses/GatekeeperBoss.ts';
+import { AvengerBoss } from '../entities/bosses/AvengerBoss.ts';
 
 describe('BossPhase', () => {
   let scene: THREE.Scene;
@@ -241,6 +242,44 @@ describe('BossPhase', () => {
 
       // Should remove boss object and grid floor
       expect(removeSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('Boss factory (Story 5-2)', () => {
+    it('should create GatekeeperBoss by default when no factory provided', () => {
+      phase.enter();
+      expect(phase.getBoss()).toBeInstanceOf(GatekeeperBoss);
+      phase.exit();
+    });
+
+    it('should create AvengerBoss when avenger factory provided', () => {
+      setActivePalette('amber');
+      const avengerPhase = new BossPhase(
+        scene,
+        camera,
+        vectorMaterials,
+        gameObjectManager,
+        () => playerPosition,
+        (vm, ppg) => new AvengerBoss(vm, ppg),
+      );
+      avengerPhase.enter();
+      expect(avengerPhase.getBoss()).toBeInstanceOf(AvengerBoss);
+      avengerPhase.exit();
+    });
+
+    it('should use custom factory to create boss', () => {
+      const factorySpy = vi.fn((vm: VectorMaterials, ppg: () => THREE.Vector3) => new GatekeeperBoss(vm, ppg));
+      const factoryPhase = new BossPhase(
+        scene,
+        camera,
+        vectorMaterials,
+        gameObjectManager,
+        () => playerPosition,
+        factorySpy,
+      );
+      factoryPhase.enter();
+      expect(factorySpy).toHaveBeenCalledOnce();
+      factoryPhase.exit();
     });
   });
 });

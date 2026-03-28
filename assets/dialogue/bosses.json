@@ -80,6 +80,69 @@
       "audio": "gk_defeated",
       "priority": 3,
       "duration": 5
+    },
+    {
+      "id": "av_encounter_start",
+      "trigger": "phaseStart:boss:2",
+      "speaker": "avenger",
+      "text": "I know what you did to my Gatekeeper. I will enjoy dismantling you.",
+      "audio": "av_encounter_start",
+      "priority": 3,
+      "duration": 5
+    },
+    {
+      "id": "av_health_below_75",
+      "trigger": "bossHealthChanged:below75",
+      "speaker": "avenger",
+      "text": "You fight well for an insect. It won't save you.",
+      "audio": "av_health_below_75",
+      "priority": 2,
+      "duration": 4
+    },
+    {
+      "id": "av_health_below_50",
+      "trigger": "bossHealthChanged:below50",
+      "speaker": "avenger",
+      "text": "Faster. Stronger. I am everything the Gatekeeper was not.",
+      "audio": "av_health_below_50",
+      "priority": 2,
+      "duration": 4
+    },
+    {
+      "id": "av_health_below_25",
+      "trigger": "bossHealthChanged:below25",
+      "speaker": "avenger",
+      "text": "No. NO. I will not fall like that pathetic construct!",
+      "audio": "av_health_below_25",
+      "priority": 2,
+      "duration": 4
+    },
+    {
+      "id": "av_rush_phase",
+      "trigger": "bossPhaseChanged:rush",
+      "speaker": "avenger",
+      "text": "There is nowhere to hide from me.",
+      "audio": "av_rush_phase",
+      "priority": 2,
+      "duration": 3
+    },
+    {
+      "id": "av_vulnerable",
+      "trigger": "bossVulnerable",
+      "speaker": "avenger",
+      "text": "A momentary weakness. Exploit it if you can.",
+      "audio": "av_vulnerable",
+      "priority": 2,
+      "duration": 3
+    },
+    {
+      "id": "av_defeated",
+      "trigger": "bossDefeated",
+      "speaker": "avenger",
+      "text": "The network... will remember what you... have done...",
+      "audio": "av_defeated",
+      "priority": 3,
+      "duration": 5
     }
   ]
 }

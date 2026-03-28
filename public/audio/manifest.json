@@ -41,5 +41,12 @@
   "handler_l2_surface_start": { "path": "audio/voice/handler_l2_surface_start.ogg", "channel": "voice" },
   "handler_l2_corridor_start": { "path": "audio/voice/handler_l2_corridor_start.ogg", "channel": "voice" },
   "handler_l2_boss_start": { "path": "audio/voice/handler_l2_boss_start.ogg", "channel": "voice" },
-  "handler_l2_level_complete": { "path": "audio/voice/handler_l2_level_complete.ogg", "channel": "voice" }
+  "handler_l2_level_complete": { "path": "audio/voice/handler_l2_level_complete.ogg", "channel": "voice" },
+  "av_encounter_start": { "path": "audio/voice/av_encounter_start.ogg", "channel": "voice" },
+  "av_health_below_75": { "path": "audio/voice/av_health_below_75.ogg", "channel": "voice" },
+  "av_health_below_50": { "path": "audio/voice/av_health_below_50.ogg", "channel": "voice" },
+  "av_health_below_25": { "path": "audio/voice/av_health_below_25.ogg", "channel": "voice" },
+  "av_rush_phase": { "path": "audio/voice/av_rush_phase.ogg", "channel": "voice" },
+  "av_vulnerable": { "path": "audio/voice/av_vulnerable.ogg", "channel": "voice" },
+  "av_defeated": { "path": "audio/voice/av_defeated.ogg", "channel": "voice" }
 }
