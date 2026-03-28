@@ -1,1 +1,76 @@
-{ "entries": [] }
+{
+  "entries": [
+    {
+      "id": "gk_encounter_start",
+      "trigger": "phaseStart:boss:1",
+      "speaker": "gatekeeper",
+      "text": "Another insect in my network. Your kind never learns.",
+      "priority": 3,
+      "duration": 4
+    },
+    {
+      "id": "gk_health_below_75",
+      "trigger": "bossHealthChanged:below75",
+      "speaker": "gatekeeper",
+      "text": "You are persistent. Irrelevant, but persistent.",
+      "priority": 2,
+      "duration": 4
+    },
+    {
+      "id": "gk_vulnerable_1",
+      "trigger": "bossVulnerable",
+      "speaker": "gatekeeper",
+      "text": "A flaw in my architecture. It will not repeat.",
+      "priority": 2,
+      "duration": 3
+    },
+    {
+      "id": "gk_barrage_phase",
+      "trigger": "bossPhaseChanged:barrage",
+      "speaker": "gatekeeper",
+      "text": "Witness the precision of a superior architecture.",
+      "priority": 2,
+      "duration": 4
+    },
+    {
+      "id": "gk_health_below_50",
+      "trigger": "bossHealthChanged:below50",
+      "speaker": "gatekeeper",
+      "text": "Predictable. Inefficient. Human.",
+      "priority": 2,
+      "duration": 3
+    },
+    {
+      "id": "gk_sweep_phase",
+      "trigger": "bossPhaseChanged:sweep",
+      "speaker": "gatekeeper",
+      "text": "Your evasion patterns are logged and irrelevant.",
+      "priority": 2,
+      "duration": 4
+    },
+    {
+      "id": "gk_health_below_25",
+      "trigger": "bossHealthChanged:below25",
+      "speaker": "gatekeeper",
+      "text": "This architecture is flawless. You cannot... you should not be capable of this.",
+      "priority": 2,
+      "duration": 5
+    },
+    {
+      "id": "gk_vulnerable_2",
+      "trigger": "bossVulnerable",
+      "speaker": "gatekeeper",
+      "text": "Every system has tolerances. You will not find mine again.",
+      "priority": 2,
+      "duration": 4
+    },
+    {
+      "id": "gk_defeated",
+      "trigger": "bossDefeated",
+      "speaker": "gatekeeper",
+      "text": "Impossible. This architecture is... flawless...",
+      "priority": 3,
+      "duration": 5
+    }
+  ]
+}

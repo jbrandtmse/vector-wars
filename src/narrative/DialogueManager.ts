@@ -14,6 +14,8 @@ import type {
   PhaseEndEvent,
   BossHealthChangedEvent,
   BossVulnerableEvent,
+  BossDefeatedEvent,
+  BossPhaseChangedEvent,
   LevelCompleteEvent,
   DialogueTriggerEvent,
 } from '../core/GameEvents.ts';
@@ -50,6 +52,8 @@ export class DialogueManager {
   private onPhaseEnd: (e: PhaseEndEvent) => void;
   private onBossHealthChanged: (e: BossHealthChangedEvent) => void;
   private onBossVulnerable: (e: BossVulnerableEvent) => void;
+  private onBossDefeated: (e: BossDefeatedEvent) => void;
+  private onBossPhaseChanged: (e: BossPhaseChangedEvent) => void;
   private onEnemyDestroyed: (e: { enemy: Enemy; position: { x: number; y: number; z: number } }) => void;
   private onLevelComplete: (e: LevelCompleteEvent) => void;
 
@@ -99,6 +103,17 @@ export class DialogueManager {
       }
     };
 
+    this.onBossDefeated = () => {
+      Logger.debug('Narrative', 'Boss defeated trigger', { triggerId: 'bossDefeated' });
+      this.handleTrigger('bossDefeated');
+    };
+
+    this.onBossPhaseChanged = (e) => {
+      const triggerId = `bossPhaseChanged:${e.phase}`;
+      Logger.debug('Narrative', 'Boss phase changed trigger', { triggerId });
+      this.handleTrigger(triggerId);
+    };
+
     this.onEnemyDestroyed = () => {
       if (!this.firstEnemyKilled) {
         this.firstEnemyKilled = true;
@@ -118,6 +133,8 @@ export class DialogueManager {
     eventBus.on('phaseEnd', this.onPhaseEnd);
     eventBus.on('bossHealthChanged', this.onBossHealthChanged);
     eventBus.on('bossVulnerable', this.onBossVulnerable);
+    eventBus.on('bossDefeated', this.onBossDefeated);
+    eventBus.on('bossPhaseChanged', this.onBossPhaseChanged);
     eventBus.on('enemyDestroyed', this.onEnemyDestroyed);
     eventBus.on('levelComplete', this.onLevelComplete);
 
@@ -183,6 +200,8 @@ export class DialogueManager {
     eventBus.off('phaseEnd', this.onPhaseEnd);
     eventBus.off('bossHealthChanged', this.onBossHealthChanged);
     eventBus.off('bossVulnerable', this.onBossVulnerable);
+    eventBus.off('bossDefeated', this.onBossDefeated);
+    eventBus.off('bossPhaseChanged', this.onBossPhaseChanged);
     eventBus.off('enemyDestroyed', this.onEnemyDestroyed);
     eventBus.off('levelComplete', this.onLevelComplete);
     this.clearQueue();

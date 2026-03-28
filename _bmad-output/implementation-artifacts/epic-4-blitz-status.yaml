@@ -16,8 +16,8 @@ stories:
     committed: false
     notes: ""
   4-2-ai-taunt-system:
-    status: pending
-    phase: null
+    status: developing
+    phase: dev-story
     attempts: 0
     committed: false
     notes: ""

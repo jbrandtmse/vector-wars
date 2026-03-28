@@ -326,3 +326,203 @@ describe('DialogueManager (Story 4-1)', () => {
     expect(mockOverlay.show).toHaveBeenCalledWith('HANDLER', 'Hit it now!', '#00ff41');
   });
 });
+
+describe('DialogueManager (Story 4-2: AI Taunt System)', () => {
+  let DialogueManager: typeof import('../narrative/DialogueManager.ts').DialogueManager;
+  let mockOverlay: {
+    show: ReturnType<typeof vi.fn>;
+    update: ReturnType<typeof vi.fn>;
+    hide: ReturnType<typeof vi.fn>;
+    isVisible: ReturnType<typeof vi.fn>;
+    dispose: ReturnType<typeof vi.fn>;
+  };
+  let manager: InstanceType<typeof DialogueManager>;
+
+  beforeEach(async () => {
+    vi.resetModules();
+
+    const mod = await import('../narrative/DialogueManager.ts');
+    DialogueManager = mod.DialogueManager;
+
+    mockOverlay = {
+      show: vi.fn(),
+      update: vi.fn(),
+      hide: vi.fn(),
+      isVisible: vi.fn().mockReturnValue(false),
+      dispose: vi.fn(),
+    };
+
+    const gameEvents = await import('../core/GameEvents.ts');
+    testBus = gameEvents.eventBus as unknown as EventBus<GameEvents>;
+
+    manager = new DialogueManager(mockOverlay as never);
+  });
+
+  afterEach(() => {
+    manager.dispose();
+  });
+
+  it('bossDefeated event triggers dialogue lookup for "bossDefeated" trigger ID', () => {
+    manager.loadScript({
+      entries: [
+        { id: 'gk_death', trigger: 'bossDefeated', speaker: 'gatekeeper', text: 'Impossible. This architecture is... flawless...', priority: 3, duration: 5 },
+      ],
+    });
+
+    testBus.emit('bossDefeated', { position: { x: 0, y: 0, z: 0 }, scoreValue: 5000 });
+    manager.update(0);
+
+    expect(mockOverlay.show).toHaveBeenCalledWith('GATEKEEPER', 'Impossible. This architecture is... flawless...', '#00ff41');
+  });
+
+  it('bossPhaseChanged event with phase "barrage" triggers "bossPhaseChanged:barrage"', () => {
+    manager.loadScript({
+      entries: [
+        { id: 'gk_barrage', trigger: 'bossPhaseChanged:barrage', speaker: 'gatekeeper', text: 'Witness the precision of a superior architecture.', priority: 2, duration: 4 },
+      ],
+    });
+
+    testBus.emit('bossPhaseChanged', { phase: 'barrage' });
+    manager.update(0);
+
+    expect(mockOverlay.show).toHaveBeenCalledWith('GATEKEEPER', 'Witness the precision of a superior architecture.', '#00ff41');
+  });
+
+  it('bossPhaseChanged event with phase "sweep" triggers "bossPhaseChanged:sweep"', () => {
+    manager.loadScript({
+      entries: [
+        { id: 'gk_sweep', trigger: 'bossPhaseChanged:sweep', speaker: 'gatekeeper', text: 'Your evasion patterns are logged and irrelevant.', priority: 2, duration: 4 },
+      ],
+    });
+
+    testBus.emit('bossPhaseChanged', { phase: 'sweep' });
+    manager.update(0);
+
+    expect(mockOverlay.show).toHaveBeenCalledWith('GATEKEEPER', 'Your evasion patterns are logged and irrelevant.', '#00ff41');
+  });
+
+  it('bossPhaseChanged event with phase "vulnerable" triggers "bossPhaseChanged:vulnerable"', () => {
+    manager.loadScript({
+      entries: [
+        { id: 'gk_vuln', trigger: 'bossPhaseChanged:vulnerable', speaker: 'gatekeeper', text: 'A momentary lapse. It will not save you.', priority: 2, duration: 4 },
+      ],
+    });
+
+    testBus.emit('bossPhaseChanged', { phase: 'vulnerable' });
+    manager.update(0);
+
+    expect(mockOverlay.show).toHaveBeenCalledWith('GATEKEEPER', 'A momentary lapse. It will not save you.', '#00ff41');
+  });
+
+  it('boss taunt (priority 2) preempts handler chatter (priority 1)', () => {
+    manager.loadScript({
+      entries: [
+        { id: 'handler_chat', trigger: 'handlerChat', speaker: 'handler', text: 'Stay alert.', priority: 1, duration: 10 },
+        { id: 'gk_taunt', trigger: 'bossTaunt', speaker: 'gatekeeper', text: 'Another insect in my network.', priority: 2, duration: 4 },
+      ],
+    });
+
+    // Show handler chatter first (priority 1)
+    testBus.emit('dialogueTrigger', { triggerId: 'handlerChat' });
+    manager.update(0);
+    expect(mockOverlay.show).toHaveBeenCalledWith('HANDLER', 'Stay alert.', '#00ff41');
+
+    // Queue boss taunt (priority 2) — should preempt
+    testBus.emit('dialogueTrigger', { triggerId: 'bossTaunt' });
+    manager.update(0.016);
+
+    expect(mockOverlay.hide).toHaveBeenCalled();
+    expect(mockOverlay.show).toHaveBeenCalledWith('GATEKEEPER', 'Another insect in my network.', '#00ff41');
+  });
+
+  it('boss taunt (priority 2) queues behind handler critical line (priority 3)', () => {
+    manager.loadScript({
+      entries: [
+        { id: 'handler_crit', trigger: 'critLine', speaker: 'handler', text: 'Critical warning!', priority: 3, duration: 2 },
+        { id: 'gk_taunt', trigger: 'bossTaunt', speaker: 'gatekeeper', text: 'Predictable. Inefficient. Human.', priority: 2, duration: 4 },
+      ],
+    });
+
+    // Show handler critical line first (priority 3)
+    testBus.emit('dialogueTrigger', { triggerId: 'critLine' });
+    manager.update(0);
+    expect(mockOverlay.show).toHaveBeenCalledWith('HANDLER', 'Critical warning!', '#00ff41');
+
+    // Queue boss taunt (priority 2) — should NOT preempt priority 3
+    testBus.emit('dialogueTrigger', { triggerId: 'bossTaunt' });
+    manager.update(0.016);
+
+    // Boss taunt should NOT have preempted — handler critical still showing
+    expect(mockOverlay.show).toHaveBeenCalledTimes(1); // Still only the handler line
+
+    // Let handler line expire
+    manager.update(2.0);
+    manager.update(0);
+
+    // Now boss taunt should show
+    expect(mockOverlay.show).toHaveBeenCalledWith('GATEKEEPER', 'Predictable. Inefficient. Human.', '#00ff41');
+  });
+
+  it('loading both handler and boss scripts does not cause trigger conflicts', () => {
+    // Load handler script
+    manager.loadScript({
+      entries: [
+        { id: 'handler_vuln', trigger: 'bossVulnerable', speaker: 'handler', text: 'Hit it now!', priority: 2, duration: 3 },
+        { id: 'handler_start', trigger: 'phaseStart:boss:1', speaker: 'handler', text: 'That is the Gatekeeper.', priority: 3, duration: 4 },
+      ],
+    });
+
+    // Load boss script (same triggers, different speaker/content)
+    manager.loadScript({
+      entries: [
+        { id: 'gk_vuln', trigger: 'bossVulnerable', speaker: 'gatekeeper', text: 'A flaw in my architecture. It will not repeat.', priority: 2, duration: 4 },
+        { id: 'gk_start', trigger: 'phaseStart:boss:1', speaker: 'gatekeeper', text: 'Another insect in my network.', priority: 3, duration: 4 },
+      ],
+    });
+
+    // Trigger bossVulnerable — should enqueue BOTH entries (handler + gatekeeper)
+    testBus.emit('bossVulnerable', { vulnerable: true });
+    manager.update(0);
+
+    // First entry shown (both priority 2, FIFO — handler was loaded first)
+    expect(mockOverlay.show).toHaveBeenCalledTimes(1);
+
+    // Let first expire, second should show
+    manager.update(3.1);
+    manager.update(0);
+
+    expect(mockOverlay.show).toHaveBeenCalledTimes(2);
+  });
+
+  it('bossDefeated subscription is cleaned up on dispose', () => {
+    manager.loadScript({
+      entries: [
+        { id: 'gk_death', trigger: 'bossDefeated', speaker: 'gatekeeper', text: 'Impossible...', priority: 3, duration: 5 },
+      ],
+    });
+
+    manager.dispose();
+    mockOverlay.show.mockClear();
+
+    testBus.emit('bossDefeated', { position: { x: 0, y: 0, z: 0 }, scoreValue: 5000 });
+    manager.update(0);
+
+    expect(mockOverlay.show).not.toHaveBeenCalled();
+  });
+
+  it('bossPhaseChanged subscription is cleaned up on dispose', () => {
+    manager.loadScript({
+      entries: [
+        { id: 'gk_barrage', trigger: 'bossPhaseChanged:barrage', speaker: 'gatekeeper', text: 'My barrage...', priority: 2, duration: 4 },
+      ],
+    });
+
+    manager.dispose();
+    mockOverlay.show.mockClear();
+
+    testBus.emit('bossPhaseChanged', { phase: 'barrage' });
+    manager.update(0);
+
+    expect(mockOverlay.show).not.toHaveBeenCalled();
+  });
+});
