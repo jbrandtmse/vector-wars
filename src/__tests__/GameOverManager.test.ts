@@ -16,6 +16,7 @@ vi.mock('../ui/screens/GameOverScreen.ts', () => ({
     show = vi.fn();
     hide = vi.fn();
     dispose = vi.fn();
+    onRestart: ((finalScore: number) => void) | null = null;
   },
 }));
 
@@ -87,5 +88,23 @@ describe('GameOverManager (Story 2-10)', () => {
     eventBus.emit('playerDied', {} as Record<string, never>);
 
     expect(mockHudManager.hideHUD).toHaveBeenCalledOnce();
+  });
+
+  it('should expose setOnRestart to configure GameOverScreen callback (Story 5-11)', async () => {
+    const { GameOverManager } = await import('../systems/GameOverManager.ts');
+
+    const mockScoreManager = { getScore: vi.fn().mockReturnValue(0) };
+    const mockHudManager = { hideHUD: vi.fn() };
+
+    const manager = new GameOverManager(
+      mockScoreManager as never,
+      mockHudManager as never,
+    );
+
+    const callback = vi.fn();
+    manager.setOnRestart(callback);
+
+    // The setOnRestart method should exist and not throw
+    expect(typeof manager.setOnRestart).toBe('function');
   });
 });

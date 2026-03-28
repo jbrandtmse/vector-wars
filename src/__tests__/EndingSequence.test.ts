@@ -185,6 +185,35 @@ describe('EndingScreen', () => {
     });
   });
 
+  describe('onCreditsComplete callback (Story 5-11)', () => {
+    it('calls onCreditsComplete callback when credits finish instead of showing restart prompt', () => {
+      const callback = vi.fn();
+      endingScreen.onCreditsComplete = callback;
+      endingScreen.show(42000);
+
+      // Advance past flash (1000ms) + transmission (10000ms) + fade (1000ms) = 12000ms
+      vi.advanceTimersByTime(12000);
+
+      // Now we need credits to "finish scrolling". The credits scroll via rAF.
+      // In test environment the scrollContent height is 0 so the scroll completes immediately.
+      // The showRestartPrompt should call the callback instead of showing the prompt.
+      // Since scrollContent has 0 height in jsdom, scroll completes on first frame.
+      // We need to trigger the rAF callback. jsdom doesn't automatically run rAF.
+      // Let's just check that when showRestartPrompt is eventually reached, callback is invoked.
+
+      // Simulate the credits completing by advancing time further
+      // The animateCredits checks if scrollY >= totalScrollNeeded.
+      // In jsdom, offsetHeight is 0, so totalScrollNeeded is 0, which means
+      // first animation frame should trigger showRestartPrompt immediately.
+      // However, we're using fake timers, so rAF doesn't auto-fire.
+      // Let's advance a small amount and check.
+      vi.advanceTimersByTime(100);
+
+      // The callback should have been invoked with the finalScore
+      expect(callback).toHaveBeenCalledWith(42000);
+    });
+  });
+
   describe('dispose()', () => {
     it('removes overlay from DOM on dispose', () => {
       endingScreen.show(12345);

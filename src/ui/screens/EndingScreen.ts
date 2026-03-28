@@ -60,6 +60,11 @@ export class EndingScreen {
   private creditsScrolling = false;
   private lastFrameTime = 0;
 
+  /** Optional callback invoked when credits finish scrolling.
+   *  When set, replaces the default restart prompt behavior. */
+  public onCreditsComplete: ((finalScore: number) => void) | null = null;
+  private finalScore = 0;
+
   constructor() {
     this.overlay = document.createElement('div');
     this.flashOverlay = document.createElement('div');
@@ -76,6 +81,7 @@ export class EndingScreen {
   show(finalScore: number): void {
     Logger.info('EndingScreen', 'Starting ending sequence', { finalScore });
 
+    this.finalScore = finalScore;
     this.buildDOM(finalScore);
     document.body.appendChild(this.overlay);
 
@@ -444,6 +450,12 @@ export class EndingScreen {
   }
 
   private showRestartPrompt(): void {
+    // If an onCreditsComplete callback is set, invoke it instead of showing restart prompt
+    if (this.onCreditsComplete) {
+      this.onCreditsComplete(this.finalScore);
+      return;
+    }
+
     this.restartPrompt.style.opacity = '1';
     this.restartPrompt.style.animation = 'endingPromptPulse 1s ease-in-out infinite';
 

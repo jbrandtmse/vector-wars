@@ -56,4 +56,13 @@ export class GameOverManager {
   get isGameOver(): boolean {
     return this.gameOverActive;
   }
+
+  /**
+   * Sets a callback on the GameOverScreen that is invoked when the player
+   * presses Space instead of immediately reloading. Used by HighScoreScreen
+   * integration to intercept restart and show the high score table.
+   */
+  setOnRestart(callback: ((finalScore: number) => void) | null): void {
+    this.gameOverScreen.onRestart = callback;
+  }
 }

@@ -37,6 +37,8 @@ import { VoiceLineGenerator } from './audio/VoiceLineGenerator.ts';
 import { AmbientHumGenerator } from './audio/AmbientHumGenerator.ts';
 import { OutroMusicGenerator } from './audio/OutroMusicGenerator.ts';
 import { EndingScreen } from './ui/screens/EndingScreen.ts';
+import { HighScoreManager } from './systems/HighScoreManager.ts';
+import { HighScoreScreen } from './ui/screens/HighScoreScreen.ts';
 
 // --- Renderer Setup ---
 const container = document.getElementById('app');
@@ -198,6 +200,19 @@ const hudManager = new HUDManager(camera, vectorMaterials);
 // --- Game Over Manager Setup (Story 2-10) ---
 const gameOverManager = new GameOverManager(scoreManager, hudManager);
 
+// --- High Score Manager Setup (Story 5-11) ---
+const highScoreManager = new HighScoreManager();
+
+// Wire GameOverScreen to show HighScoreScreen when score qualifies
+gameOverManager.setOnRestart((finalScore: number) => {
+  if (highScoreManager.isHighScore(finalScore)) {
+    const highScoreScreen = new HighScoreScreen();
+    highScoreScreen.show(finalScore, highScoreManager);
+  } else {
+    window.location.reload();
+  }
+});
+
 // --- Comm Overlay + Dialogue Manager Setup (Story 4-1) ---
 const commOverlay = new CommOverlay();
 const dialogueManager = new DialogueManager(commOverlay);
@@ -280,8 +295,12 @@ eventBus.on('levelComplete', ({ level }) => {
         window.addEventListener('keydown', handler);
       }, 1000);
     } else {
-      // Level 3 complete: full ending sequence (Story 5-10)
+      // Level 3 complete: full ending sequence (Story 5-10, updated Story 5-11)
       const endingScreen = new EndingScreen();
+      endingScreen.onCreditsComplete = (finalScore: number) => {
+        const highScoreScreen = new HighScoreScreen();
+        highScoreScreen.show(finalScore, highScoreManager);
+      };
       endingScreen.show(scoreManager.getScore());
     }
   }, 2000);

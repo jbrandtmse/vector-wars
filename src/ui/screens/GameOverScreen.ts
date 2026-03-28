@@ -16,6 +16,12 @@ export class GameOverScreen {
   private restartEnabled = false;
   private keyHandler: ((e: KeyboardEvent) => void) | null = null;
 
+  /** Optional callback invoked when Space is pressed instead of reloading.
+   *  Receives the final score. When set, the GameOverScreen is hidden
+   *  and the callback is invoked. */
+  public onRestart: ((finalScore: number) => void) | null = null;
+  private currentScore = 0;
+
   constructor() {
     this.overlay = document.createElement('div');
     this.scoreElement = document.createElement('span');
@@ -84,6 +90,7 @@ export class GameOverScreen {
   }
 
   show(finalScore: number): void {
+    this.currentScore = finalScore;
     this.scoreElement.textContent = String(finalScore);
     document.body.appendChild(this.overlay);
 
@@ -99,7 +106,12 @@ export class GameOverScreen {
       this.keyHandler = (e: KeyboardEvent) => {
         if (e.code === 'Space' && this.restartEnabled) {
           e.preventDefault();
-          window.location.reload();
+          if (this.onRestart) {
+            this.hide();
+            this.onRestart(this.currentScore);
+          } else {
+            window.location.reload();
+          }
         }
       };
       window.addEventListener('keydown', this.keyHandler);
