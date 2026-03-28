@@ -6,6 +6,7 @@
  * extends this class with specific geometry and defaults.
  *
  * Created by: Story 2-2
+ * Updated by: Story 5-7 (added glitch scale jitter for behavioral evolution)
  */
 
 import * as THREE from 'three';
@@ -13,7 +14,7 @@ import { GameObject } from '../GameObject.ts';
 import { DestroyedState } from '../../ai/states/DestroyedState.ts';
 import { eventBus } from '../../core/GameEvents.ts';
 import { Logger } from '../../core/Logger.ts';
-import { EMP_BURST_SLOW_FACTOR, EMP_BURST_STUN_PULSE_RATE } from '../../config/constants.ts';
+import { EMP_BURST_SLOW_FACTOR, EMP_BURST_STUN_PULSE_RATE, GLITCH_THRESHOLD, GLITCH_SCALE_INTENSITY } from '../../config/constants.ts';
 import type { AIState } from '../../ai/AIState.ts';
 import type { BehaviorParams } from '../../ai/BehaviorParams.ts';
 import type { Poolable } from '../../core/ObjectPool.ts';
@@ -150,6 +151,14 @@ export abstract class Enemy extends GameObject implements Poolable {
           this.object3D.scale.setScalar(1.0);
         }
       }
+    }
+
+    // Behavioral evolution: Level 3 glitch jitter (Story 5-7)
+    // Only when not flashing and not stunned -- those visual effects take priority
+    if (this.flashTimer <= 0 && this.stunTimer <= 0
+        && this.params.movementRandomness >= GLITCH_THRESHOLD) {
+      const glitchScale = 1.0 + (Math.random() - 0.5) * GLITCH_SCALE_INTENSITY;
+      this.object3D.scale.setScalar(glitchScale);
     }
 
     if (this.currentState) {

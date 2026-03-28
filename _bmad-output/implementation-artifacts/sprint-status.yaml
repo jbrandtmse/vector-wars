@@ -35,8 +35,8 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-03-26
-last_updated: "2026-03-26T23:00:00Z"
-last_story_created: 5-6-overseer-enemy-type
+last_updated: "2026-03-26T23:45:00Z"
+last_story_created: 5-7-enemy-behavioral-evolution
 project: vector-wars
 project_key: NOKEY
 tracking_system: file-system
@@ -103,7 +103,7 @@ development_status:
   5-4-the-core-intelligence-boss: done
   5-5-color-palette-progression: done
   5-6-overseer-enemy-type: done
-  5-7-enemy-behavioral-evolution: backlog
+  5-7-enemy-behavioral-evolution: done
   5-8-handler-voice-escalation: backlog
   5-9-briefing-screens-all-levels: backlog
   5-10-ending-sequence: backlog

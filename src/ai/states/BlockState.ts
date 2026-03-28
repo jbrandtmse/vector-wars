@@ -5,10 +5,15 @@
  * Adds lateral sway to make the Gatekeeper harder to shoot past.
  * Transitions to AttackState after GATEKEEPER_ATTACK_INTERVAL seconds.
  *
+ * Behavioral evolution (Story 5-7): When movementRandomness > 0, additional
+ * irregular sway is added on top of the base sine wave, making Level 3
+ * Gatekeepers harder to predict and shoot around.
+ *
  * Receives playerPositionGetter and railDirectionGetter via constructor.
  * Does NOT import Player, Camera, RailMovement, or any system directly.
  *
  * Created by: Story 3-2
+ * Updated by: Story 5-7 (added movementRandomness irregular sway)
  */
 
 import * as THREE from 'three';
@@ -20,6 +25,7 @@ import {
   GATEKEEPER_LATERAL_SWAY,
   GATEKEEPER_SWAY_FREQUENCY,
   GATEKEEPER_ATTACK_INTERVAL,
+  BLOCK_RANDOMNESS_SCALE,
 } from '../../config/constants.ts';
 
 export class BlockState implements AIState {
@@ -51,6 +57,7 @@ export class BlockState implements AIState {
     this.elapsedTime += dt;
     const playerPos = this.playerPositionGetter();
     const enemyObj = enemy.getObject3D();
+    const params = enemy.getEffectiveParams();
 
     // Get current rail direction and compute blocking position ahead of player
     this.railDir.copy(this.railDirectionGetter());
@@ -61,11 +68,18 @@ export class BlockState implements AIState {
     // Cross rail direction with world up to get lateral axis
     // (-railDir.z, 0, railDir.x) is the 2D perpendicular in the XZ plane
     this.lateralDir.set(-this.railDir.z, 0, this.railDir.x);
-    const swayOffset = Math.sin(this.elapsedTime * Math.PI * 2 * GATEKEEPER_SWAY_FREQUENCY) * GATEKEEPER_LATERAL_SWAY;
+    let swayOffset = Math.sin(this.elapsedTime * Math.PI * 2 * GATEKEEPER_SWAY_FREQUENCY) * GATEKEEPER_LATERAL_SWAY;
+
+    // Behavioral evolution: add irregular secondary sway when movementRandomness > 0
+    if (params.movementRandomness > 0) {
+      swayOffset += Math.sin(this.elapsedTime * Math.PI * 2 * 1.7)
+        * params.movementRandomness * BLOCK_RANDOMNESS_SCALE;
+    }
+
     this.blockTarget.addScaledVector(this.lateralDir, swayOffset);
 
     // Smooth, weighty movement toward blocking position
-    const lerpSpeed = enemy.getEffectiveParams().patrolSpeed * GATEKEEPER_BLOCK_SPEED_MULTIPLIER;
+    const lerpSpeed = params.patrolSpeed * GATEKEEPER_BLOCK_SPEED_MULTIPLIER;
     enemyObj.position.lerp(this.blockTarget, lerpSpeed * dt);
 
     // Attack timer -- transition to AttackState after interval

@@ -3,12 +3,18 @@
  *
  * Receives a fire callback via constructor (does NOT import EnemyProjectileSystem).
  * Uses playerPositionGetter to aim without importing camera or Player.
- * Fires once per entry, then immediately transitions to nextState (PatrolState).
+ * Fires once per entry, then transitions to nextState (or EvadeState if evasion triggers).
+ *
+ * Evasion: When evasionReturnState is provided and Math.random() < evasionChance,
+ * the enemy enters EvadeState instead of returning to the normal nextState.
+ * This is part of the behavioral evolution system (Story 5-7).
  *
  * Created by: Story 2-5
+ * Updated by: Story 5-7 (added evasion support)
  */
 
 import * as THREE from 'three';
+import { EvadeState } from './EvadeState.ts';
 import type { AIState } from '../AIState.ts';
 import type { Enemy } from '../../entities/enemies/Enemy.ts';
 
@@ -23,6 +29,7 @@ export class AttackState implements AIState {
   private fireCallback: FireCallback;
   private playerPositionGetter: () => THREE.Vector3;
   private nextState: AIState;
+  private evasionReturnState: AIState | undefined;
   private fired = false;
 
   // Pre-allocated temp vector for enemy position read
@@ -32,10 +39,12 @@ export class AttackState implements AIState {
     fireCallback: FireCallback,
     playerPositionGetter: () => THREE.Vector3,
     nextState: AIState,
+    evasionReturnState?: AIState,
   ) {
     this.fireCallback = fireCallback;
     this.playerPositionGetter = playerPositionGetter;
     this.nextState = nextState;
+    this.evasionReturnState = evasionReturnState;
   }
 
   enter(_enemy: Enemy): void {
@@ -58,7 +67,18 @@ export class AttackState implements AIState {
 
     this.fired = true;
 
-    // Immediately transition back to patrol
+    // Evasion check: if evasionReturnState is wired and random check passes, evade
+    if (this.evasionReturnState !== undefined) {
+      const evasionChance = enemy.getEffectiveParams().evasionChance;
+      if (evasionChance > 0 && Math.random() < evasionChance) {
+        enemy.transitionToState(
+          new EvadeState(this.playerPositionGetter, this.evasionReturnState),
+        );
+        return;
+      }
+    }
+
+    // Normal transition back to patrol/pursuit/block/overseer
     enemy.transitionToState(this.nextState);
   }
 

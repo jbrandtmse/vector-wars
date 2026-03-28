@@ -5,10 +5,14 @@
  * Periodically scans for nearby enemies and buffs their attack cooldown and movement
  * speed. Transitions to AttackState after attackCooldown, then returns to OverseerState.
  *
+ * Behavioral evolution (Story 5-7): When movementRandomness > 0, the orbit radius
+ * varies sinusoidally, creating an irregular wobbling orbit instead of a perfect circle.
+ *
  * Receives GameObjectManager via constructor to scan for nearby enemies.
  * Does NOT import any system or call add()/remove() on GameObjectManager.
  *
  * Created by: Story 5-6
+ * Updated by: Story 5-7 (added movementRandomness orbit variation)
  */
 
 import * as THREE from 'three';
@@ -20,6 +24,7 @@ import {
   OVERSEER_BUFF_COOLDOWN_MULTIPLIER,
   OVERSEER_BUFF_SPEED_MULTIPLIER,
   OVERSEER_BUFF_INTERVAL,
+  OVERSEER_RANDOMNESS_SCALE,
 } from '../../config/constants.ts';
 
 const ORBIT_RADIUS = 2.5;
@@ -64,10 +69,17 @@ export class OverseerState implements AIState {
     // Orbit movement around spawn position (elevated for commanding position)
     this.angle += params.patrolSpeed * dt;
     const spawnPos = enemy.getSpawnPosition();
+
+    // Behavioral evolution: vary orbit radius when movementRandomness > 0
+    let currentRadius = ORBIT_RADIUS;
+    if (params.movementRandomness > 0) {
+      currentRadius += Math.sin(this.angle * 1.3) * params.movementRandomness * OVERSEER_RANDOMNESS_SCALE;
+    }
+
     enemy.getObject3D().position.set(
-      spawnPos.x + Math.cos(this.angle) * ORBIT_RADIUS,
+      spawnPos.x + Math.cos(this.angle) * currentRadius,
       spawnPos.y + Y_ALTITUDE_OFFSET + Math.sin(this.angle * Y_BOB_FREQUENCY) * Y_BOB_AMPLITUDE,
-      spawnPos.z + Math.sin(this.angle) * ORBIT_RADIUS,
+      spawnPos.z + Math.sin(this.angle) * currentRadius,
     );
 
     // Buff timer — scan and buff nearby enemies periodically

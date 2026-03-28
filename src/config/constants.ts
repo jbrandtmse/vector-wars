@@ -638,6 +638,17 @@ export const LEVEL_BEHAVIORS: Record<number, LevelBehaviorConfig> = {
   },
 };
 
+// Behavioral evolution constants (Story 5-7)
+// These constants control how movementRandomness and evasionChance affect AI states
+export const PATROL_RANDOMNESS_SCALE = 1.5;     // multiplied with movementRandomness for patrol orbit offset
+export const PURSUIT_RANDOMNESS_SCALE = 2.0;    // multiplied with movementRandomness for pursuit zigzag amplitude
+export const BLOCK_RANDOMNESS_SCALE = 1.0;      // multiplied with movementRandomness for additional block sway
+export const OVERSEER_RANDOMNESS_SCALE = 1.5;   // multiplied with movementRandomness for orbit radius variation
+export const EVASION_SPEED_MULTIPLIER = 2.5;    // multiplied with patrolSpeed for evasion movement speed
+export const EVASION_DURATION = 0.6;            // seconds of evasion movement after attack
+export const GLITCH_THRESHOLD = 0.4;            // movementRandomness at which visual glitch jitter activates
+export const GLITCH_SCALE_INTENSITY = 0.06;     // scale jitter amplitude for Level 3 "digital instability"
+
 // Level 2 spawn events — more enemies, more watchdogs/gatekeepers, cluster spawns
 export const SPAWN_EVENTS_LEVEL2: SpawnEvent[] = [
   // Wave 1: opening cluster — immediate pressure

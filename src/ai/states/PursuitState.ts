@@ -5,10 +5,15 @@
  * movement. Maintains a minimum engagement distance to prevent stacking.
  * Transitions to AttackState after WATCHDOG_ATTACK_INTERVAL seconds.
  *
+ * Behavioral evolution (Story 5-7): When movementRandomness > 0, a lateral
+ * zigzag offset is applied perpendicular to pursuit direction, making Watchdogs
+ * harder to hit during pursuit.
+ *
  * Receives playerPositionGetter via constructor (same pattern as AttackState).
  * Does NOT import Player, Camera, or any system directly.
  *
  * Created by: Story 3-1
+ * Updated by: Story 5-7 (added movementRandomness zigzag)
  */
 
 import * as THREE from 'three';
@@ -18,6 +23,7 @@ import {
   WATCHDOG_PURSUIT_SPEED_MULTIPLIER,
   WATCHDOG_MIN_ENGAGE_DISTANCE,
   WATCHDOG_ATTACK_INTERVAL,
+  PURSUIT_RANDOMNESS_SCALE,
 } from '../../config/constants.ts';
 
 // Orbit behavior constants (engagement phase)
@@ -33,6 +39,7 @@ export class PursuitState implements AIState {
   // Pre-allocated temp vectors for zero-allocation per-frame pursuit
   private direction = new THREE.Vector3();
   private targetPos = new THREE.Vector3();
+  private perpendicular = new THREE.Vector3();
 
   constructor(
     playerPositionGetter: () => THREE.Vector3,
@@ -49,6 +56,7 @@ export class PursuitState implements AIState {
   update(enemy: Enemy, dt: number): void {
     const playerPos = this.playerPositionGetter();
     const enemyObj = enemy.getObject3D();
+    const params = enemy.getEffectiveParams();
 
     // Compute direction and distance to player
     this.direction.subVectors(playerPos, enemyObj.position);
@@ -57,12 +65,22 @@ export class PursuitState implements AIState {
     // Move toward player if beyond minimum engagement distance
     if (distance > WATCHDOG_MIN_ENGAGE_DISTANCE) {
       this.direction.normalize();
-      const speed = enemy.getEffectiveParams().patrolSpeed * WATCHDOG_PURSUIT_SPEED_MULTIPLIER;
+      const speed = params.patrolSpeed * WATCHDOG_PURSUIT_SPEED_MULTIPLIER;
       enemyObj.position.addScaledVector(this.direction, speed * dt);
+
+      // Behavioral evolution: add lateral zigzag when movementRandomness > 0
+      if (params.movementRandomness > 0) {
+        // Perpendicular to pursuit direction in XZ plane
+        this.perpendicular.set(-this.direction.z, 0, this.direction.x);
+        const zigzagFrequency = 3.0 + params.movementRandomness * 4.0;
+        const zigzagAmount = Math.sin(this.attackTimer * zigzagFrequency)
+          * params.movementRandomness * PURSUIT_RANDOMNESS_SCALE;
+        enemyObj.position.addScaledVector(this.perpendicular, zigzagAmount * dt * speed);
+      }
     } else {
       // Within engagement range -- strafe/orbit around player
       // Use a simple orbit in the XZ plane relative to player position
-      const orbitSpeed = enemy.getEffectiveParams().patrolSpeed * ORBIT_SPEED_FACTOR;
+      const orbitSpeed = params.patrolSpeed * ORBIT_SPEED_FACTOR;
       const angle = this.attackTimer * orbitSpeed;
       this.targetPos.set(
         playerPos.x + Math.cos(angle) * WATCHDOG_MIN_ENGAGE_DISTANCE,

@@ -15,6 +15,7 @@
  * Updated by: Story 3-1 (added Watchdog pool and pursuit AI state wiring)
  * Updated by: Story 3-2 (added Gatekeeper pool and block AI state wiring)
  * Updated by: Story 5-6 (added Overseer pool and coordinator AI state wiring)
+ * Updated by: Story 5-7 (added evasion return state wiring for behavioral evolution)
  */
 
 import * as THREE from 'three';
@@ -267,9 +268,9 @@ export class EnemySpawner {
       // NOTE: Do NOT call gameObjectManager.add(enemy) here -- enemy was
       // already added during pool prewarm. It starts inactive, so update() skips it.
 
-      // Wire AI state chain based on enemy type
+      // Wire AI state chain based on enemy type (Story 5-7: added evasion return states)
       if (event.enemyType === 'overseer') {
-        // Overseer: Spawn -> OverseerState -> Attack -> OverseerState cycle (Story 5-6)
+        // Overseer: Spawn -> OverseerState -> Attack (with evasion -> OverseerState) cycle
         const createOverseerState = (): OverseerState => new OverseerState(
           this.gameObjectManager,
           this.playerPositionGetter,
@@ -278,11 +279,12 @@ export class EnemySpawner {
         const createAttackFromOverseer = (): AttackState => new AttackState(
           this.fireCallback,
           this.playerPositionGetter,
-          createOverseerState(),  // attack returns to coordinating
+          createOverseerState(),  // normal return: coordinating
+          createOverseerState(),  // evasion return: also back to coordinating
         );
         enemy.transitionToState(new SpawnState(createOverseerState()));
       } else if (event.enemyType === 'gatekeeper') {
-        // Gatekeeper: Spawn -> Block -> Attack -> Block cycle (Story 3-2)
+        // Gatekeeper: Spawn -> Block -> Attack (with evasion -> Block) cycle
         const getRailDir = () => this.getRailDirection();
         const createBlockState = (): BlockState => new BlockState(
           this.playerPositionGetter,
@@ -292,11 +294,12 @@ export class EnemySpawner {
         const createAttackFromBlock = (): AttackState => new AttackState(
           this.fireCallback,
           this.playerPositionGetter,
-          createBlockState(),  // attack returns to blocking
+          createBlockState(),  // normal return: blocking
+          createBlockState(),  // evasion return: back to blocking
         );
         enemy.transitionToState(new SpawnState(createBlockState()));
       } else if (event.enemyType === 'watchdog') {
-        // Watchdog: Spawn -> Pursuit -> Attack -> Pursuit cycle (Story 3-1)
+        // Watchdog: Spawn -> Pursuit -> Attack (with evasion -> Pursuit) cycle
         const createPursuitState = (): PursuitState => new PursuitState(
           this.playerPositionGetter,
           createAttackFromPursuit,
@@ -304,15 +307,17 @@ export class EnemySpawner {
         const createAttackFromPursuit = (): AttackState => new AttackState(
           this.fireCallback,
           this.playerPositionGetter,
-          createPursuitState(),  // attack returns to pursuit
+          createPursuitState(),  // normal return: pursuit
+          createPursuitState(),  // evasion return: back to pursuit
         );
         enemy.transitionToState(new SpawnState(createPursuitState()));
       } else {
-        // Sentinel: Spawn -> Patrol -> Attack -> Patrol cycle (existing logic)
+        // Sentinel: Spawn -> Patrol -> Attack (with evasion -> Patrol) cycle
         const createAttackState = (): AttackState => new AttackState(
           this.fireCallback,
           this.playerPositionGetter,
-          new PatrolState(createAttackState),  // attack returns to patrol which attacks again
+          new PatrolState(createAttackState),  // normal return: patrol which attacks again
+          new PatrolState(createAttackState),  // evasion return: back to patrol
         );
         const patrolState = new PatrolState(createAttackState);
         enemy.transitionToState(new SpawnState(patrolState));
