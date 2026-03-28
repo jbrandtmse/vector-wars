@@ -166,12 +166,12 @@ describe('Handler Voice Escalation - VoiceLineGenerator (Story 5-8)', () => {
     expect(buffer2).not.toBeNull();
   });
 
-  it('total voice line count should be 59 (52 original + 4 escalation + 3 briefing)', async () => {
+  it('total voice line count should be 61 (52 original + 4 escalation + 3 briefing + 2 ending)', async () => {
     const { VoiceLineGenerator } = await import('../audio/VoiceLineGenerator.ts');
     const generator = new VoiceLineGenerator();
 
     const ids = generator.getSoundIds();
-    expect(ids.length).toBe(59);
+    expect(ids.length).toBe(61);
   });
 
   it('tutorial lines should still exist and be generateable', async () => {

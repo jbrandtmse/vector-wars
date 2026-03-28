@@ -21,6 +21,7 @@ import type { ChannelType, SoundManifest } from './SoundManifest.ts';
 import type { SFXGenerator } from './SFXGenerator.ts';
 import type { AmbientHumGenerator } from './AmbientHumGenerator.ts';
 import type { VoiceLineGenerator } from './VoiceLineGenerator.ts';
+import type { OutroMusicGenerator } from './OutroMusicGenerator.ts';
 
 const WEAPON_SOUND_MAP: Record<WeaponType, string> = {
   dataLance: 'data_lance_fire',
@@ -62,6 +63,7 @@ export class AudioManager {
   private generator: SFXGenerator | null = null;
   private voiceGenerator: VoiceLineGenerator | null = null;
   private ambientGenerator: AmbientHumGenerator | null = null;
+  private musicGenerator: OutroMusicGenerator | null = null;
   private ambientIntensityBaseline = 0;
   private ambientIntensityTimeout: ReturnType<typeof setTimeout> | null = null;
 
@@ -208,6 +210,11 @@ export class AudioManager {
   registerAmbientGenerator(generator: AmbientHumGenerator): void {
     this.ambientGenerator = generator;
     Logger.info('Audio', 'Ambient hum generator registered');
+  }
+
+  registerMusicGenerator(generator: OutroMusicGenerator): void {
+    this.musicGenerator = generator;
+    Logger.info('Audio', 'Music generator registered');
   }
 
   /**
@@ -386,6 +393,7 @@ export class AudioManager {
     this.audioLoader = null;
     this.generator = null;
     this.voiceGenerator = null;
+    this.musicGenerator = null;
     this.initialized = false;
 
     Logger.info('Audio', 'AudioManager disposed');
@@ -399,7 +407,7 @@ export class AudioManager {
     }
 
     const entry = this.manifest[id];
-    if (!entry && !this.generator?.hasSound(id) && !this.voiceGenerator?.hasSound(id)) {
+    if (!entry && !this.generator?.hasSound(id) && !this.voiceGenerator?.hasSound(id) && !this.musicGenerator?.hasSound(id)) {
       Logger.warn('Audio', 'Sound not found in manifest', { id });
       return;
     }
@@ -439,6 +447,15 @@ export class AudioManager {
     // Fallback to voice line generator
     if (this.voiceGenerator) {
       const buffer = await this.voiceGenerator.generate(id);
+      if (buffer) {
+        this.bufferCache.set(id, buffer);
+        return buffer;
+      }
+    }
+
+    // Fallback to music generator
+    if (this.musicGenerator) {
+      const buffer = await this.musicGenerator.generate(id);
       if (buffer) {
         this.bufferCache.set(id, buffer);
         return buffer;

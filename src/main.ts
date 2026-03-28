@@ -35,6 +35,8 @@ import { audioManager } from './audio/AudioManager.ts';
 import { SFXGenerator } from './audio/SFXGenerator.ts';
 import { VoiceLineGenerator } from './audio/VoiceLineGenerator.ts';
 import { AmbientHumGenerator } from './audio/AmbientHumGenerator.ts';
+import { OutroMusicGenerator } from './audio/OutroMusicGenerator.ts';
+import { EndingScreen } from './ui/screens/EndingScreen.ts';
 
 // --- Renderer Setup ---
 const container = document.getElementById('app');
@@ -83,6 +85,10 @@ if (ambientCtx && ambientOutput) {
   const ambientHumGenerator = new AmbientHumGenerator(ambientCtx, ambientOutput);
   audioManager.registerAmbientGenerator(ambientHumGenerator);
 }
+
+// --- Outro Music Generator Setup (Story 5-10) ---
+const outroMusicGenerator = new OutroMusicGenerator();
+audioManager.registerMusicGenerator(outroMusicGenerator);
 
 // --- Scene Setup ---
 const scene = new THREE.Scene();
@@ -274,27 +280,9 @@ eventBus.on('levelComplete', ({ level }) => {
         window.addEventListener('keydown', handler);
       }, 1000);
     } else {
-      // Level 3+ complete: victory screen (placeholder until Story 5-10 ending sequence)
-      const overlay = document.createElement('div');
-      Object.assign(overlay.style, {
-        position: 'fixed', top: '0', left: '0', width: '100%', height: '100%',
-        backgroundColor: 'rgba(0,0,0,0.85)', display: 'flex', flexDirection: 'column',
-        justifyContent: 'center', alignItems: 'center', zIndex: '10',
-        fontFamily: "'Courier New', monospace", opacity: '0', transition: 'opacity 0.5s',
-      });
-      overlay.innerHTML = `
-        <div style="font-size:clamp(3rem,8vw,6rem);color:${hex};text-shadow:${multiGlow};letter-spacing:0.15em;margin-bottom:1rem">MISSION COMPLETE</div>
-        <div style="font-size:clamp(1rem,2.5vw,1.5rem);color:${hex};text-shadow:${glow};margin-bottom:2rem;opacity:0.8">CORE INTELLIGENCE DESTROYED</div>
-        <div style="font-size:clamp(1.2rem,3vw,2rem);color:${hex};text-shadow:${glow};margin-bottom:3rem">FINAL SCORE: ${scoreManager.getScore()}</div>
-        <div style="font-size:clamp(0.8rem,2vw,1.2rem);color:${hex};text-shadow:${glow};opacity:0.7">PRESS SPACE TO RESTART</div>
-      `;
-      document.body.appendChild(overlay);
-      requestAnimationFrame(() => { overlay.style.opacity = '1'; });
-      setTimeout(() => {
-        window.addEventListener('keydown', (e) => {
-          if (e.code === 'Space') { e.preventDefault(); window.location.reload(); }
-        });
-      }, 1000);
+      // Level 3 complete: full ending sequence (Story 5-10)
+      const endingScreen = new EndingScreen();
+      endingScreen.show(scoreManager.getScore());
     }
   }, 2000);
 });

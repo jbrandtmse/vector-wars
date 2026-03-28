@@ -266,6 +266,9 @@ const HANDLER_DEFINITIONS: Record<string, VoiceDefinition> = {
   briefing_l1: createVoiceDefinition(HANDLER_PROFILE_L1, 4.0, hashString('briefing_l1')),
   briefing_l2: createVoiceDefinition(HANDLER_PROFILE_L2, 4.0, hashString('briefing_l2')),
   briefing_l3: createVoiceDefinition(HANDLER_PROFILE_L3, 4.0, hashString('briefing_l3')),
+  // Ending sequence voice lines -- Ghost's final transmission (Story 5-10)
+  ending_desperate: createVoiceDefinition(HANDLER_PROFILE_L3, 3.0, hashString('ending_desperate')),
+  ending_relief: createVoiceDefinition(HANDLER_PROFILE_L1, 2.5, hashString('ending_relief')),
 };
 
 // Tutorial lines — same handler profile
