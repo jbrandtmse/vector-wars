@@ -12,6 +12,11 @@
     { "id": "handler_l2_surface_start", "trigger": "phaseStart:surface:2", "speaker": "handler", "text": "Larger fortress. Denser defenses. Hit the nodes fast.", "audio": "handler_l2_surface_start", "priority": 2, "duration": 4 },
     { "id": "handler_l2_corridor_start", "trigger": "phaseStart:corridor:2", "speaker": "handler", "text": "Tighter corridors. Faster data streams. Are you sure about this?", "audio": "handler_l2_corridor_start", "priority": 3, "duration": 5 },
     { "id": "handler_l2_boss_start", "trigger": "phaseStart:boss:2", "speaker": "handler", "text": "Contact — massive construct. That's The Avenger. It's fast, Cipher.", "audio": "handler_l2_boss_start", "priority": 3, "duration": 5 },
-    { "id": "handler_l2_level_complete", "trigger": "levelComplete:2", "speaker": "handler", "text": "Two down. One to go. I... I didn't think we'd get this far.", "audio": "handler_l2_level_complete", "priority": 3, "duration": 5 }
+    { "id": "handler_l2_level_complete", "trigger": "levelComplete:2", "speaker": "handler", "text": "Two down. One to go. I... I didn't think we'd get this far.", "audio": "handler_l2_level_complete", "priority": 3, "duration": 5 },
+    { "id": "handler_l3_dogfight_start", "trigger": "phaseStart:dogfight:3", "speaker": "handler", "text": "The red deep. We're in the core now. Everything here wants you dead, Cipher.", "audio": "handler_l3_dogfight_start", "priority": 2, "duration": 5 },
+    { "id": "handler_l3_surface_start", "trigger": "phaseStart:surface:3", "speaker": "handler", "text": "Final fortress. The Core Intelligence's last line of defense. Hit everything.", "audio": "handler_l3_surface_start", "priority": 2, "duration": 5 },
+    { "id": "handler_l3_corridor_start", "trigger": "phaseStart:corridor:3", "speaker": "handler", "text": "Fastest corridor yet. I can barely track you. Don't stop. Don't stop.", "audio": "handler_l3_corridor_start", "priority": 3, "duration": 5 },
+    { "id": "handler_l3_boss_start", "trigger": "phaseStart:boss:3", "speaker": "handler", "text": "Massive construct... that's the Core Intelligence. Cipher, be careful.", "audio": "handler_l3_boss_start", "priority": 3, "duration": 5 },
+    { "id": "handler_l3_level_complete", "trigger": "levelComplete:3", "speaker": "handler", "text": "You did it. You actually... Cipher, you need to get out. NOW.", "audio": "handler_l3_level_complete", "priority": 3, "duration": 5 }
   ]
 }

@@ -510,6 +510,34 @@ export const GATEKEEPER_BEHAVIOR_LEVEL2: BehaviorParams = {
   projectileSpeed: 15,
 };
 
+// Level 3 enemy behavior — randomized speeds/cooldowns, high evasion, erratic movement (Story 5-3)
+export const SENTINEL_BEHAVIOR_LEVEL3: BehaviorParams = {
+  patrolSpeed: 1.5,
+  attackCooldown: 0.8,
+  evasionChance: 0.5,
+  movementRandomness: 0.5,
+  attackDamage: 15,
+  projectileSpeed: 20,
+};
+
+export const WATCHDOG_BEHAVIOR_LEVEL3: BehaviorParams = {
+  patrolSpeed: 2.5,
+  attackCooldown: 0.6,
+  evasionChance: 0.5,
+  movementRandomness: 0.5,
+  attackDamage: 18,
+  projectileSpeed: 25,
+};
+
+export const GATEKEEPER_BEHAVIOR_LEVEL3: BehaviorParams = {
+  patrolSpeed: 1.5,
+  attackCooldown: 1.0,
+  evasionChance: 0.5,
+  movementRandomness: 0.5,
+  attackDamage: 22,
+  projectileSpeed: 18,
+};
+
 /** Per-level behavior param sets keyed by enemy type */
 export interface LevelBehaviorConfig {
   sentinel: BehaviorParams;
@@ -527,6 +555,11 @@ export const LEVEL_BEHAVIORS: Record<number, LevelBehaviorConfig> = {
     sentinel: SENTINEL_BEHAVIOR_LEVEL2,
     watchdog: WATCHDOG_BEHAVIOR_LEVEL2,
     gatekeeper: GATEKEEPER_BEHAVIOR_LEVEL2,
+  },
+  3: {
+    sentinel: SENTINEL_BEHAVIOR_LEVEL3,
+    watchdog: WATCHDOG_BEHAVIOR_LEVEL3,
+    gatekeeper: GATEKEEPER_BEHAVIOR_LEVEL3,
   },
 };
 
@@ -619,3 +652,116 @@ export const CORRIDOR_OBSTACLES_LEVEL2: CorridorObstacleConfig[] = [
   { type: 'networkCable', position: [0, 3.5, -670] },
 ];
 // Total: 8 firewalls, 6 network cables, 6 data streams = 20 obstacles (vs 14 in Level 1)
+
+// =====================================================================
+// Level 3 Constants — "Glitchy" profile (Story 5-3)
+// =====================================================================
+
+// Level 3 spawn events — maximum enemy density, heavy Gatekeeper presence, large clusters
+export const SPAWN_EVENTS_LEVEL3: SpawnEvent[] = [
+  // Wave 1: immediate overwhelming swarm
+  { railProgress: 0.06, enemyType: 'sentinel', position: [50, 5, -20], count: 5 },
+  { railProgress: 0.06, enemyType: 'watchdog', position: [60, 3, -10], count: 3 },
+  { railProgress: 0.08, enemyType: 'gatekeeper', position: [70, 4, -30], count: 1 },
+  // Wave 2: coordinated triple-type assault
+  { railProgress: 0.18, enemyType: 'watchdog', position: [80, 4, 20], count: 4 },
+  { railProgress: 0.20, enemyType: 'gatekeeper', position: [85, 3, 30], count: 2 },
+  { railProgress: 0.22, enemyType: 'sentinel', position: [75, 5, 10], count: 3 },
+  // Wave 3: heavy gatekeeper blockade with watchdog flankers
+  { railProgress: 0.32, enemyType: 'gatekeeper', position: [-20, 3, 60], count: 3 },
+  { railProgress: 0.34, enemyType: 'watchdog', position: [-30, 5, 70], count: 3 },
+  { railProgress: 0.36, enemyType: 'sentinel', position: [-10, 4, 50], count: 4 },
+  // Wave 4: dense midfield cluster
+  { railProgress: 0.44, enemyType: 'sentinel', position: [20, 4, 60], count: 4 },
+  { railProgress: 0.44, enemyType: 'watchdog', position: [30, 3, 55], count: 3 },
+  { railProgress: 0.46, enemyType: 'gatekeeper', position: [15, 3, 70], count: 2 },
+  // Wave 5: relentless pursuit wave
+  { railProgress: 0.55, enemyType: 'watchdog', position: [-50, 4, 40], count: 4 },
+  { railProgress: 0.58, enemyType: 'sentinel', position: [-60, 3, 30], count: 3 },
+  { railProgress: 0.60, enemyType: 'gatekeeper', position: [-55, 5, 35], count: 1 },
+  // Wave 6: penultimate gauntlet
+  { railProgress: 0.70, enemyType: 'gatekeeper', position: [-60, 3, -20], count: 2 },
+  { railProgress: 0.72, enemyType: 'watchdog', position: [-50, 5, -30], count: 3 },
+  { railProgress: 0.74, enemyType: 'sentinel', position: [-45, 4, -15], count: 3 },
+  // Wave 7: final massive assault before boss
+  { railProgress: 0.84, enemyType: 'sentinel', position: [20, 2, -55], count: 5 },
+  { railProgress: 0.86, enemyType: 'watchdog', position: [30, 4, -50], count: 3 },
+  { railProgress: 0.88, enemyType: 'gatekeeper', position: [15, 3, -60], count: 2 },
+  { railProgress: 0.90, enemyType: 'sentinel', position: [40, 3, -45], count: 2 },
+];
+// Total: 29 sentinels, 23 watchdogs, 13 gatekeepers = 65 enemies (vs 38 in Level 2, ~71% increase)
+
+// Level 3 surface targets — maximum density, dense ICE towers, heavy defenses
+export const SURFACE_TARGETS_LEVEL3: SurfaceTarget[] = [
+  // First cluster — dense firewall nodes with ICE tower wall
+  { type: 'firewallNode', position: [38, 1, 10] },
+  { type: 'firewallNode', position: [45, 1, 15] },
+  { type: 'firewallNode', position: [52, 1.5, 20] },
+  { type: 'firewallNode', position: [59, 1, 14] },
+  { type: 'firewallNode', position: [66, 1, 18] },
+  { type: 'iceTower', position: [48, 0, 28] },
+  { type: 'iceTower', position: [60, 0, 30] },
+  { type: 'iceTower', position: [72, 0, 26] },
+  // Mid-section — heavy ICE gauntlet
+  { type: 'firewallNode', position: [110, 1, 78] },
+  { type: 'firewallNode', position: [120, 0.5, 85] },
+  { type: 'firewallNode', position: [130, 1, 92] },
+  { type: 'firewallNode', position: [140, 1, 100] },
+  { type: 'iceTower', position: [118, 0, 98] },
+  { type: 'iceTower', position: [132, 0, 108] },
+  { type: 'iceTower', position: [145, 0, 118] },
+  { type: 'iceTower', position: [155, 0, 128] },
+  // Final defense — maximum density
+  { type: 'firewallNode', position: [175, 1, 160] },
+  { type: 'firewallNode', position: [188, 1, 170] },
+  { type: 'firewallNode', position: [200, 0.5, 182] },
+  { type: 'firewallNode', position: [215, 1, 195] },
+  { type: 'firewallNode', position: [228, 1, 208] },
+  // Final ICE tower gauntlet
+  { type: 'iceTower', position: [235, 0, 235] },
+  { type: 'iceTower', position: [245, 0, 248] },
+  { type: 'iceTower', position: [255, 0, 260] },
+  { type: 'iceTower', position: [265, 0, 272] },
+  // Final bonus node
+  { type: 'firewallNode', position: [275, 1.5, 285] },
+];
+// Total: 16 firewall nodes, 11 ICE towers = 27 targets (vs 20 in Level 2, 35% increase)
+
+// Level 3 corridor obstacles — maximum density, tightest timing, rapid-fire obstacles
+export const CORRIDOR_OBSTACLES_LEVEL3: CorridorObstacleConfig[] = [
+  // Opening salvo: immediate density
+  { type: 'firewall', position: [0, 4, -50], phaseOffset: 0 },
+  { type: 'dataStream', position: [-2, 4, -75], direction: 'right' },
+  { type: 'networkCable', position: [0, 2.5, -95] },
+  { type: 'firewall', position: [0, 4, -120], phaseOffset: 0.15 },
+  { type: 'dataStream', position: [2, 4, -140], direction: 'left' },
+
+  // Mid section: double/triple obstacle combos
+  { type: 'networkCable', position: [0, 5.5, -170] },
+  { type: 'dataStream', position: [2, 4, -190], direction: 'left' },
+  { type: 'dataStream', position: [-2, 4, -205], direction: 'right' },
+  { type: 'firewall', position: [0, 4, -230], phaseOffset: 0.4 },
+  { type: 'networkCable', position: [0, 3.0, -255] },
+  { type: 'firewall', position: [0, 4, -275], phaseOffset: 0.1 },
+  { type: 'dataStream', position: [-1, 4, -295], direction: 'right' },
+
+  // Heavy gauntlet: relentless obstacle barrage
+  { type: 'firewall', position: [0, 4, -325], phaseOffset: 0.3 },
+  { type: 'networkCable', position: [0, 2.8, -350] },
+  { type: 'dataStream', position: [1, 4, -370], direction: 'left' },
+  { type: 'firewall', position: [0, 4, -395], phaseOffset: 0.55 },
+  { type: 'networkCable', position: [0, 5.2, -420] },
+  { type: 'dataStream', position: [-2, 4, -440], direction: 'right' },
+  { type: 'dataStream', position: [2, 4, -455], direction: 'left' },
+
+  // Final gauntlet: maximum density before exit
+  { type: 'firewall', position: [0, 4, -485], phaseOffset: 0.2 },
+  { type: 'networkCable', position: [0, 3.5, -510] },
+  { type: 'firewall', position: [0, 4, -535], phaseOffset: 0.7 },
+  { type: 'dataStream', position: [2, 4, -555], direction: 'left' },
+  { type: 'dataStream', position: [-2, 4, -575], direction: 'right' },
+  { type: 'firewall', position: [0, 4, -600], phaseOffset: 0.45 },
+  { type: 'networkCable', position: [0, 4.5, -625] },
+  { type: 'firewall', position: [0, 4, -650], phaseOffset: 0.85 },
+];
+// Total: 8 firewalls, 6 network cables, 8 data streams = 27 obstacles (vs 20 in Level 2, 35% increase)

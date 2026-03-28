@@ -232,15 +232,17 @@ const screenShake = new ScreenShake();
 const damageEffectsManager = new DamageEffectsManager(screenShake, renderPipeline);
 void damageEffectsManager; // event-driven lifecycle, no per-frame calls
 
-// --- Level Complete handler (Story 5-1: multi-level transitions) ---
+// --- Level Complete handler (Story 5-1, updated Story 5-3: multi-level transitions) ---
 eventBus.on('levelComplete', ({ level }) => {
   setTimeout(() => {
     const hex = getPaletteHexColor();
     const glow = getPaletteCSSGlow();
     const multiGlow = getPaletteCSSMultiGlow([20, 40]);
 
-    if (level < 2) {
-      // Level 1 complete: show brief message then start Level 2
+    if (level < 3) {
+      // Level 1 or 2 complete: show brief message then start next level
+      const nextLevel = level + 1;
+      const subtitleText = level === 1 ? 'FIREWALL BREACHED' : 'DEEP CORE ACCESS GRANTED';
       const overlay = document.createElement('div');
       Object.assign(overlay.style, {
         position: 'fixed', top: '0', left: '0', width: '100%', height: '100%',
@@ -250,7 +252,7 @@ eventBus.on('levelComplete', ({ level }) => {
       });
       overlay.innerHTML = `
         <div style="font-size:clamp(3rem,8vw,6rem);color:${hex};text-shadow:${multiGlow};letter-spacing:0.15em;margin-bottom:1rem">LEVEL COMPLETE</div>
-        <div style="font-size:clamp(1rem,2.5vw,1.5rem);color:${hex};text-shadow:${glow};margin-bottom:2rem;opacity:0.8">FIREWALL BREACHED</div>
+        <div style="font-size:clamp(1rem,2.5vw,1.5rem);color:${hex};text-shadow:${glow};margin-bottom:2rem;opacity:0.8">${subtitleText}</div>
         <div style="font-size:clamp(1.2rem,3vw,2rem);color:${hex};text-shadow:${glow};margin-bottom:3rem">SCORE: ${scoreManager.getScore()}</div>
         <div style="font-size:clamp(0.8rem,2vw,1.2rem);color:${hex};text-shadow:${glow};opacity:0.7">PRESS SPACE TO CONTINUE</div>
       `;
@@ -265,14 +267,14 @@ eventBus.on('levelComplete', ({ level }) => {
             setTimeout(() => {
               overlay.remove();
               levelManager.exit();
-              levelManager.startLevel(2);
+              levelManager.startLevel(nextLevel);
             }, 500);
           }
         };
         window.addEventListener('keydown', handler);
       }, 1000);
     } else {
-      // Level 2+ complete: placeholder victory screen (Level 3 is Story 5-3)
+      // Level 3+ complete: victory screen (placeholder until Story 5-10 ending sequence)
       const overlay = document.createElement('div');
       Object.assign(overlay.style, {
         position: 'fixed', top: '0', left: '0', width: '100%', height: '100%',
@@ -281,9 +283,9 @@ eventBus.on('levelComplete', ({ level }) => {
         fontFamily: "'Courier New', monospace", opacity: '0', transition: 'opacity 0.5s',
       });
       overlay.innerHTML = `
-        <div style="font-size:clamp(3rem,8vw,6rem);color:${hex};text-shadow:${multiGlow};letter-spacing:0.15em;margin-bottom:1rem">LEVEL COMPLETE</div>
-        <div style="font-size:clamp(1rem,2.5vw,1.5rem);color:${hex};text-shadow:${glow};margin-bottom:2rem;opacity:0.8">FIREWALL BREACHED</div>
-        <div style="font-size:clamp(1.2rem,3vw,2rem);color:${hex};text-shadow:${glow};margin-bottom:3rem">SCORE: ${scoreManager.getScore()}</div>
+        <div style="font-size:clamp(3rem,8vw,6rem);color:${hex};text-shadow:${multiGlow};letter-spacing:0.15em;margin-bottom:1rem">MISSION COMPLETE</div>
+        <div style="font-size:clamp(1rem,2.5vw,1.5rem);color:${hex};text-shadow:${glow};margin-bottom:2rem;opacity:0.8">CORE INTELLIGENCE DESTROYED</div>
+        <div style="font-size:clamp(1.2rem,3vw,2rem);color:${hex};text-shadow:${glow};margin-bottom:3rem">FINAL SCORE: ${scoreManager.getScore()}</div>
         <div style="font-size:clamp(0.8rem,2vw,1.2rem);color:${hex};text-shadow:${glow};opacity:0.7">PRESS SPACE TO RESTART</div>
       `;
       document.body.appendChild(overlay);
@@ -333,6 +335,16 @@ fetch('assets/briefings/level-2.json')
   })
   .catch((err) => {
     Logger.warn('Narrative', 'Failed to load Level 2 briefing data', { error: String(err) });
+  });
+
+fetch('assets/briefings/level-3.json')
+  .then((res) => res.json())
+  .then((data: BriefingData) => {
+    levelManager.setBriefingData(data, 3);
+    Logger.info('Narrative', 'Level 3 briefing data loaded');
+  })
+  .catch((err) => {
+    Logger.warn('Narrative', 'Failed to load Level 3 briefing data', { error: String(err) });
   });
 
 levelManager.enter();

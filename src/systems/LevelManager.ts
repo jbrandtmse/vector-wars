@@ -32,10 +32,13 @@ import {
   PHASE_SHIELD_RECHARGE_AMOUNT,
   SPAWN_EVENTS,
   SPAWN_EVENTS_LEVEL2,
+  SPAWN_EVENTS_LEVEL3,
   SURFACE_TARGETS,
   SURFACE_TARGETS_LEVEL2,
+  SURFACE_TARGETS_LEVEL3,
   CORRIDOR_OBSTACLES,
   CORRIDOR_OBSTACLES_LEVEL2,
+  CORRIDOR_OBSTACLES_LEVEL3,
   LEVEL_PALETTES,
   LEVEL_BEHAVIORS,
 } from '../config/constants.ts';
@@ -78,24 +81,28 @@ const LEVEL_PHASES_WITHOUT_BRIEFING: readonly PhaseType[] = ['dogfight', 'surfac
 const LEVEL_SPAWN_EVENTS: Record<number, typeof SPAWN_EVENTS> = {
   1: SPAWN_EVENTS,
   2: SPAWN_EVENTS_LEVEL2,
+  3: SPAWN_EVENTS_LEVEL3,
 };
 
 /** Per-level surface targets */
 const LEVEL_SURFACE_TARGETS: Record<number, typeof SURFACE_TARGETS> = {
   1: SURFACE_TARGETS,
   2: SURFACE_TARGETS_LEVEL2,
+  3: SURFACE_TARGETS_LEVEL3,
 };
 
 /** Per-level corridor obstacles */
 const LEVEL_CORRIDOR_OBSTACLES: Record<number, typeof CORRIDOR_OBSTACLES> = {
   1: CORRIDOR_OBSTACLES,
   2: CORRIDOR_OBSTACLES_LEVEL2,
+  3: CORRIDOR_OBSTACLES_LEVEL3,
 };
 
-/** Per-level boss factories (Story 5-2) */
+/** Per-level boss factories (Story 5-2, 5-3) */
 const LEVEL_BOSS_FACTORIES: Record<number, BossFactory> = {
   1: (vm, ppg) => new GatekeeperBoss(vm, ppg),
   2: (vm, ppg) => new AvengerBoss(vm, ppg),
+  3: (vm, ppg) => new GatekeeperBoss(vm, ppg), // Placeholder until Story 5-4 (CoreIntelligenceBoss)
 };
 
 export class LevelManager {

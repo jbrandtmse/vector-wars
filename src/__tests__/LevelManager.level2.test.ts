@@ -12,10 +12,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
   SENTINEL_BEHAVIOR_LEVEL1,
   SENTINEL_BEHAVIOR_LEVEL2,
+  SENTINEL_BEHAVIOR_LEVEL3,
   WATCHDOG_BEHAVIOR_LEVEL1,
   WATCHDOG_BEHAVIOR_LEVEL2,
+  WATCHDOG_BEHAVIOR_LEVEL3,
   GATEKEEPER_BEHAVIOR_LEVEL1,
   GATEKEEPER_BEHAVIOR_LEVEL2,
+  GATEKEEPER_BEHAVIOR_LEVEL3,
   SPAWN_EVENTS,
   SPAWN_EVENTS_LEVEL2,
   SURFACE_TARGETS,
@@ -90,6 +93,13 @@ describe('Level 2 Constants (Story 5-1)', () => {
       expect(LEVEL_BEHAVIORS[2].sentinel).toBe(SENTINEL_BEHAVIOR_LEVEL2);
       expect(LEVEL_BEHAVIORS[2].watchdog).toBe(WATCHDOG_BEHAVIOR_LEVEL2);
       expect(LEVEL_BEHAVIORS[2].gatekeeper).toBe(GATEKEEPER_BEHAVIOR_LEVEL2);
+    });
+
+    it('should contain behavior configs for Level 3', () => {
+      expect(LEVEL_BEHAVIORS[3]).toBeDefined();
+      expect(LEVEL_BEHAVIORS[3].sentinel).toBe(SENTINEL_BEHAVIOR_LEVEL3);
+      expect(LEVEL_BEHAVIORS[3].watchdog).toBe(WATCHDOG_BEHAVIOR_LEVEL3);
+      expect(LEVEL_BEHAVIORS[3].gatekeeper).toBe(GATEKEEPER_BEHAVIOR_LEVEL3);
     });
   });
 
