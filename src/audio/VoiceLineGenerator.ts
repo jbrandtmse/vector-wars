@@ -205,6 +205,12 @@ const HANDLER_DEFINITIONS: Record<string, VoiceDefinition> = {
   handler_boss_start: createVoiceDefinition(HANDLER_PROFILE, 1.5, hashString('handler_boss_start')),
   handler_boss_vulnerable: createVoiceDefinition(HANDLER_PROFILE, 1.0, hashString('handler_boss_vulnerable')),
   handler_level_complete: createVoiceDefinition(HANDLER_PROFILE, 2.0, hashString('handler_level_complete')),
+  // Level 2 handler lines (Story 5-1)
+  handler_l2_dogfight_start: createVoiceDefinition(HANDLER_PROFILE, 1.5, hashString('handler_l2_dogfight_start')),
+  handler_l2_surface_start: createVoiceDefinition(HANDLER_PROFILE, 1.5, hashString('handler_l2_surface_start')),
+  handler_l2_corridor_start: createVoiceDefinition(HANDLER_PROFILE, 2.0, hashString('handler_l2_corridor_start')),
+  handler_l2_boss_start: createVoiceDefinition(HANDLER_PROFILE, 2.0, hashString('handler_l2_boss_start')),
+  handler_l2_level_complete: createVoiceDefinition(HANDLER_PROFILE, 2.0, hashString('handler_l2_level_complete')),
 };
 
 // Tutorial lines — same handler profile

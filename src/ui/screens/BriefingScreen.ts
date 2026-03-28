@@ -15,6 +15,7 @@ import {
   BRIEFING_HOLD_DURATION,
   BRIEFING_FADE_DURATION,
 } from '../../config/constants.ts';
+import { getPaletteHexColor, getPaletteCSSGlow, getPaletteCSSMultiGlow } from '../../rendering/PaletteColors.ts';
 
 export interface BriefingData {
   title: string;
@@ -170,11 +171,14 @@ export class BriefingScreen {
     });
 
     // Header title
+    const hex = getPaletteHexColor();
+    const glow = getPaletteCSSGlow();
+    const multiGlow = getPaletteCSSMultiGlow([20, 40]);
     const header = document.createElement('div');
     Object.assign(header.style, {
       fontSize: 'clamp(2rem, 5vw, 3.5rem)',
-      color: '#00ff41',
-      textShadow: '0 0 20px #00ff41, 0 0 40px #00ff41',
+      color: hex,
+      textShadow: multiGlow,
       letterSpacing: '0.2em',
       marginTop: '8%',
       textAlign: 'center',
@@ -186,8 +190,8 @@ export class BriefingScreen {
     Object.assign(separator.style, {
       width: '60%',
       height: '1px',
-      backgroundColor: '#00ff41',
-      boxShadow: '0 0 10px #00ff41',
+      backgroundColor: hex,
+      boxShadow: glow,
       marginTop: '1.5rem',
       marginBottom: '2rem',
     });
@@ -215,8 +219,8 @@ export class BriefingScreen {
       const paragraph = document.createElement('p');
       Object.assign(paragraph.style, {
         fontSize: 'clamp(0.9rem, 2vw, 1.3rem)',
-        color: '#00ff41',
-        textShadow: '0 0 10px #00ff41',
+        color: hex,
+        textShadow: glow,
         lineHeight: '1.8',
         marginBottom: '1.5rem',
         marginTop: '0',
@@ -234,8 +238,8 @@ export class BriefingScreen {
       left: '50%',
       transform: 'translateX(-50%)',
       fontSize: 'clamp(0.7rem, 1.5vw, 1rem)',
-      color: '#00ff41',
-      textShadow: '0 0 10px #00ff41',
+      color: hex,
+      textShadow: glow,
       letterSpacing: '0.15em',
       opacity: '0',
       transition: 'opacity 0.3s ease-in',

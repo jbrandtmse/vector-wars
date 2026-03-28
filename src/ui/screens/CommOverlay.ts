@@ -13,6 +13,7 @@ import {
   COMM_FADE_IN_DURATION,
   COMM_FADE_OUT_DURATION,
 } from '../../config/constants.ts';
+import { getPaletteHexColor, getPaletteCSSGlow } from '../../rendering/PaletteColors.ts';
 
 export class CommOverlay {
   private container: HTMLDivElement;
@@ -46,28 +47,30 @@ export class CommOverlay {
       fontFamily: "'Courier New', monospace",
     });
 
-    // Speaker label — monospace, uppercase, green with glow
+    // Speaker label — monospace, uppercase, palette color with glow
+    const hex = getPaletteHexColor();
+    const glow = getPaletteCSSGlow();
     Object.assign(this.speakerLabel.style, {
       fontSize: 'clamp(0.7rem, 1.5vw, 1rem)',
-      color: '#00ff41',
-      textShadow: '0 0 10px #00ff41',
+      color: hex,
+      textShadow: glow,
       letterSpacing: '0.15em',
       marginBottom: '0.3em',
     });
 
-    // Separator line — 1px green with glow
+    // Separator line — 1px palette color with glow
     Object.assign(this.separator.style, {
       height: '1px',
-      backgroundColor: '#00ff41',
-      boxShadow: '0 0 10px #00ff41',
+      backgroundColor: hex,
+      boxShadow: glow,
       marginBottom: '0.4em',
     });
 
-    // Message text — monospace, green with glow
+    // Message text — monospace, palette color with glow
     Object.assign(this.messageText.style, {
       fontSize: 'clamp(0.8rem, 1.8vw, 1.1rem)',
-      color: '#00ff41',
-      textShadow: '0 0 10px #00ff41',
+      color: hex,
+      textShadow: glow,
       lineHeight: '1.4',
     });
 
@@ -100,13 +103,15 @@ export class CommOverlay {
       this.separator.style.backgroundColor = color;
       this.separator.style.boxShadow = `0 0 10px ${color}`;
     } else {
-      // Reset to default green
-      this.speakerLabel.style.color = '#00ff41';
-      this.speakerLabel.style.textShadow = '0 0 10px #00ff41';
-      this.messageText.style.color = '#00ff41';
-      this.messageText.style.textShadow = '0 0 10px #00ff41';
-      this.separator.style.backgroundColor = '#00ff41';
-      this.separator.style.boxShadow = '0 0 10px #00ff41';
+      // Reset to current palette color
+      const paletteHex = getPaletteHexColor();
+      const paletteGlow = getPaletteCSSGlow();
+      this.speakerLabel.style.color = paletteHex;
+      this.speakerLabel.style.textShadow = paletteGlow;
+      this.messageText.style.color = paletteHex;
+      this.messageText.style.textShadow = paletteGlow;
+      this.separator.style.backgroundColor = paletteHex;
+      this.separator.style.boxShadow = paletteGlow;
     }
 
     this.container.style.display = 'block';

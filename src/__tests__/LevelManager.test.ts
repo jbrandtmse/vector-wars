@@ -139,7 +139,7 @@ function createMockDeps() {
   return {
     scene,
     camera,
-    vectorMaterials: {} as any,
+    vectorMaterials: { setPalette: vi.fn() } as any,
     gameObjectManager: {} as any,
     player: {
       shields: PLAYER_MAX_SHIELDS,
@@ -162,7 +162,7 @@ function createMockDeps() {
       getRailProgress: vi.fn(() => 0),
       update: vi.fn(),
     } as any,
-    enemySpawner: { update: vi.fn() } as any,
+    enemySpawner: { update: vi.fn(), setSpawnEvents: vi.fn(), setLevelBehaviors: vi.fn(), resetForNewLevel: vi.fn() } as any,
     collisionSystem: { update: vi.fn() } as any,
     effectsManager: { update: vi.fn() } as any,
     enemyProjectileSystem: { update: vi.fn() } as any,

@@ -18,6 +18,7 @@
 
 import * as THREE from 'three';
 import { SPAWN_EVENTS, SENTINEL_POOL_SIZE, WATCHDOG_POOL_SIZE, GATEKEEPER_POOL_SIZE } from '../config/constants.ts';
+import type { SpawnEvent, LevelBehaviorConfig } from '../config/constants.ts';
 import { GameObjectManager } from '../entities/GameObjectManager.ts';
 import { Sentinel } from '../entities/enemies/Sentinel.ts';
 import { Watchdog } from '../entities/enemies/Watchdog.ts';
@@ -47,6 +48,8 @@ export class EnemySpawner {
   private railMovement: RailMovement | null;
   private tempSpawnPos = new THREE.Vector3();
   private tempRailDir = new THREE.Vector3();
+  private currentSpawnEvents: SpawnEvent[] = SPAWN_EVENTS;
+  private levelBehaviors: LevelBehaviorConfig | null = null;
 
   constructor(
     scene: THREE.Scene,
@@ -130,6 +133,32 @@ export class EnemySpawner {
     return this.gatekeeperPool;
   }
 
+  /**
+   * Sets the spawn events for the current level.
+   * Call before each level start; also resets fired events.
+   */
+  setSpawnEvents(events: SpawnEvent[]): void {
+    this.currentSpawnEvents = events;
+    this.firedEvents.clear();
+    this.lastProgress = 0;
+  }
+
+  /**
+   * Sets the behavior params applied to spawned enemies for the current level.
+   * When set, overrides enemy default params on each spawn.
+   */
+  setLevelBehaviors(behaviors: LevelBehaviorConfig): void {
+    this.levelBehaviors = behaviors;
+  }
+
+  /**
+   * Resets spawner state for a new level (clears fired events, resets progress).
+   */
+  resetForNewLevel(): void {
+    this.firedEvents.clear();
+    this.lastProgress = 0;
+  }
+
   /** Get the current rail direction, or fallback to (0, 0, -1) for tests */
   private getRailDirection(): THREE.Vector3 {
     if (this.railMovement) {
@@ -139,12 +168,12 @@ export class EnemySpawner {
   }
 
   update(currentProgress: number): void {
-    for (let i = 0; i < SPAWN_EVENTS.length; i++) {
+    for (let i = 0; i < this.currentSpawnEvents.length; i++) {
       if (this.firedEvents.has(i)) continue;
-      const trigger = SPAWN_EVENTS[i].railProgress;
+      const trigger = this.currentSpawnEvents[i].railProgress;
 
       if (this.hasCrossed(this.lastProgress, currentProgress, trigger)) {
-        this.spawnWave(SPAWN_EVENTS[i], i);
+        this.spawnWave(this.currentSpawnEvents[i], i);
         this.firedEvents.add(i);
       }
     }
@@ -164,7 +193,7 @@ export class EnemySpawner {
     }
   }
 
-  private spawnWave(event: typeof SPAWN_EVENTS[number], _eventIndex: number): void {
+  private spawnWave(event: SpawnEvent, _eventIndex: number): void {
     for (let j = 0; j < event.count; j++) {
       let enemy: Sentinel | Watchdog | Gatekeeper | undefined;
       if (event.enemyType === 'gatekeeper') {
@@ -175,6 +204,17 @@ export class EnemySpawner {
         enemy = this.sentinelPool.acquire();
       }
       if (!enemy) continue; // pool exhausted (should not happen with proper sizing)
+
+      // Apply level-specific behavior params if configured
+      if (this.levelBehaviors) {
+        if (event.enemyType === 'sentinel') {
+          enemy.params = this.levelBehaviors.sentinel;
+        } else if (event.enemyType === 'watchdog') {
+          enemy.params = this.levelBehaviors.watchdog;
+        } else if (event.enemyType === 'gatekeeper') {
+          enemy.params = this.levelBehaviors.gatekeeper;
+        }
+      }
 
       // Reactivate for use
       enemy.setActive(true);

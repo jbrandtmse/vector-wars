@@ -443,3 +443,154 @@ export const CORRIDOR_OBSTACLES: CorridorObstacleConfig[] = [
   { type: 'dataStream', position: [-1, 4, -650], direction: 'left' },
 ];
 // Total: 6 firewalls, 4 network cables, 4 data streams
+
+// =====================================================================
+// Level 2 Constants — "Aggressive" profile (Story 5-1)
+// =====================================================================
+
+import type { PaletteName } from '../rendering/ColorPalette.ts';
+
+/** Maps level number to palette name */
+export const LEVEL_PALETTES: Record<number, PaletteName> = {
+  1: 'green',
+  2: 'amber',
+  3: 'red',
+} as const;
+
+// Level 2 enemy behavior — faster, shorter cooldowns, evasion, slight randomness
+export const SENTINEL_BEHAVIOR_LEVEL2: BehaviorParams = {
+  patrolSpeed: 1.5,
+  attackCooldown: 1.2,
+  evasionChance: 0.2,
+  movementRandomness: 0.1,
+  attackDamage: 12,
+  projectileSpeed: 18,
+};
+
+export const WATCHDOG_BEHAVIOR_LEVEL2: BehaviorParams = {
+  patrolSpeed: 2.25,
+  attackCooldown: 0.9,
+  evasionChance: 0.2,
+  movementRandomness: 0.1,
+  attackDamage: 15,
+  projectileSpeed: 22,
+};
+
+export const GATEKEEPER_BEHAVIOR_LEVEL2: BehaviorParams = {
+  patrolSpeed: 1.2,
+  attackCooldown: 1.5,
+  evasionChance: 0.2,
+  movementRandomness: 0.1,
+  attackDamage: 18,
+  projectileSpeed: 15,
+};
+
+/** Per-level behavior param sets keyed by enemy type */
+export interface LevelBehaviorConfig {
+  sentinel: BehaviorParams;
+  watchdog: BehaviorParams;
+  gatekeeper: BehaviorParams;
+}
+
+export const LEVEL_BEHAVIORS: Record<number, LevelBehaviorConfig> = {
+  1: {
+    sentinel: SENTINEL_BEHAVIOR_LEVEL1,
+    watchdog: WATCHDOG_BEHAVIOR_LEVEL1,
+    gatekeeper: GATEKEEPER_BEHAVIOR_LEVEL1,
+  },
+  2: {
+    sentinel: SENTINEL_BEHAVIOR_LEVEL2,
+    watchdog: WATCHDOG_BEHAVIOR_LEVEL2,
+    gatekeeper: GATEKEEPER_BEHAVIOR_LEVEL2,
+  },
+};
+
+// Level 2 spawn events — more enemies, more watchdogs/gatekeepers, cluster spawns
+export const SPAWN_EVENTS_LEVEL2: SpawnEvent[] = [
+  // Wave 1: opening cluster — immediate pressure
+  { railProgress: 0.08, enemyType: 'sentinel', position: [55, 5, -25], count: 4 },
+  { railProgress: 0.08, enemyType: 'watchdog', position: [65, 3, -15], count: 2 },
+  // Wave 2: coordinated Watchdog/Gatekeeper assault
+  { railProgress: 0.20, enemyType: 'watchdog', position: [85, 4, 15], count: 3 },
+  { railProgress: 0.22, enemyType: 'gatekeeper', position: [90, 3, 25], count: 1 },
+  // Wave 3: sentinel swarm with flanking watchdogs
+  { railProgress: 0.35, enemyType: 'sentinel', position: [-25, 3, 55], count: 4 },
+  { railProgress: 0.37, enemyType: 'watchdog', position: [-35, 5, 65], count: 2 },
+  // Wave 4: gatekeeper blockade
+  { railProgress: 0.45, enemyType: 'gatekeeper', position: [25, 3, 55], count: 2 },
+  { railProgress: 0.45, enemyType: 'sentinel', position: [15, 4, 45], count: 3 },
+  // Wave 5: mid-loop pressure
+  { railProgress: 0.55, enemyType: 'watchdog', position: [-55, 4, 35], count: 3 },
+  { railProgress: 0.58, enemyType: 'sentinel', position: [-65, 3, 25], count: 3 },
+  // Wave 6: heavy gatekeeper defense
+  { railProgress: 0.68, enemyType: 'gatekeeper', position: [-65, 3, -15], count: 2 },
+  { railProgress: 0.70, enemyType: 'watchdog', position: [-55, 5, -25], count: 2 },
+  // Wave 7: final assault before loop end
+  { railProgress: 0.82, enemyType: 'sentinel', position: [25, 2, -50], count: 4 },
+  { railProgress: 0.85, enemyType: 'watchdog', position: [35, 4, -45], count: 2 },
+  { railProgress: 0.88, enemyType: 'gatekeeper', position: [20, 3, -55], count: 1 },
+];
+// Total: 18 sentinels, 14 watchdogs, 6 gatekeepers = 38 enemies (vs ~20 in Level 1)
+
+// Level 2 surface targets — more nodes, more ICE towers, tighter placement
+export const SURFACE_TARGETS_LEVEL2: SurfaceTarget[] = [
+  // First cluster — denser firewall nodes with ICE tower escorts
+  { type: 'firewallNode', position: [40, 1, 12] },
+  { type: 'firewallNode', position: [48, 1, 18] },
+  { type: 'firewallNode', position: [55, 1.5, 22] },
+  { type: 'firewallNode', position: [62, 1, 16] },
+  { type: 'iceTower', position: [50, 0, 30] },
+  { type: 'iceTower', position: [68, 0, 28] },
+  // Mid-section — paired ICE towers with firewall nodes
+  { type: 'firewallNode', position: [115, 1, 80] },
+  { type: 'firewallNode', position: [125, 0.5, 88] },
+  { type: 'firewallNode', position: [135, 1, 95] },
+  { type: 'iceTower', position: [120, 0, 100] },
+  { type: 'iceTower', position: [140, 0, 110] },
+  { type: 'iceTower', position: [150, 0, 125] },
+  // Second cluster — heavy defense
+  { type: 'firewallNode', position: [180, 1, 165] },
+  { type: 'firewallNode', position: [195, 1, 175] },
+  { type: 'firewallNode', position: [208, 0.5, 188] },
+  { type: 'firewallNode', position: [220, 1, 200] },
+  // Final battery — ICE tower gauntlet
+  { type: 'iceTower', position: [235, 0, 240] },
+  { type: 'iceTower', position: [248, 0, 252] },
+  { type: 'iceTower', position: [260, 0, 265] },
+  // Final bonus node
+  { type: 'firewallNode', position: [278, 1.5, 280] },
+];
+// Total: 12 firewall nodes, 8 ICE towers = 20 targets (vs 14 in Level 1)
+
+// Level 2 corridor obstacles — denser, tighter timing, more crossing streams
+export const CORRIDOR_OBSTACLES_LEVEL2: CorridorObstacleConfig[] = [
+  // First section: quick introduction, tighter spacing than Level 1
+  { type: 'firewall', position: [0, 4, -60], phaseOffset: 0 },
+  { type: 'networkCable', position: [0, 2.5, -100] },
+  { type: 'dataStream', position: [-2, 4, -130], direction: 'right' },
+  { type: 'firewall', position: [0, 4, -160], phaseOffset: 0.2 },
+
+  // Mid section: double obstacles, crossing streams
+  { type: 'networkCable', position: [0, 5.5, -200] },
+  { type: 'dataStream', position: [2, 4, -230], direction: 'left' },
+  { type: 'dataStream', position: [-2, 4, -250], direction: 'right' },
+  { type: 'firewall', position: [0, 4, -280], phaseOffset: 0.5 },
+  { type: 'networkCable', position: [0, 3.0, -310] },
+  { type: 'firewall', position: [0, 4, -340], phaseOffset: 0.1 },
+
+  // Late section: heavy gauntlet
+  { type: 'dataStream', position: [1, 4, -370], direction: 'left' },
+  { type: 'firewall', position: [0, 4, -400], phaseOffset: 0.35 },
+  { type: 'networkCable', position: [0, 2.8, -430] },
+  { type: 'dataStream', position: [-1, 4, -460], direction: 'right' },
+  { type: 'firewall', position: [0, 4, -490], phaseOffset: 0.6 },
+  { type: 'networkCable', position: [0, 5.2, -520] },
+
+  // Final gauntlet: brutal density before exit
+  { type: 'firewall', position: [0, 4, -560], phaseOffset: 0.15 },
+  { type: 'dataStream', position: [2, 4, -590], direction: 'left' },
+  { type: 'dataStream', position: [-2, 4, -610], direction: 'right' },
+  { type: 'firewall', position: [0, 4, -640], phaseOffset: 0.75 },
+  { type: 'networkCable', position: [0, 3.5, -670] },
+];
+// Total: 8 firewalls, 6 network cables, 6 data streams = 20 obstacles (vs 14 in Level 1)

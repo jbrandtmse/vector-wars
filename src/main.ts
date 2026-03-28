@@ -30,6 +30,7 @@ import { DialogueManager } from './narrative/DialogueManager.ts';
 import type { DialogueScript } from './narrative/DialogueTypes.ts';
 import type { BriefingData } from './ui/screens/BriefingScreen.ts';
 import { Logger } from './core/Logger.ts';
+import { getPaletteHexColor, getPaletteCSSGlow, getPaletteCSSMultiGlow } from './rendering/PaletteColors.ts';
 import { audioManager } from './audio/AudioManager.ts';
 import { SFXGenerator } from './audio/SFXGenerator.ts';
 import { VoiceLineGenerator } from './audio/VoiceLineGenerator.ts';
@@ -231,29 +232,68 @@ const screenShake = new ScreenShake();
 const damageEffectsManager = new DamageEffectsManager(screenShake, renderPipeline);
 void damageEffectsManager; // event-driven lifecycle, no per-frame calls
 
-// --- Level Complete handler (placeholder until Epic 6 proper game flow) ---
-eventBus.on('levelComplete', () => {
+// --- Level Complete handler (Story 5-1: multi-level transitions) ---
+eventBus.on('levelComplete', ({ level }) => {
   setTimeout(() => {
-    const overlay = document.createElement('div');
-    Object.assign(overlay.style, {
-      position: 'fixed', top: '0', left: '0', width: '100%', height: '100%',
-      backgroundColor: 'rgba(0,0,0,0.85)', display: 'flex', flexDirection: 'column',
-      justifyContent: 'center', alignItems: 'center', zIndex: '10',
-      fontFamily: "'Courier New', monospace", opacity: '0', transition: 'opacity 0.5s',
-    });
-    overlay.innerHTML = `
-      <div style="font-size:clamp(3rem,8vw,6rem);color:#00ff41;text-shadow:0 0 20px #00ff41,0 0 40px #00ff41;letter-spacing:0.15em;margin-bottom:1rem">LEVEL COMPLETE</div>
-      <div style="font-size:clamp(1rem,2.5vw,1.5rem);color:#00ff41;text-shadow:0 0 10px #00ff41;margin-bottom:2rem;opacity:0.8">FIREWALL BREACHED</div>
-      <div style="font-size:clamp(1.2rem,3vw,2rem);color:#00ff41;text-shadow:0 0 10px #00ff41;margin-bottom:3rem">SCORE: ${scoreManager.getScore()}</div>
-      <div style="font-size:clamp(0.8rem,2vw,1.2rem);color:#00ff41;text-shadow:0 0 10px #00ff41;opacity:0.7">PRESS SPACE TO RESTART</div>
-    `;
-    document.body.appendChild(overlay);
-    requestAnimationFrame(() => { overlay.style.opacity = '1'; });
-    setTimeout(() => {
-      window.addEventListener('keydown', (e) => {
-        if (e.code === 'Space') { e.preventDefault(); window.location.reload(); }
+    const hex = getPaletteHexColor();
+    const glow = getPaletteCSSGlow();
+    const multiGlow = getPaletteCSSMultiGlow([20, 40]);
+
+    if (level < 2) {
+      // Level 1 complete: show brief message then start Level 2
+      const overlay = document.createElement('div');
+      Object.assign(overlay.style, {
+        position: 'fixed', top: '0', left: '0', width: '100%', height: '100%',
+        backgroundColor: 'rgba(0,0,0,0.85)', display: 'flex', flexDirection: 'column',
+        justifyContent: 'center', alignItems: 'center', zIndex: '10',
+        fontFamily: "'Courier New', monospace", opacity: '0', transition: 'opacity 0.5s',
       });
-    }, 1000);
+      overlay.innerHTML = `
+        <div style="font-size:clamp(3rem,8vw,6rem);color:${hex};text-shadow:${multiGlow};letter-spacing:0.15em;margin-bottom:1rem">LEVEL COMPLETE</div>
+        <div style="font-size:clamp(1rem,2.5vw,1.5rem);color:${hex};text-shadow:${glow};margin-bottom:2rem;opacity:0.8">FIREWALL BREACHED</div>
+        <div style="font-size:clamp(1.2rem,3vw,2rem);color:${hex};text-shadow:${glow};margin-bottom:3rem">SCORE: ${scoreManager.getScore()}</div>
+        <div style="font-size:clamp(0.8rem,2vw,1.2rem);color:${hex};text-shadow:${glow};opacity:0.7">PRESS SPACE TO CONTINUE</div>
+      `;
+      document.body.appendChild(overlay);
+      requestAnimationFrame(() => { overlay.style.opacity = '1'; });
+      setTimeout(() => {
+        const handler = (e: KeyboardEvent) => {
+          if (e.code === 'Space') {
+            e.preventDefault();
+            window.removeEventListener('keydown', handler);
+            overlay.style.opacity = '0';
+            setTimeout(() => {
+              overlay.remove();
+              levelManager.exit();
+              levelManager.startLevel(2);
+            }, 500);
+          }
+        };
+        window.addEventListener('keydown', handler);
+      }, 1000);
+    } else {
+      // Level 2+ complete: placeholder victory screen (Level 3 is Story 5-3)
+      const overlay = document.createElement('div');
+      Object.assign(overlay.style, {
+        position: 'fixed', top: '0', left: '0', width: '100%', height: '100%',
+        backgroundColor: 'rgba(0,0,0,0.85)', display: 'flex', flexDirection: 'column',
+        justifyContent: 'center', alignItems: 'center', zIndex: '10',
+        fontFamily: "'Courier New', monospace", opacity: '0', transition: 'opacity 0.5s',
+      });
+      overlay.innerHTML = `
+        <div style="font-size:clamp(3rem,8vw,6rem);color:${hex};text-shadow:${multiGlow};letter-spacing:0.15em;margin-bottom:1rem">LEVEL COMPLETE</div>
+        <div style="font-size:clamp(1rem,2.5vw,1.5rem);color:${hex};text-shadow:${glow};margin-bottom:2rem;opacity:0.8">FIREWALL BREACHED</div>
+        <div style="font-size:clamp(1.2rem,3vw,2rem);color:${hex};text-shadow:${glow};margin-bottom:3rem">SCORE: ${scoreManager.getScore()}</div>
+        <div style="font-size:clamp(0.8rem,2vw,1.2rem);color:${hex};text-shadow:${glow};opacity:0.7">PRESS SPACE TO RESTART</div>
+      `;
+      document.body.appendChild(overlay);
+      requestAnimationFrame(() => { overlay.style.opacity = '1'; });
+      setTimeout(() => {
+        window.addEventListener('keydown', (e) => {
+          if (e.code === 'Space') { e.preventDefault(); window.location.reload(); }
+        });
+      }, 1000);
+    }
   }, 2000);
 });
 
@@ -278,11 +318,21 @@ const levelManager = new LevelManager(
 fetch('assets/briefings/level-1.json')
   .then((res) => res.json())
   .then((data: BriefingData) => {
-    levelManager.setBriefingData(data);
+    levelManager.setBriefingData(data, 1);
     Logger.info('Narrative', 'Level 1 briefing data loaded');
   })
   .catch((err) => {
-    Logger.warn('Narrative', 'Failed to load briefing data', { error: String(err) });
+    Logger.warn('Narrative', 'Failed to load Level 1 briefing data', { error: String(err) });
+  });
+
+fetch('assets/briefings/level-2.json')
+  .then((res) => res.json())
+  .then((data: BriefingData) => {
+    levelManager.setBriefingData(data, 2);
+    Logger.info('Narrative', 'Level 2 briefing data loaded');
+  })
+  .catch((err) => {
+    Logger.warn('Narrative', 'Failed to load Level 2 briefing data', { error: String(err) });
   });
 
 levelManager.enter();

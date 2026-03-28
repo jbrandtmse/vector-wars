@@ -36,5 +36,10 @@
   "gk_sweep_phase": { "path": "audio/voice/gk_sweep_phase.ogg", "channel": "voice" },
   "gk_health_below_25": { "path": "audio/voice/gk_health_below_25.ogg", "channel": "voice" },
   "gk_vulnerable_2": { "path": "audio/voice/gk_vulnerable_2.ogg", "channel": "voice" },
-  "gk_defeated": { "path": "audio/voice/gk_defeated.ogg", "channel": "voice" }
+  "gk_defeated": { "path": "audio/voice/gk_defeated.ogg", "channel": "voice" },
+  "handler_l2_dogfight_start": { "path": "audio/voice/handler_l2_dogfight_start.ogg", "channel": "voice" },
+  "handler_l2_surface_start": { "path": "audio/voice/handler_l2_surface_start.ogg", "channel": "voice" },
+  "handler_l2_corridor_start": { "path": "audio/voice/handler_l2_corridor_start.ogg", "channel": "voice" },
+  "handler_l2_boss_start": { "path": "audio/voice/handler_l2_boss_start.ogg", "channel": "voice" },
+  "handler_l2_level_complete": { "path": "audio/voice/handler_l2_level_complete.ogg", "channel": "voice" }
 }

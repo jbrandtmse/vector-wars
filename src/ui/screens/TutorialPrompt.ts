@@ -2,11 +2,14 @@
  * TutorialPrompt -- HTML overlay for displaying contextual tutorial prompts.
  *
  * Positioned at center-bottom of viewport, displays action prompts
- * for the player during the tutorial phase. Green monospace text
+ * for the player during the tutorial phase. Monospace text
  * with glow, matching the vector aesthetic.
  *
  * Created by: Story 4-3
+ * Updated by: Story 5-1 (palette-aware colors)
  */
+
+import { getPaletteHexColor, getPaletteCSSGlow } from '../../rendering/PaletteColors.ts';
 
 export class TutorialPrompt {
   private container: HTMLDivElement;
@@ -44,11 +47,11 @@ export class TutorialPrompt {
       fontFamily: "'Courier New', monospace",
     });
 
-    // Text element — monospace, uppercase, green with glow
+    // Text element — monospace, uppercase, palette color with glow
     Object.assign(this.textElement.style, {
       fontSize: 'clamp(0.9rem, 2vw, 1.3rem)',
-      color: '#00ff41',
-      textShadow: '0 0 10px #00ff41',
+      color: getPaletteHexColor(),
+      textShadow: getPaletteCSSGlow(),
       letterSpacing: '0.2em',
       textTransform: 'uppercase',
       textAlign: 'center',

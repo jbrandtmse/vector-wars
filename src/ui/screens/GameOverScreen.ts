@@ -6,7 +6,10 @@
  * Keyboard-only input: Space to restart (with delay guard).
  *
  * Created by: Story 2-10
+ * Updated by: Story 5-1 (palette-aware colors)
  */
+import { getPaletteHexColor, getPaletteCSSGlow, getPaletteCSSMultiGlow } from '../../rendering/PaletteColors.ts';
+
 export class GameOverScreen {
   private overlay: HTMLDivElement;
   private scoreElement: HTMLSpanElement;
@@ -40,11 +43,14 @@ export class GameOverScreen {
     });
 
     // GAME OVER title
+    const hex = getPaletteHexColor();
+    const glow = getPaletteCSSGlow();
+    const tripleGlow = getPaletteCSSMultiGlow([20, 40, 80]);
     const title = document.createElement('div');
     Object.assign(title.style, {
       fontSize: 'clamp(3rem, 8vw, 6rem)',
-      color: '#00ff41',
-      textShadow: '0 0 20px #00ff41, 0 0 40px #00ff41, 0 0 80px #00ff41',
+      color: hex,
+      textShadow: tripleGlow,
       letterSpacing: '0.15em',
       marginBottom: '2rem',
     });
@@ -54,8 +60,8 @@ export class GameOverScreen {
     const scoreLine = document.createElement('div');
     Object.assign(scoreLine.style, {
       fontSize: 'clamp(1.2rem, 3vw, 2rem)',
-      color: '#00ff41',
-      textShadow: '0 0 10px #00ff41',
+      color: hex,
+      textShadow: glow,
       marginBottom: '3rem',
     });
     scoreLine.textContent = 'SCORE: ';
@@ -66,8 +72,8 @@ export class GameOverScreen {
     const prompt = document.createElement('div');
     Object.assign(prompt.style, {
       fontSize: 'clamp(0.8rem, 2vw, 1.2rem)',
-      color: '#00ff41',
-      textShadow: '0 0 10px #00ff41',
+      color: hex,
+      textShadow: glow,
       opacity: '0.7',
     });
     prompt.textContent = 'PRESS SPACE TO RESTART';

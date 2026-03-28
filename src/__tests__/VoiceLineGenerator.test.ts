@@ -152,10 +152,10 @@ describe('VoiceLineGenerator (Story 4-9)', () => {
       expect(ids).toContain('gk_encounter_start');
     });
 
-    it('should include all 27 voice line definitions', () => {
+    it('should include all 32 voice line definitions', () => {
       const ids = generator.getSoundIds();
-      // 8 handler + 10 tutorial + 9 gatekeeper = 27
-      expect(ids.length).toBe(27);
+      // 8 handler L1 + 5 handler L2 + 10 tutorial + 9 gatekeeper = 32
+      expect(ids.length).toBe(32);
     });
   });
 
@@ -230,7 +230,7 @@ describe('VoiceLineGenerator (Story 4-9)', () => {
       expect(Logger.info).toHaveBeenCalledWith(
         'Audio',
         'Voice line generation complete',
-        expect.objectContaining({ total: 27 })
+        expect.objectContaining({ total: 32 })
       );
     });
 
@@ -239,7 +239,7 @@ describe('VoiceLineGenerator (Story 4-9)', () => {
       expect(Logger.info).toHaveBeenCalledWith(
         'Audio',
         'Voice line generation complete',
-        expect.objectContaining({ generated: 27, failed: 0, total: 27 })
+        expect.objectContaining({ generated: 32, failed: 0, total: 32 })
       );
     });
 

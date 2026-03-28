@@ -34,6 +34,7 @@ import {
   CORRIDOR_RAIL_SPEED_MULTIPLIER,
   RAIL_SPEED,
 } from '../../config/constants.ts';
+import type { CorridorObstacleConfig } from '../../config/constants.ts';
 
 /** Completion threshold for rail progress — near the end of the path */
 const RAIL_COMPLETION_THRESHOLD = 0.98;
@@ -63,16 +64,24 @@ export class CorridorPhase {
   private completed = false;
   private hitCooldownTimer = 0;
 
+  // Level-specific config (defaults to Level 1 constants)
+  private corridorObstacles: CorridorObstacleConfig[];
+  private corridorRailPathPoints: readonly [number, number, number][];
+
   constructor(
     scene: THREE.Scene,
     camera: THREE.PerspectiveCamera,
     vectorMaterials: VectorMaterials,
     playerSphere: THREE.Sphere,
+    corridorObstacles?: CorridorObstacleConfig[],
+    corridorRailPathPoints?: readonly [number, number, number][],
   ) {
     this.scene = scene;
     this.camera = camera;
     this.vectorMaterials = vectorMaterials;
     this.playerSphere = playerSphere;
+    this.corridorObstacles = corridorObstacles ?? CORRIDOR_OBSTACLES;
+    this.corridorRailPathPoints = corridorRailPathPoints ?? CORRIDOR_RAIL_PATH_POINTS;
   }
 
   enter(): void {
@@ -90,7 +99,7 @@ export class CorridorPhase {
     // Create rail movement for corridor path (non-looping)
     this.railMovement = new RailMovement(
       this.camera,
-      CORRIDOR_RAIL_PATH_POINTS,
+      this.corridorRailPathPoints,
       false, // open (non-looping) path
     );
 
@@ -264,7 +273,7 @@ export class CorridorPhase {
   }
 
   private createObstacles(): void {
-    for (const config of CORRIDOR_OBSTACLES) {
+    for (const config of this.corridorObstacles) {
       const corridorWidth = this.getCorridorWidth(config.position[2]);
       let obstacle: Obstacle;
 

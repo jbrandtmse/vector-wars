@@ -1,0 +1,83 @@
+# Epic Blitz Status
+# Generated: 2026-03-27
+# Last Updated: 2026-03-27
+
+epic: 5
+epic_title: "Full Campaign"
+status: in-progress
+started: "2026-03-27"
+completed: null
+
+stories:
+  5-1-level-2-amber-palette:
+    status: pending
+    phase: null
+    attempts: 0
+    committed: false
+    notes: ""
+  5-2-the-avenger-boss:
+    status: pending
+    phase: null
+    attempts: 0
+    committed: false
+    notes: ""
+  5-3-level-3-red-palette:
+    status: pending
+    phase: null
+    attempts: 0
+    committed: false
+    notes: ""
+  5-4-the-core-intelligence-boss:
+    status: pending
+    phase: null
+    attempts: 0
+    committed: false
+    notes: ""
+  5-5-color-palette-progression:
+    status: pending
+    phase: null
+    attempts: 0
+    committed: false
+    notes: ""
+  5-6-overseer-enemy-type:
+    status: pending
+    phase: null
+    attempts: 0
+    committed: false
+    notes: ""
+  5-7-enemy-behavioral-evolution:
+    status: pending
+    phase: null
+    attempts: 0
+    committed: false
+    notes: ""
+  5-8-handler-voice-escalation:
+    status: pending
+    phase: null
+    attempts: 0
+    committed: false
+    notes: ""
+  5-9-briefing-screens-all-levels:
+    status: pending
+    phase: null
+    attempts: 0
+    committed: false
+    notes: ""
+  5-10-ending-sequence:
+    status: pending
+    phase: null
+    attempts: 0
+    committed: false
+    notes: ""
+  5-11-high-score-table:
+    status: pending
+    phase: null
+    attempts: 0
+    committed: false
+    notes: ""
+  5-12-cyberspace-fragmentation-ending:
+    status: pending
+    phase: null
+    attempts: 0
+    committed: false
+    notes: ""

@@ -26,6 +26,7 @@ import {
   SURFACE_RAIL_PATH_POINTS,
   SURFACE_TARGETS,
 } from '../../config/constants.ts';
+import type { SurfaceTarget } from '../../config/constants.ts';
 import type { VectorMaterials } from '../../rendering/VectorMaterials.ts';
 import type { Enemy } from '../../entities/enemies/Enemy.ts';
 import type { GameObjectManager } from '../../entities/GameObjectManager.ts';
@@ -70,18 +71,26 @@ export class SurfacePhase {
   // Event listener reference for cleanup
   private onEnemyDestroyed: ((data: { enemy: Enemy; position: { x: number; y: number; z: number } }) => void) | null = null;
 
+  // Level-specific config (defaults to Level 1 constants)
+  private surfaceTargets: SurfaceTarget[];
+  private railPathPoints: readonly [number, number, number][];
+
   constructor(
     scene: THREE.Scene,
     camera: THREE.PerspectiveCamera,
     vectorMaterials: VectorMaterials,
     playerCollider?: THREE.Sphere,
     gameObjectManager?: GameObjectManager,
+    surfaceTargets?: SurfaceTarget[],
+    railPathPoints?: readonly [number, number, number][],
   ) {
     this.scene = scene;
     this.camera = camera;
     this.vectorMaterials = vectorMaterials;
     this.playerCollider = playerCollider ?? null;
     this.gameObjectManager = gameObjectManager ?? null;
+    this.surfaceTargets = surfaceTargets ?? SURFACE_TARGETS;
+    this.railPathPoints = railPathPoints ?? SURFACE_RAIL_PATH_POINTS;
   }
 
   enter(): void {
@@ -104,7 +113,7 @@ export class SurfacePhase {
     // Create rail movement for surface path (non-looping)
     this.railMovement = new RailMovement(
       this.camera,
-      SURFACE_RAIL_PATH_POINTS,
+      this.railPathPoints,
       false, // open (non-looping) path
     );
 
@@ -340,7 +349,7 @@ export class SurfacePhase {
   private placeTargets(): void {
     this.firewallNodesRemaining = 0;
 
-    for (const targetDef of SURFACE_TARGETS) {
+    for (const targetDef of this.surfaceTargets) {
       if (targetDef.type === 'firewallNode') {
         const node = this.firewallNodePool!.acquire();
         if (node) {
