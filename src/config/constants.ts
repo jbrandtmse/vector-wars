@@ -369,6 +369,45 @@ export const BOSS_AVENGER_DAMAGE_REDUCTION = 0.15;
 export const BOSS_AVENGER_ATTACK_DAMAGE = 20;
 export const BOSS_AVENGER_PROJECTILE_SPEED = 20;
 
+// Core Intelligence Boss constants (Story 5-4)
+export const BOSS_CORE_HEALTH = 800;
+export const BOSS_CORE_COLLIDER_RADIUS = 7.0;
+export const BOSS_CORE_SCORE_VALUE = 10000;
+export const BOSS_CORE_OUTER_RADIUS = 12;
+export const BOSS_CORE_MID_RADIUS = 8;
+export const BOSS_CORE_INNER_RADIUS = 5;
+export const BOSS_CORE_DEEP_RADIUS = 2.5;
+export const BOSS_CORE_ROTATION_SPEED = 0.2;
+export const BOSS_CORE_PULSE_RATE = 1.0;
+export const BOSS_CORE_PULSE_AMPLITUDE = 0.12;
+
+// Core Intelligence Boss attack phase timing constants (Story 5-4)
+export const BOSS_CORE_REASON_DURATION = 5.0;
+export const BOSS_CORE_REASON_INTERVAL = 0.8;
+export const BOSS_CORE_REASON_DAMAGE = 15;
+export const BOSS_CORE_BARRAGE_DURATION = 6.0;
+export const BOSS_CORE_BARRAGE_INTERVAL = 0.25;
+export const BOSS_CORE_BARRAGE_COUNT = 7;
+export const BOSS_CORE_BARRAGE_SPREAD = 0.5;
+export const BOSS_CORE_SURGE_DURATION = 3.0;
+export const BOSS_CORE_SURGE_BURST_INTERVAL = 0.5;
+export const BOSS_CORE_SURGE_BURST_COUNT = 8;
+export const BOSS_CORE_SURGE_DAMAGE = 25;
+export const BOSS_CORE_VULNERABLE_DURATION = 2.5;
+export const BOSS_CORE_DAMAGE_REDUCTION = 0.1;
+export const BOSS_CORE_ATTACK_DAMAGE = 25;
+export const BOSS_CORE_PROJECTILE_SPEED = 22;
+
+// Core Intelligence emotional escalation thresholds (Story 5-4)
+export const BOSS_CORE_ESCALATION_75_ROTATION_MULT = 1.5;
+export const BOSS_CORE_ESCALATION_75_JITTER = 0.1;
+export const BOSS_CORE_ESCALATION_50_ROTATION_MULT = 2.0;
+export const BOSS_CORE_ESCALATION_50_JITTER = 0.3;
+export const BOSS_CORE_ESCALATION_50_PULSE_MULT = 1.5;
+export const BOSS_CORE_ESCALATION_25_ROTATION_MULT = 3.0;
+export const BOSS_CORE_ESCALATION_25_JITTER = 0.6;
+export const BOSS_CORE_ESCALATION_25_PULSE_MULT = 2.0;
+
 // Boss arena rail constants (Story 3-7)
 export const BOSS_ARENA_RAIL_SPEED = 10;
 export const BOSS_CAMERA_LOOK_LERP = 5.0;

@@ -156,6 +156,17 @@ describe('VoiceLineGenerator (Story 4-9)', () => {
       expect(generator.hasSound('handler_l3_level_complete')).toBe(true);
     });
 
+    it('should return true for known Core Intelligence voice line IDs', () => {
+      expect(generator.hasSound('ci_encounter_start')).toBe(true);
+      expect(generator.hasSound('ci_health_below_75')).toBe(true);
+      expect(generator.hasSound('ci_health_below_50')).toBe(true);
+      expect(generator.hasSound('ci_health_below_25')).toBe(true);
+      expect(generator.hasSound('ci_reason_phase')).toBe(true);
+      expect(generator.hasSound('ci_surge_phase')).toBe(true);
+      expect(generator.hasSound('ci_vulnerable')).toBe(true);
+      expect(generator.hasSound('ci_defeated')).toBe(true);
+    });
+
     it('should return false for unknown IDs', () => {
       expect(generator.hasSound('nonexistent')).toBe(false);
       expect(generator.hasSound('data_lance_fire')).toBe(false);
@@ -173,8 +184,8 @@ describe('VoiceLineGenerator (Story 4-9)', () => {
 
     it('should include all 39 voice line definitions', () => {
       const ids = generator.getSoundIds();
-      // 8 handler L1 + 5 handler L2 + 5 handler L3 + 10 tutorial + 9 gatekeeper + 7 avenger = 44
-      expect(ids.length).toBe(44);
+      // 8 handler L1 + 5 handler L2 + 5 handler L3 + 10 tutorial + 9 gatekeeper + 7 avenger + 8 core intelligence = 52
+      expect(ids.length).toBe(52);
     });
   });
 
@@ -249,7 +260,7 @@ describe('VoiceLineGenerator (Story 4-9)', () => {
       expect(Logger.info).toHaveBeenCalledWith(
         'Audio',
         'Voice line generation complete',
-        expect.objectContaining({ total: 44 })
+        expect.objectContaining({ total: 52 })
       );
     });
 
@@ -258,7 +269,7 @@ describe('VoiceLineGenerator (Story 4-9)', () => {
       expect(Logger.info).toHaveBeenCalledWith(
         'Audio',
         'Voice line generation complete',
-        expect.objectContaining({ generated: 44, failed: 0, total: 44 })
+        expect.objectContaining({ generated: 52, failed: 0, total: 52 })
       );
     });
 

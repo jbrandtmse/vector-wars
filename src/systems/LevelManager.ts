@@ -26,6 +26,7 @@ import { BriefingPhase } from '../state/phases/BriefingPhase.ts';
 import { PhaseTransition } from '../state/phases/PhaseTransition.ts';
 import { GatekeeperBoss } from '../entities/bosses/GatekeeperBoss.ts';
 import { AvengerBoss } from '../entities/bosses/AvengerBoss.ts';
+import { CoreIntelligenceBoss } from '../entities/bosses/CoreIntelligenceBoss.ts';
 import { eventBus } from '../core/GameEvents.ts';
 import { Logger } from '../core/Logger.ts';
 import {
@@ -102,7 +103,7 @@ const LEVEL_CORRIDOR_OBSTACLES: Record<number, typeof CORRIDOR_OBSTACLES> = {
 const LEVEL_BOSS_FACTORIES: Record<number, BossFactory> = {
   1: (vm, ppg) => new GatekeeperBoss(vm, ppg),
   2: (vm, ppg) => new AvengerBoss(vm, ppg),
-  3: (vm, ppg) => new GatekeeperBoss(vm, ppg), // Placeholder until Story 5-4 (CoreIntelligenceBoss)
+  3: (vm, ppg) => new CoreIntelligenceBoss(vm, ppg),
 };
 
 export class LevelManager {

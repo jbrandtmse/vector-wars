@@ -46,7 +46,7 @@ export interface BossHealthChangedEvent {
 }
 
 export interface BossPhaseChangedEvent {
-  phase: 'barrage' | 'sweep' | 'vulnerable' | 'rush';
+  phase: 'barrage' | 'sweep' | 'vulnerable' | 'rush' | 'reason' | 'surge';
 }
 
 export interface BossAttackEvent {

@@ -180,5 +180,22 @@ describe('Level 3 Constants (Story 5-3)', () => {
         expect(generator.hasSound(id)).toBe(true);
       }
     });
+
+    it('should have voice definitions for all Core Intelligence boss lines (Story 5-4)', () => {
+      const generator = new VoiceLineGenerator();
+      const coreVoiceIds = [
+        'ci_encounter_start',
+        'ci_health_below_75',
+        'ci_health_below_50',
+        'ci_health_below_25',
+        'ci_reason_phase',
+        'ci_surge_phase',
+        'ci_vulnerable',
+        'ci_defeated',
+      ];
+      for (const id of coreVoiceIds) {
+        expect(generator.hasSound(id)).toBe(true);
+      }
+    });
   });
 });

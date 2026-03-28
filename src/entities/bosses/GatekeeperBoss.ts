@@ -52,7 +52,7 @@ import {
 } from '../../config/constants.ts';
 import type { VectorMaterials } from '../../rendering/VectorMaterials.ts';
 
-export type BossPhaseType = 'barrage' | 'sweep' | 'vulnerable' | 'rush';
+export type BossPhaseType = 'barrage' | 'sweep' | 'vulnerable' | 'rush' | 'reason' | 'surge';
 
 export class GatekeeperBoss extends Boss {
   // Geometry layers

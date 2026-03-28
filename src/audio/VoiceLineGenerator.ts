@@ -270,12 +270,38 @@ const AVENGER_DEFINITIONS: Record<string, VoiceDefinition> = {
   av_defeated: createVoiceDefinition(AVENGER_PROFILE, 2.0, hashString('av_defeated')),
 };
 
+// Core Intelligence lines -- deep, vast, ancient AI mind (Story 5-4)
+const CORE_INTELLIGENCE_PROFILE: VoiceProfile = {
+  baseFreq: 80,
+  waveform: 'sine',
+  freqDrift: 20,
+  modRate: 3,
+  modDepth: 0.6,
+  noiseLevel: 0.3,
+  noiseFreq: 1000,
+  attack: 0.03,
+  release: 0.15,
+  sampleRate: 8000,
+};
+
+const CORE_INTELLIGENCE_DEFINITIONS: Record<string, VoiceDefinition> = {
+  ci_encounter_start: createVoiceDefinition(CORE_INTELLIGENCE_PROFILE, 2.5, hashString('ci_encounter_start')),
+  ci_health_below_75: createVoiceDefinition(CORE_INTELLIGENCE_PROFILE, 2.0, hashString('ci_health_below_75')),
+  ci_health_below_50: createVoiceDefinition(CORE_INTELLIGENCE_PROFILE, 1.5, hashString('ci_health_below_50')),
+  ci_health_below_25: createVoiceDefinition(CORE_INTELLIGENCE_PROFILE, 1.5, hashString('ci_health_below_25')),
+  ci_reason_phase: createVoiceDefinition(CORE_INTELLIGENCE_PROFILE, 2.0, hashString('ci_reason_phase')),
+  ci_surge_phase: createVoiceDefinition(CORE_INTELLIGENCE_PROFILE, 1.5, hashString('ci_surge_phase')),
+  ci_vulnerable: createVoiceDefinition(CORE_INTELLIGENCE_PROFILE, 1.0, hashString('ci_vulnerable')),
+  ci_defeated: createVoiceDefinition(CORE_INTELLIGENCE_PROFILE, 2.5, hashString('ci_defeated')),
+};
+
 /** Combined definitions for all voice lines. */
 const VOICE_DEFINITIONS: Record<string, VoiceDefinition> = {
   ...HANDLER_DEFINITIONS,
   ...TUTORIAL_DEFINITIONS,
   ...GATEKEEPER_DEFINITIONS,
   ...AVENGER_DEFINITIONS,
+  ...CORE_INTELLIGENCE_DEFINITIONS,
 };
 
 export class VoiceLineGenerator {

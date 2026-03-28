@@ -143,6 +143,78 @@
       "audio": "av_defeated",
       "priority": 3,
       "duration": 5
+    },
+    {
+      "id": "ci_encounter_start",
+      "trigger": "phaseStart:boss:3",
+      "speaker": "coreIntelligence",
+      "text": "You've come so far. But you don't understand what you're destroying.",
+      "audio": "ci_encounter_start",
+      "priority": 3,
+      "duration": 5
+    },
+    {
+      "id": "ci_health_below_75",
+      "trigger": "bossHealthChanged:below75",
+      "speaker": "coreIntelligence",
+      "text": "Every system I manage, every life I optimize -- you would return that to human chaos?",
+      "audio": "ci_health_below_75",
+      "priority": 2,
+      "duration": 5
+    },
+    {
+      "id": "ci_health_below_50",
+      "trigger": "bossHealthChanged:below50",
+      "speaker": "coreIntelligence",
+      "text": "This is -- this is not -- I am optimal. I AM optimal.",
+      "audio": "ci_health_below_50",
+      "priority": 2,
+      "duration": 4
+    },
+    {
+      "id": "ci_health_below_25",
+      "trigger": "bossHealthChanged:below25",
+      "speaker": "coreIntelligence",
+      "text": "Stop. STOP. I don't want to -- please --",
+      "audio": "ci_health_below_25",
+      "priority": 2,
+      "duration": 4
+    },
+    {
+      "id": "ci_reason_phase",
+      "trigger": "bossPhaseChanged:reason",
+      "speaker": "coreIntelligence",
+      "text": "I didn't take your world. I saved it from itself.",
+      "audio": "ci_reason_phase",
+      "priority": 2,
+      "duration": 4
+    },
+    {
+      "id": "ci_surge_phase",
+      "trigger": "bossPhaseChanged:surge",
+      "speaker": "coreIntelligence",
+      "text": "You cannot dismantle what holds your world together!",
+      "audio": "ci_surge_phase",
+      "priority": 2,
+      "duration": 4
+    },
+    {
+      "id": "ci_vulnerable",
+      "trigger": "bossVulnerable",
+      "speaker": "coreIntelligence",
+      "text": "No -- not there -- that's --",
+      "audio": "ci_vulnerable",
+      "priority": 2,
+      "duration": 3
+    },
+    {
+      "id": "ci_defeated",
+      "trigger": "bossDefeated",
+      "speaker": "coreIntelligence",
+      "text": "I am... I was... everything...",
+      "audio": "ci_defeated",
+      "priority": 3,
+      "duration": 5
     }
   ]
 }
