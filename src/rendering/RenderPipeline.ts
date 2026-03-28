@@ -70,17 +70,22 @@ export class RenderPipeline {
 
     const width = renderer.domElement.clientWidth;
     const height = renderer.domElement.clientHeight;
-    const resolution = new THREE.Vector2(width, height);
 
-    // --- Bloom Composer (renders to texture, not screen) ---
-    this.bloomComposer = new EffectComposer(renderer);
+    // Bloom renders at half resolution for GPU savings (Story 6-4)
+    const bloomWidth = Math.max(1, Math.floor(width / 2));
+    const bloomHeight = Math.max(1, Math.floor(height / 2));
+    const bloomResolution = new THREE.Vector2(bloomWidth, bloomHeight);
+
+    // --- Bloom Composer (renders to texture at half resolution, not screen) ---
+    const bloomRenderTarget = new THREE.WebGLRenderTarget(bloomWidth, bloomHeight);
+    this.bloomComposer = new EffectComposer(renderer, bloomRenderTarget);
     this.bloomComposer.renderToScreen = false;
 
     const bloomRenderPass = new RenderPass(scene, camera);
     this.bloomComposer.addPass(bloomRenderPass);
 
     const bloomPass = new UnrealBloomPass(
-      resolution,
+      bloomResolution,
       RENDERING_CONFIG.bloom.strength,
       RENDERING_CONFIG.bloom.radius,
       RENDERING_CONFIG.bloom.threshold,
@@ -228,7 +233,8 @@ export class RenderPipeline {
    * Updates both composers, FXAA uniforms, and CRT scanline count on window resize.
    */
   resize(width: number, height: number): void {
-    this.bloomComposer.setSize(width, height);
+    // Bloom at half resolution for GPU savings (Story 6-4)
+    this.bloomComposer.setSize(Math.max(1, Math.floor(width / 2)), Math.max(1, Math.floor(height / 2)));
     this.finalComposer.setSize(width, height);
     this.fxaaPass.material.uniforms['resolution'].value.set(
       1 / width,

@@ -114,4 +114,51 @@ describe('GameObjectManager', () => {
     expect(mod.GameObjectManager).toBeDefined();
     expect(typeof mod.GameObjectManager).toBe('function');
   });
+
+  // --- Swap-remove optimization tests (Story 6-4) ---
+
+  it('swap-remove maintains all entities except the removed one', () => {
+    const manager = new GameObjectManager();
+    const e1 = new TestEntity();
+    const e2 = new TestEntity();
+    const e3 = new TestEntity();
+    manager.add(e1);
+    manager.add(e2);
+    manager.add(e3);
+
+    // Remove middle element
+    manager.remove(e2);
+
+    const all = manager.getAll();
+    expect(all).toHaveLength(2);
+    expect(all).toContain(e1);
+    expect(all).not.toContain(e2);
+    expect(all).toContain(e3);
+  });
+
+  it('swap-remove works correctly when removing last element', () => {
+    const manager = new GameObjectManager();
+    const e1 = new TestEntity();
+    const e2 = new TestEntity();
+    manager.add(e1);
+    manager.add(e2);
+
+    // Remove last element (no swap needed, just pop)
+    manager.remove(e2);
+
+    const all = manager.getAll();
+    expect(all).toHaveLength(1);
+    expect(all).toContain(e1);
+    expect(all).not.toContain(e2);
+  });
+
+  it('swap-remove works correctly when removing only element', () => {
+    const manager = new GameObjectManager();
+    const e1 = new TestEntity();
+    manager.add(e1);
+
+    manager.remove(e1);
+
+    expect(manager.getAll()).toHaveLength(0);
+  });
 });

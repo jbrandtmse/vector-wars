@@ -26,6 +26,7 @@ export interface Poolable {
 export class ObjectPool<T extends Poolable> {
   private items: T[] = [];
   private available: T[] = []; // stack of released items ready for reuse
+  private availableSet = new Set<T>(); // O(1) duplicate detection for release guard
   private factory: () => T;
 
   constructor(factory: () => T, initialSize: number = 0) {
@@ -40,12 +41,15 @@ export class ObjectPool<T extends Poolable> {
       const obj = this.factory();
       this.items.push(obj);
       this.available.push(obj);
+      this.availableSet.add(obj);
     }
   }
 
   acquire(): T | undefined {
     if (this.available.length > 0) {
-      return this.available.pop()!;
+      const obj = this.available.pop()!;
+      this.availableSet.delete(obj);
+      return obj;
     }
     // Pool exhausted -- expand by one (with warning)
     Logger.warn('Pool', 'Pool exhausted, expanding', { total: this.items.length });
@@ -55,12 +59,13 @@ export class ObjectPool<T extends Poolable> {
   }
 
   release(obj: T): void {
-    // Guard against double-release: if already in available stack, skip
-    if (this.available.indexOf(obj) !== -1) {
+    // O(1) guard against double-release (Story 6-4)
+    if (this.availableSet.has(obj)) {
       return;
     }
     obj.reset();
     this.available.push(obj);
+    this.availableSet.add(obj);
   }
 
   get activeCount(): number {

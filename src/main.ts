@@ -43,6 +43,7 @@ import { CyberspaceFragmentation } from './entities/effects/CyberspaceFragmentat
 import { FRAG_PHASE1_DURATION } from './config/constants.ts';
 import { MenuScreen } from './ui/screens/MenuScreen.ts';
 import { checkWebGL2Support, showUnsupportedMessage, createContextLossOverlay } from './core/BrowserCompatibility.ts';
+import { PerformanceMonitor } from './core/PerformanceMonitor.ts';
 
 // --- Renderer Setup ---
 const container = document.getElementById('app');
@@ -454,6 +455,13 @@ menuScreen.onHighScores = (returnToMenu: () => void) => {
 };
 menuScreen.show();
 
+// --- Performance Monitor Setup (Story 6-4, debug-only) ---
+let perfMonitorUpdate: ((dt: number) => void) | null = null;
+if (import.meta.env.DEV) {
+  const perfMonitor = new PerformanceMonitor(renderer);
+  perfMonitorUpdate = (dt: number) => perfMonitor.update(dt);
+}
+
 // --- Pool Diagnostics Setup (Story 2-9, debug-only) ---
 let poolDiagnosticsUpdate: ((dt: number) => void) | null = null;
 
@@ -561,6 +569,10 @@ function gameLoop(time: number): void {
   if (poolDiagnosticsUpdate) poolDiagnosticsUpdate(dt);
 
   renderPipeline.render();
+
+  // Performance monitor: log metrics periodically in debug mode (Story 6-4)
+  // Runs AFTER render so renderer.info reflects the current frame's stats
+  if (perfMonitorUpdate) perfMonitorUpdate(dt);
 }
 
 // --- Visibility Change Handler (Story 6-3) ---

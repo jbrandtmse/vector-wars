@@ -62,3 +62,27 @@ describe('RenderPipeline', () => {
     expect(typeof mod.RenderPipeline.prototype.getTransitionProgress).toBe('function');
   });
 });
+
+describe('RenderPipeline bloom half-resolution (Story 6-4)', () => {
+  it('bloom composer should be created at half resolution', async () => {
+    // Read the source to verify the half-resolution pattern is present
+    // Since we cannot instantiate RenderPipeline without WebGL,
+    // we verify the source code contains the half-resolution logic
+    const sourceModule = await import('../rendering/RenderPipeline.ts?raw');
+    const source = sourceModule.default as string;
+    expect(source).toContain('Math.floor(width / 2)');
+    expect(source).toContain('Math.floor(height / 2)');
+    // Verify bloom render target creation at half resolution
+    expect(source).toContain('bloomWidth');
+    expect(source).toContain('bloomHeight');
+    expect(source).toContain('WebGLRenderTarget');
+  });
+
+  it('resize updates bloom composer at half resolution', async () => {
+    const sourceModule = await import('../rendering/RenderPipeline.ts?raw');
+    const source = sourceModule.default as string;
+    // The resize method should use half dimensions for bloom composer
+    // Look for the pattern in the resize method
+    expect(source).toContain('this.bloomComposer.setSize(Math.max(1, Math.floor(width / 2))');
+  });
+});

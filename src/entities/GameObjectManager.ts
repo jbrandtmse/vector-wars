@@ -18,7 +18,11 @@ export class GameObjectManager {
   remove(entity: GameObject): void {
     const index = this.entities.indexOf(entity);
     if (index !== -1) {
-      this.entities.splice(index, 1);
+      const last = this.entities.length - 1;
+      if (index !== last) {
+        this.entities[index] = this.entities[last];
+      }
+      this.entities.pop();
     }
   }
 
