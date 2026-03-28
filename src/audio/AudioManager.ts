@@ -52,6 +52,7 @@ export class AudioManager {
   private camera: THREE.Camera | null = null;
   private channels: Map<ChannelType, AudioChannel> = new Map();
   private manifest: SoundManifest = {};
+  private manifestUrl = '';
   private bufferCache: Map<string, AudioBuffer> = new Map();
   private audioLoader: THREE.AudioLoader | null = null;
   private masterVolume = { value: 1.0 };
@@ -228,6 +229,7 @@ export class AudioManager {
   }
 
   async loadManifest(url: string): Promise<void> {
+    this.manifestUrl = url;
     try {
       const response = await fetch(url);
       if (!response.ok) {
@@ -238,6 +240,30 @@ export class AudioManager {
       Logger.info('Audio', 'Sound manifest loaded', { entries: Object.keys(this.manifest).length });
     } catch (error) {
       Logger.warn('Audio', 'Failed to load sound manifest', { url, error: String(error) });
+    }
+  }
+
+  /**
+   * Re-fetch the manifest and clear the buffer cache.
+   * Allows newly placed audio files to take effect without a page reload.
+   * Development workflow: drop in .ogg file, call reloadManifest() from console.
+   */
+  async reloadManifest(): Promise<void> {
+    if (!this.manifestUrl) {
+      Logger.warn('Audio', 'No manifest URL set — call loadManifest() first');
+      return;
+    }
+    try {
+      const response = await fetch(this.manifestUrl);
+      if (!response.ok) {
+        Logger.warn('Audio', 'Failed to reload manifest', { url: this.manifestUrl, status: response.status });
+        return;
+      }
+      this.manifest = (await response.json()) as SoundManifest;
+      this.bufferCache.clear();
+      Logger.info('Audio', 'Manifest reloaded', { entries: Object.keys(this.manifest).length });
+    } catch (error) {
+      Logger.warn('Audio', 'Failed to reload manifest', { url: this.manifestUrl, error: String(error) });
     }
   }
 
@@ -347,6 +373,7 @@ export class AudioManager {
 
     this.bufferCache.clear();
     this.manifest = {};
+    this.manifestUrl = '';
     this.listener = null;
     this.camera = null;
     this.audioLoader = null;

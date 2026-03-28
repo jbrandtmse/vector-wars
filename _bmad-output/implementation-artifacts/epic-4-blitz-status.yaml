@@ -52,8 +52,8 @@ stories:
     committed: false
     notes: ""
   4-8-swappable-audio-assets:
-    status: pending
-    phase: null
+    status: creating
+    phase: create-story
     attempts: 0
     committed: false
     notes: ""

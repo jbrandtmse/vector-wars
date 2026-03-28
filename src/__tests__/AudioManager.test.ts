@@ -4,6 +4,7 @@
  * Story 4-5: Audio Manager Architecture
  * Story 4-6: Retro SFX for Weapons and Actions (generator integration + new events)
  * Story 4-7: Ambient Electronic Hum (ambient generator integration + intensity events)
+ * Story 4-8: Swappable Audio Assets (reloadManifest + fallback chain verification)
  */
 
 // @vitest-environment jsdom
@@ -960,6 +961,243 @@ describe('AudioManager', () => {
       document.dispatchEvent(clickEvent);
 
       expect(mockAmbientGen.start).not.toHaveBeenCalled();
+    });
+  });
+
+  // === Story 4-8: Swappable Audio Assets ===
+
+  describe('reloadManifest (Story 4-8)', () => {
+    it('should re-fetch manifest and clear buffer cache', async () => {
+      manager.init(mockCamera);
+
+      // Initial manifest load
+      const initialManifest = {
+        test_sfx: { path: 'audio/sfx/test.ogg', channel: 'sfx' },
+      };
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(initialManifest),
+      });
+      await manager.loadManifest('audio/manifest.json');
+
+      // Play a sound to populate buffer cache
+      const mockBuffer = {} as AudioBuffer;
+      mockLoadAsync.mockResolvedValueOnce(mockBuffer);
+      manager.playSFX('test_sfx');
+      await vi.waitFor(() => {
+        expect(mockLoadAsync).toHaveBeenCalledTimes(1);
+      });
+
+      // Reload manifest with new entries
+      const newManifest = {
+        test_sfx: { path: 'audio/sfx/test_v2.ogg', channel: 'sfx' },
+        new_sound: { path: 'audio/sfx/new.ogg', channel: 'sfx' },
+      };
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(newManifest),
+      });
+
+      await manager.reloadManifest();
+
+      expect(Logger.info).toHaveBeenCalledWith('Audio', 'Manifest reloaded', { entries: 2 });
+
+      // Playing the same sound should trigger a new loadAsync (cache was cleared)
+      mockLoadAsync.mockResolvedValueOnce(mockBuffer);
+      manager.playSFX('test_sfx');
+      await vi.waitFor(() => {
+        expect(mockLoadAsync).toHaveBeenCalledWith('audio/sfx/test_v2.ogg');
+      });
+    });
+
+    it('should warn and keep old manifest on fetch failure', async () => {
+      manager.init(mockCamera);
+
+      // Initial manifest load
+      const initialManifest = {
+        test_sfx: { path: 'audio/sfx/test.ogg', channel: 'sfx' },
+      };
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(initialManifest),
+      });
+      await manager.loadManifest('audio/manifest.json');
+
+      // Reload fails
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+      });
+
+      await manager.reloadManifest();
+
+      expect(Logger.warn).toHaveBeenCalledWith(
+        'Audio',
+        'Failed to reload manifest',
+        expect.objectContaining({ status: 500 })
+      );
+
+      // Old manifest should still work — playing test_sfx should succeed
+      const mockBuffer = {} as AudioBuffer;
+      mockLoadAsync.mockResolvedValueOnce(mockBuffer);
+      manager.playSFX('test_sfx');
+      await vi.waitFor(() => {
+        expect(mockLoadAsync).toHaveBeenCalledWith('audio/sfx/test.ogg');
+      });
+    });
+
+    it('should warn and keep old manifest on network error', async () => {
+      manager.init(mockCamera);
+
+      const initialManifest = {
+        test_sfx: { path: 'audio/sfx/test.ogg', channel: 'sfx' },
+      };
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(initialManifest),
+      });
+      await manager.loadManifest('audio/manifest.json');
+
+      // Reload fails with network error
+      (global.fetch as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error('Network error'));
+
+      await manager.reloadManifest();
+
+      expect(Logger.warn).toHaveBeenCalledWith(
+        'Audio',
+        'Failed to reload manifest',
+        expect.objectContaining({ error: 'Error: Network error' })
+      );
+    });
+
+    it('should warn when no manifest URL is set', async () => {
+      manager.init(mockCamera);
+
+      // No loadManifest called, so manifestUrl is empty
+      await manager.reloadManifest();
+
+      expect(Logger.warn).toHaveBeenCalledWith(
+        'Audio',
+        'No manifest URL set — call loadManifest() first'
+      );
+    });
+
+    it('should reset manifestUrl on dispose', async () => {
+      manager.init(mockCamera);
+
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({}),
+      });
+      await manager.loadManifest('audio/manifest.json');
+      manager.dispose();
+
+      // After dispose, reloadManifest should warn about missing URL
+      manager = new AudioManager();
+      manager.init(mockCamera);
+      await manager.reloadManifest();
+      expect(Logger.warn).toHaveBeenCalledWith(
+        'Audio',
+        'No manifest URL set — call loadManifest() first'
+      );
+    });
+  });
+
+  describe('fallback chain verification (Story 4-8)', () => {
+    it('should use file buffer when file load succeeds', async () => {
+      manager.init(mockCamera);
+      const manifest = {
+        test_sfx: { path: 'audio/sfx/test.ogg', channel: 'sfx' },
+      };
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(manifest),
+      });
+      await manager.loadManifest('audio/manifest.json');
+
+      const fileBuffer = { byteLength: 100 } as AudioBuffer;
+      mockLoadAsync.mockResolvedValueOnce(fileBuffer);
+
+      const mockGenerator = {
+        generate: vi.fn(),
+        generateAll: vi.fn(),
+        hasSound: vi.fn().mockReturnValue(true),
+        getSoundIds: vi.fn().mockReturnValue(['test_sfx']),
+      };
+      manager.registerGenerator(mockGenerator as never);
+
+      manager.playSFX('test_sfx');
+
+      await vi.waitFor(() => {
+        expect(mockLoadAsync).toHaveBeenCalledWith('audio/sfx/test.ogg');
+      });
+
+      // Generator should NOT have been called since file load succeeded
+      expect(mockGenerator.generate).not.toHaveBeenCalled();
+    });
+
+    it('should fall back to generator when file load fails', async () => {
+      manager.init(mockCamera);
+      const manifest = {
+        test_sfx: { path: 'audio/sfx/test.ogg', channel: 'sfx' },
+      };
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(manifest),
+      });
+      await manager.loadManifest('audio/manifest.json');
+
+      // File load fails
+      mockLoadAsync.mockRejectedValueOnce(new Error('404 Not Found'));
+
+      const generatedBuffer = { byteLength: 50 } as AudioBuffer;
+      const mockGenerator = {
+        generate: vi.fn().mockResolvedValue(generatedBuffer),
+        generateAll: vi.fn(),
+        hasSound: vi.fn().mockReturnValue(true),
+        getSoundIds: vi.fn().mockReturnValue(['test_sfx']),
+      };
+      manager.registerGenerator(mockGenerator as never);
+
+      manager.playSFX('test_sfx');
+
+      await vi.waitFor(() => {
+        expect(mockGenerator.generate).toHaveBeenCalledWith('test_sfx');
+      });
+    });
+
+    it('should log warning when both file and generator fail', async () => {
+      manager.init(mockCamera);
+      const manifest = {
+        test_sfx: { path: 'audio/sfx/test.ogg', channel: 'sfx' },
+      };
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(manifest),
+      });
+      await manager.loadManifest('audio/manifest.json');
+
+      // File load fails
+      mockLoadAsync.mockRejectedValueOnce(new Error('404 Not Found'));
+
+      // Generator also fails
+      const mockGenerator = {
+        generate: vi.fn().mockResolvedValue(null),
+        generateAll: vi.fn(),
+        hasSound: vi.fn().mockReturnValue(true),
+        getSoundIds: vi.fn().mockReturnValue(['test_sfx']),
+      };
+      manager.registerGenerator(mockGenerator as never);
+
+      manager.playSFX('test_sfx');
+
+      await vi.waitFor(() => {
+        expect(Logger.warn).toHaveBeenCalledWith(
+          'Audio',
+          'Failed to load audio buffer',
+          expect.objectContaining({ id: 'test_sfx' })
+        );
+      });
     });
   });
 });

@@ -1,4 +1,5 @@
 {
+  "_meta": "Sound manifest — swap .ogg files at paths below without code changes. Missing files fall back to procedural SFX generation.",
   "data_lance_fire": { "path": "audio/sfx/data_lance_fire.ogg", "channel": "sfx" },
   "logic_bomb_fire": { "path": "audio/sfx/logic_bomb_fire.ogg", "channel": "sfx" },
   "emp_burst": { "path": "audio/sfx/emp_burst.ogg", "channel": "sfx" },

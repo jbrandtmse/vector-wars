@@ -295,8 +295,23 @@ if (import.meta.env.DEV) {
     poolDiagnosticsUpdate = (dt: number) => poolDiagnostics.update(dt);
 
     // Expose debug API on window
-    (window as unknown as { debug: { pools: () => Record<string, unknown> } }).debug = {
+    (window as unknown as { debug: {
+      pools: () => Record<string, unknown>;
+      reloadAudio: () => Promise<void>;
+      audioStatus: () => Promise<void>;
+    } }).debug = {
       pools: () => poolDiagnostics.getStats(),
+      reloadAudio: () => audioManager.reloadManifest(),
+      audioStatus: async () => {
+        const { AudioAssetValidator } = await import('./audio/AudioAssetValidator.ts');
+        const manifest = await fetch('audio/manifest.json').then(r => r.json());
+        const report = await AudioAssetValidator.validateManifest(manifest);
+        Logger.info('Audio', 'Audio asset status', {
+          present: report.present,
+          missing: report.missing,
+          total: report.total,
+        });
+      },
     };
   });
 }
