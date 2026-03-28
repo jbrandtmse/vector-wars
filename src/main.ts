@@ -30,6 +30,7 @@ import { DialogueManager } from './narrative/DialogueManager.ts';
 import type { DialogueScript } from './narrative/DialogueTypes.ts';
 import type { BriefingData } from './ui/screens/BriefingScreen.ts';
 import { Logger } from './core/Logger.ts';
+import { audioManager } from './audio/AudioManager.ts';
 
 // --- Renderer Setup ---
 const container = document.getElementById('app');
@@ -50,6 +51,12 @@ const camera = new THREE.PerspectiveCamera(
   1000
 );
 // Camera position is now controlled by RailMovement -- no static position
+
+// --- Audio Manager Setup (Story 4-5) ---
+audioManager.init(camera);
+audioManager.loadManifest('audio/manifest.json').catch((err) => {
+  Logger.warn('Audio', 'Failed to load audio manifest', { error: String(err) });
+});
 
 // --- Scene Setup ---
 const scene = new THREE.Scene();

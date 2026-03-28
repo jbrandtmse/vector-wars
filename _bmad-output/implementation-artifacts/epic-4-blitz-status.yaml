@@ -34,8 +34,8 @@ stories:
     committed: false
     notes: ""
   4-5-audio-manager-architecture:
-    status: pending
-    phase: null
+    status: creating
+    phase: create-story
     attempts: 0
     committed: false
     notes: ""

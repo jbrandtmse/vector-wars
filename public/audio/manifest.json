@@ -1,0 +1,12 @@
+{
+  "data_lance_fire": { "path": "audio/sfx/data_lance_fire.ogg", "channel": "sfx" },
+  "logic_bomb_fire": { "path": "audio/sfx/logic_bomb_fire.ogg", "channel": "sfx" },
+  "emp_burst": { "path": "audio/sfx/emp_burst.ogg", "channel": "sfx" },
+  "virus_payload": { "path": "audio/sfx/virus_payload.ogg", "channel": "sfx" },
+  "shield_hit": { "path": "audio/sfx/shield_hit.ogg", "channel": "sfx" },
+  "enemy_explosion": { "path": "audio/sfx/enemy_explosion.ogg", "channel": "sfx" },
+  "boss_destruction": { "path": "audio/sfx/boss_destruction.ogg", "channel": "sfx" },
+  "corridor_whoosh": { "path": "audio/sfx/corridor_whoosh.ogg", "channel": "sfx" },
+  "ambient_hum": { "path": "audio/ambient/ambient_hum.ogg", "channel": "ambient" },
+  "outro_music": { "path": "audio/music/outro_music.ogg", "channel": "music" }
+}

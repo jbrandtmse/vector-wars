@@ -35,8 +35,8 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-03-26
-last_updated: "2026-03-26T14:00:00Z"
-last_story_created: 4-4-briefing-screen-system
+last_updated: "2026-03-26T15:00:00Z"
+last_story_created: 4-5-audio-manager-architecture
 project: vector-wars
 project_key: NOKEY
 tracking_system: file-system
@@ -88,7 +88,7 @@ development_status:
   4-2-ai-taunt-system: done
   4-3-diegetic-tutorial-sequence: done
   4-4-briefing-screen-system: done
-  4-5-audio-manager-architecture: backlog
+  4-5-audio-manager-architecture: done
   4-6-retro-sfx-for-weapons-and-actions: backlog
   4-7-ambient-electronic-hum: backlog
   4-8-swappable-audio-assets: backlog
