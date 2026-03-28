@@ -42,13 +42,20 @@ import { HighScoreScreen } from './ui/screens/HighScoreScreen.ts';
 import { CyberspaceFragmentation } from './entities/effects/CyberspaceFragmentation.ts';
 import { FRAG_PHASE1_DURATION } from './config/constants.ts';
 import { MenuScreen } from './ui/screens/MenuScreen.ts';
+import { checkWebGL2Support, showUnsupportedMessage, createContextLossOverlay } from './core/BrowserCompatibility.ts';
 
 // --- Renderer Setup ---
 const container = document.getElementById('app');
 if (!container) throw new Error('Could not find #app container');
 
+// --- WebGL 2.0 Pre-flight Check (Story 6-3) ---
+if (!checkWebGL2Support()) {
+  showUnsupportedMessage(container);
+  throw new Error('WebGL 2.0 not supported');
+}
+
 const renderer = new THREE.WebGLRenderer({ antialias: false });
-renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.0;
@@ -113,15 +120,19 @@ const cockpitRenderer = new CockpitRenderer(camera, vectorMaterials);
 // --- Render Pipeline Setup ---
 const renderPipeline = new RenderPipeline(renderer, scene, camera);
 
-// --- Window Resize Handler ---
+// --- Debounced Window Resize Handler (Story 6-3) ---
+let resizeTimeout: ReturnType<typeof setTimeout> | undefined;
 function onWindowResize(): void {
-  const width = window.innerWidth;
-  const height = window.innerHeight;
-  camera.aspect = width / height;
-  camera.updateProjectionMatrix();
-  renderer.setSize(width, height);
-  renderPipeline.resize(width, height);
-  vectorMaterials.updateResolution(width, height);
+  clearTimeout(resizeTimeout);
+  resizeTimeout = setTimeout(() => {
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
+    renderer.setSize(width, height);
+    renderPipeline.resize(width, height);
+    vectorMaterials.updateResolution(width, height);
+  }, 150);
 }
 window.addEventListener('resize', onWindowResize);
 
@@ -488,7 +499,7 @@ const bankAxis = new THREE.Vector3(0, 0, 1);
 let lastTime = 0;
 let viewportOffset = { x: 0, y: 0 };
 let currentBankAngle = 0;
-renderer.setAnimationLoop((time: number) => {
+function gameLoop(time: number): void {
   const dt = calculateDeltaTime(time, lastTime);
   lastTime = time;
 
@@ -550,4 +561,34 @@ renderer.setAnimationLoop((time: number) => {
   if (poolDiagnosticsUpdate) poolDiagnosticsUpdate(dt);
 
   renderPipeline.render();
+}
+
+// --- Visibility Change Handler (Story 6-3) ---
+// Pauses the game loop when the browser tab is hidden to prevent GPU waste
+// and large delta-time jumps on tab return.
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    renderer.setAnimationLoop(null);
+    Logger.info('Browser', 'Tab hidden — animation loop paused');
+  } else {
+    renderer.setAnimationLoop(gameLoop);
+    Logger.info('Browser', 'Tab visible — animation loop resumed');
+  }
 });
+
+// --- WebGL Context Loss/Restore Handlers (Story 6-3) ---
+const contextLossOverlay = createContextLossOverlay();
+document.body.appendChild(contextLossOverlay);
+
+renderer.domElement.addEventListener('webglcontextlost', (event) => {
+  event.preventDefault();
+  Logger.warn('Browser', 'WebGL context lost, attempting recovery');
+  contextLossOverlay.style.display = 'flex';
+});
+
+renderer.domElement.addEventListener('webglcontextrestored', () => {
+  Logger.info('Browser', 'WebGL context restored');
+  contextLossOverlay.style.display = 'none';
+});
+
+renderer.setAnimationLoop(gameLoop);

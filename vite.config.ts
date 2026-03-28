@@ -6,7 +6,7 @@ export default defineConfig(({ mode }) => ({
     __DEV__: JSON.stringify(mode !== 'production'),
   },
   build: {
-    target: 'esnext',
+    target: ['es2020', 'chrome111', 'firefox114', 'safari16.4', 'edge111'],
     outDir: 'dist',
   },
   test: {
