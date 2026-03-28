@@ -22,8 +22,8 @@ stories:
     committed: false
     notes: ""
   4-3-diegetic-tutorial-sequence:
-    status: pending
-    phase: null
+    status: creating
+    phase: create-story
     attempts: 0
     committed: false
     notes: ""

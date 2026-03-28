@@ -1,1 +1,84 @@
-{ "entries": [] }
+{
+  "entries": [
+    {
+      "id": "tutorial_welcome",
+      "trigger": "tutorial:step1",
+      "speaker": "handler",
+      "text": "First time jacking in? Let's run the calibration protocol.",
+      "priority": 3,
+      "duration": 5
+    },
+    {
+      "id": "tutorial_movement",
+      "trigger": "tutorial:step2",
+      "speaker": "handler",
+      "text": "Align your targeting array.",
+      "priority": 3,
+      "duration": 4
+    },
+    {
+      "id": "tutorial_movement_done",
+      "trigger": "tutorial:step2:complete",
+      "speaker": "handler",
+      "text": "Good, looking sharp.",
+      "priority": 3,
+      "duration": 3
+    },
+    {
+      "id": "tutorial_fire",
+      "trigger": "tutorial:step3",
+      "speaker": "handler",
+      "text": "Light up those calibration targets.",
+      "priority": 3,
+      "duration": 4
+    },
+    {
+      "id": "tutorial_fire_done",
+      "trigger": "tutorial:step3:complete",
+      "speaker": "handler",
+      "text": "Weapon systems nominal.",
+      "priority": 3,
+      "duration": 3
+    },
+    {
+      "id": "tutorial_weapons",
+      "trigger": "tutorial:step4",
+      "speaker": "handler",
+      "text": "Your deck is loaded with Logic Bombs, EMP Burst, and Virus Payload. You'll need them all.",
+      "priority": 3,
+      "duration": 5
+    },
+    {
+      "id": "tutorial_shields",
+      "trigger": "tutorial:step5",
+      "speaker": "handler",
+      "text": "Your combat program has integrated shielding. Take a hit, see how it feels.",
+      "priority": 3,
+      "duration": 5
+    },
+    {
+      "id": "tutorial_shields_done",
+      "trigger": "tutorial:step5:complete",
+      "speaker": "handler",
+      "text": "Shields absorb damage. Lose them all and your mind's trapped in here forever.",
+      "priority": 3,
+      "duration": 5
+    },
+    {
+      "id": "tutorial_calibration_done",
+      "trigger": "tutorial:step6",
+      "speaker": "handler",
+      "text": "Calibration complete. Systems are\u2014",
+      "priority": 3,
+      "duration": 3
+    },
+    {
+      "id": "tutorial_alarm",
+      "trigger": "tutorial:step6:alarm",
+      "speaker": "handler",
+      "text": "That's not a drill. We've got incoming.",
+      "priority": 3,
+      "duration": 4
+    }
+  ]
+}

@@ -183,6 +183,16 @@ fetch('assets/dialogue/bosses.json')
     Logger.warn('Narrative', 'Failed to load boss dialogue', { error: String(err) });
   });
 
+fetch('assets/dialogue/tutorial.json')
+  .then((res) => res.json())
+  .then((script: DialogueScript) => {
+    dialogueManager.loadScript(script);
+    Logger.info('Narrative', 'Tutorial dialogue loaded');
+  })
+  .catch((err) => {
+    Logger.warn('Narrative', 'Failed to load tutorial dialogue', { error: String(err) });
+  });
+
 // --- Screen Shake + Damage Flash Setup (Story 2-7) ---
 const screenShake = new ScreenShake();
 const damageEffectsManager = new DamageEffectsManager(screenShake, renderPipeline);
@@ -229,6 +239,7 @@ const levelManager = new LevelManager(
   enemyProjectileSystem,
   dataLanceSystem,
   gameOverManager,
+  inputManager,
 );
 levelManager.enter();
 

@@ -71,6 +71,19 @@ vi.mock('../state/phases/BossPhase.ts', () => {
   return { BossPhase: MockBossPhase };
 });
 
+vi.mock('../state/phases/TutorialPhase.ts', () => {
+  class MockTutorialPhase {
+    enter = vi.fn();
+    update = vi.fn();
+    exit = vi.fn();
+    isComplete = vi.fn(() => false);
+    constructor(..._args: any[]) {
+      createdPhases.push(this);
+    }
+  }
+  return { TutorialPhase: MockTutorialPhase };
+});
+
 // Mock PhaseTransition that resolves on the first update() call
 vi.mock('../state/phases/PhaseTransition.ts', () => {
   class MockPhaseTransition {
@@ -145,17 +158,22 @@ function createMockDeps() {
       isGameOver: false,
       preventGameOver: false,
     } as any,
+    inputManager: {
+      isActive: vi.fn(() => false),
+      dispose: vi.fn(),
+    } as any,
   };
 }
 
 // Helper to get phase mocks from the createdPhases array.
-// LevelManager.enter() creates phases in order: dogfight(idx), surface(idx+1), corridor(idx+2), boss(idx+3)
+// LevelManager.enter() creates phases in order: tutorial(idx), dogfight(idx+1), surface(idx+2), corridor(idx+3), boss(idx+4)
 function getPhases(startIdx: number) {
   return {
-    dogfight: createdPhases[startIdx],
-    surface: createdPhases[startIdx + 1],
-    corridor: createdPhases[startIdx + 2],
-    boss: createdPhases[startIdx + 3],
+    tutorial: createdPhases[startIdx],
+    dogfight: createdPhases[startIdx + 1],
+    surface: createdPhases[startIdx + 2],
+    corridor: createdPhases[startIdx + 3],
+    boss: createdPhases[startIdx + 4],
   };
 }
 
@@ -206,6 +224,7 @@ describe('LevelManager (Story 3-10)', () => {
       deps.enemyProjectileSystem,
       deps.dataLanceSystem,
       deps.gameOverManager,
+      deps.inputManager,
     );
 
     phaseStartListener = trackEvent('phaseStart');
@@ -229,12 +248,12 @@ describe('LevelManager (Story 3-10)', () => {
   });
 
   describe('enter()', () => {
-    it('emits phaseStart with dogfight phase', () => {
+    it('emits phaseStart with tutorial phase', () => {
       levelManager.enter();
 
       const events = emittedEvents.filter((e: any) => e.event === 'phaseStart');
       expect(events.length).toBe(1);
-      expect(events[0].data).toEqual({ phase: 'dogfight', level: 1 });
+      expect(events[0].data).toEqual({ phase: 'tutorial', level: 1 });
     });
 
     it('sets preventGameOver on GameOverManager', () => {
@@ -242,37 +261,41 @@ describe('LevelManager (Story 3-10)', () => {
       expect(deps.gameOverManager.preventGameOver).toBe(true);
     });
 
-    it('starts on the dogfight phase', () => {
+    it('starts on the tutorial phase', () => {
       levelManager.enter();
-      expect(levelManager.getCurrentPhaseType()).toBe('dogfight');
+      expect(levelManager.getCurrentPhaseType()).toBe('tutorial');
     });
 
-    it('isUsingMainRail returns true during dogfight phase', () => {
+    it('isUsingMainRail returns true during tutorial phase', () => {
       levelManager.enter();
       expect(levelManager.isUsingMainRail()).toBe(true);
     });
 
-    it('calls enter() on the first phase', () => {
+    it('calls enter() on the first phase (tutorial)', () => {
       levelManager.enter();
       const phases = getPhases(phaseStartIdx);
-      expect(phases.dogfight.enter).toHaveBeenCalledTimes(1);
+      expect(phases.tutorial.enter).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('Phase sequencing', () => {
-    it('advances from dogfight to surface on completion', () => {
+    it('advances from tutorial to dogfight on completion', () => {
       levelManager.enter();
       const phases = getPhases(phaseStartIdx);
 
-      phases.dogfight.isComplete.mockReturnValue(true);
+      phases.tutorial.isComplete.mockReturnValue(true);
       advanceTransition(levelManager);
 
-      expect(levelManager.getCurrentPhaseType()).toBe('surface');
+      expect(levelManager.getCurrentPhaseType()).toBe('dogfight');
     });
 
-    it('advances through all four phases: dogfight -> surface -> corridor -> boss', () => {
+    it('advances through all five phases: tutorial -> dogfight -> surface -> corridor -> boss', () => {
       levelManager.enter();
       const phases = getPhases(phaseStartIdx);
+
+      phases.tutorial.isComplete.mockReturnValue(true);
+      advanceTransition(levelManager);
+      expect(levelManager.getCurrentPhaseType()).toBe('dogfight');
 
       phases.dogfight.isComplete.mockReturnValue(true);
       advanceTransition(levelManager);
@@ -291,11 +314,11 @@ describe('LevelManager (Story 3-10)', () => {
       levelManager.enter();
       const phases = getPhases(phaseStartIdx);
 
-      phases.dogfight.isComplete.mockReturnValue(true);
+      phases.tutorial.isComplete.mockReturnValue(true);
       advanceTransition(levelManager);
 
-      expect(phases.dogfight.exit).toHaveBeenCalledTimes(1);
-      expect(phases.surface.enter).toHaveBeenCalledTimes(1);
+      expect(phases.tutorial.exit).toHaveBeenCalledTimes(1);
+      expect(phases.dogfight.enter).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -306,7 +329,7 @@ describe('LevelManager (Story 3-10)', () => {
 
       deps.player.shields = 50;
 
-      phases.dogfight.isComplete.mockReturnValue(true);
+      phases.tutorial.isComplete.mockReturnValue(true);
       advanceTransition(levelManager);
 
       expect(deps.player.rechargeShields).toHaveBeenCalledWith(PHASE_SHIELD_RECHARGE_AMOUNT);
@@ -319,22 +342,25 @@ describe('LevelManager (Story 3-10)', () => {
       const phases = getPhases(phaseStartIdx);
       emittedEvents = [];
 
-      phases.dogfight.isComplete.mockReturnValue(true);
+      phases.tutorial.isComplete.mockReturnValue(true);
       advanceTransition(levelManager);
 
       const phaseEndEvents = emittedEvents.filter((e: any) => e.event === 'phaseEnd');
       const phaseStartEvents = emittedEvents.filter((e: any) => e.event === 'phaseStart');
 
       expect(phaseEndEvents.length).toBe(1);
-      expect(phaseEndEvents[0].data).toEqual({ phase: 'dogfight', level: 1 });
+      expect(phaseEndEvents[0].data).toEqual({ phase: 'tutorial', level: 1 });
       expect(phaseStartEvents.length).toBe(1);
-      expect(phaseStartEvents[0].data).toEqual({ phase: 'surface', level: 1 });
+      expect(phaseStartEvents[0].data).toEqual({ phase: 'dogfight', level: 1 });
     });
 
     it('emits phaseStart for each phase as it starts', () => {
       levelManager.enter();
       const phases = getPhases(phaseStartIdx);
       emittedEvents = [];
+
+      phases.tutorial.isComplete.mockReturnValue(true);
+      advanceTransition(levelManager);
 
       phases.dogfight.isComplete.mockReturnValue(true);
       advanceTransition(levelManager);
@@ -346,7 +372,7 @@ describe('LevelManager (Story 3-10)', () => {
       advanceTransition(levelManager);
 
       const starts = emittedEvents.filter((e: any) => e.event === 'phaseStart');
-      expect(starts.map((e: any) => e.data.phase)).toEqual(['surface', 'corridor', 'boss']);
+      expect(starts.map((e: any) => e.data.phase)).toEqual(['dogfight', 'surface', 'corridor', 'boss']);
     });
   });
 
@@ -355,7 +381,9 @@ describe('LevelManager (Story 3-10)', () => {
       levelManager.enter();
       const phases = getPhases(phaseStartIdx);
 
-      // Advance to boss phase
+      // Advance through all phases to boss
+      phases.tutorial.isComplete.mockReturnValue(true);
+      advanceTransition(levelManager);
       phases.dogfight.isComplete.mockReturnValue(true);
       advanceTransition(levelManager);
       phases.surface.isComplete.mockReturnValue(true);
@@ -376,6 +404,8 @@ describe('LevelManager (Story 3-10)', () => {
       levelManager.enter();
       const phases = getPhases(phaseStartIdx);
 
+      phases.tutorial.isComplete.mockReturnValue(true);
+      advanceTransition(levelManager);
       phases.dogfight.isComplete.mockReturnValue(true);
       advanceTransition(levelManager);
       phases.surface.isComplete.mockReturnValue(true);
@@ -393,6 +423,8 @@ describe('LevelManager (Story 3-10)', () => {
       levelManager.enter();
       const phases = getPhases(phaseStartIdx);
 
+      phases.tutorial.isComplete.mockReturnValue(true);
+      advanceTransition(levelManager);
       phases.dogfight.isComplete.mockReturnValue(true);
       advanceTransition(levelManager);
       phases.surface.isComplete.mockReturnValue(true);
@@ -421,14 +453,14 @@ describe('LevelManager (Story 3-10)', () => {
       // Resolve the transition
       levelManager.update(0.016);
 
-      expect(phases.dogfight.exit).toHaveBeenCalled();
+      expect(phases.tutorial.exit).toHaveBeenCalled();
       expect(deps.player.reset).toHaveBeenCalled();
       // enter called: once from level start, once from restart
-      expect(phases.dogfight.enter).toHaveBeenCalledTimes(2);
+      expect(phases.tutorial.enter).toHaveBeenCalledTimes(2);
 
       const restartEvents = emittedEvents.filter((e: any) => e.event === 'phaseRestart');
       expect(restartEvents.length).toBe(1);
-      expect(restartEvents[0].data).toEqual({ phase: 'dogfight', level: 1 });
+      expect(restartEvents[0].data).toEqual({ phase: 'tutorial', level: 1 });
     });
 
     it('calls Player.reset() on checkpoint', () => {
@@ -458,18 +490,32 @@ describe('LevelManager (Story 3-10)', () => {
   });
 
   describe('isUsingMainRail()', () => {
-    it('returns true during dogfight phase', () => {
+    it('returns true during tutorial phase', () => {
       levelManager.enter();
       expect(levelManager.isUsingMainRail()).toBe(true);
     });
 
-    it('returns false during non-dogfight phases', () => {
+    it('returns true during dogfight phase', () => {
       levelManager.enter();
       const phases = getPhases(phaseStartIdx);
 
+      phases.tutorial.isComplete.mockReturnValue(true);
+      advanceTransition(levelManager);
+
+      // Now on dogfight (index 1)
+      expect(levelManager.isUsingMainRail()).toBe(true);
+    });
+
+    it('returns false during non-tutorial/dogfight phases', () => {
+      levelManager.enter();
+      const phases = getPhases(phaseStartIdx);
+
+      phases.tutorial.isComplete.mockReturnValue(true);
+      advanceTransition(levelManager);
       phases.dogfight.isComplete.mockReturnValue(true);
       advanceTransition(levelManager);
 
+      // Now on surface (index 2)
       expect(levelManager.isUsingMainRail()).toBe(false);
     });
 
@@ -477,6 +523,8 @@ describe('LevelManager (Story 3-10)', () => {
       levelManager.enter();
       const phases = getPhases(phaseStartIdx);
 
+      phases.tutorial.isComplete.mockReturnValue(true);
+      advanceTransition(levelManager);
       phases.dogfight.isComplete.mockReturnValue(true);
       advanceTransition(levelManager);
       phases.surface.isComplete.mockReturnValue(true);

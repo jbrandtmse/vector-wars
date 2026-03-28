@@ -17,6 +17,7 @@ import { DogfightPhase } from '../state/phases/DogfightPhase.ts';
 import { SurfacePhase } from '../state/phases/SurfacePhase.ts';
 import { CorridorPhase } from '../state/phases/CorridorPhase.ts';
 import { BossPhase } from '../state/phases/BossPhase.ts';
+import { TutorialPhase } from '../state/phases/TutorialPhase.ts';
 import { PhaseTransition } from '../state/phases/PhaseTransition.ts';
 import { eventBus } from '../core/GameEvents.ts';
 import { Logger } from '../core/Logger.ts';
@@ -33,6 +34,7 @@ import type { EnemyProjectileSystem } from './EnemyProjectileSystem.ts';
 import type { DataLanceSystem } from './DataLanceSystem.ts';
 import type { RailMovement } from './RailMovement.ts';
 import type { GameOverManager } from './GameOverManager.ts';
+import type { InputManager } from '../core/InputManager.ts';
 
 /** Interface matching the lifecycle of all phase classes */
 interface Phase {
@@ -43,7 +45,7 @@ interface Phase {
 }
 
 /** Ordered list of phase types matching the phase array indices */
-const PHASE_TYPES: readonly PhaseType[] = ['dogfight', 'surface', 'corridor', 'boss'] as const;
+const PHASE_TYPES: readonly PhaseType[] = ['tutorial', 'dogfight', 'surface', 'corridor', 'boss'] as const;
 
 export class LevelManager {
   private scene: THREE.Scene;
@@ -58,6 +60,7 @@ export class LevelManager {
   private enemyProjectileSystem: EnemyProjectileSystem;
   private dataLanceSystem: DataLanceSystem;
   private gameOverManager: GameOverManager;
+  private inputManager: InputManager;
 
   // Phase management
   private phases: Phase[] = [];
@@ -83,6 +86,7 @@ export class LevelManager {
     enemyProjectileSystem: EnemyProjectileSystem,
     dataLanceSystem: DataLanceSystem,
     gameOverManager: GameOverManager,
+    inputManager: InputManager,
   ) {
     this.scene = scene;
     this.camera = camera;
@@ -96,6 +100,7 @@ export class LevelManager {
     this.enemyProjectileSystem = enemyProjectileSystem;
     this.dataLanceSystem = dataLanceSystem;
     this.gameOverManager = gameOverManager;
+    this.inputManager = inputManager;
 
     this.phaseTransition = new PhaseTransition(renderPipeline);
   }
@@ -109,7 +114,17 @@ export class LevelManager {
     this.levelComplete = false;
     this.currentPhaseIndex = 0;
 
-    // Create all four phase instances
+    // Create tutorial phase
+    const tutorialPhase = new TutorialPhase(
+      this.scene,
+      this.camera,
+      this.vectorMaterials,
+      this.inputManager,
+      this.gameObjectManager,
+      this.effectsManager,
+    );
+
+    // Create all four gameplay phase instances
     const dogfightPhase = new DogfightPhase(
       this.enemySpawner,
       this.gameObjectManager,
@@ -143,11 +158,11 @@ export class LevelManager {
       () => this.camera.position.clone(),
     );
 
-    this.phases = [dogfightPhase, surfacePhase, corridorPhase, bossPhase];
+    this.phases = [tutorialPhase, dogfightPhase, surfacePhase, corridorPhase, bossPhase];
 
-    // Enter first phase
+    // Enter first phase (tutorial)
     this.phases[0].enter();
-    eventBus.emit('phaseStart', { phase: 'dogfight', level: 1 });
+    eventBus.emit('phaseStart', { phase: 'tutorial', level: 1 });
 
     // Subscribe to playerDied for checkpoint handling
     this.onPlayerDied = () => this.handlePlayerDied();
@@ -290,10 +305,11 @@ export class LevelManager {
 
   /**
    * Returns whether the main rail movement should be used.
-   * True only during the dogfight phase (other phases manage their own camera/rail).
+   * True during tutorial phase (index 0) and dogfight phase (index 1).
+   * Other phases manage their own camera/rail.
    */
   isUsingMainRail(): boolean {
-    return this.currentPhaseIndex === 0 && !this.levelComplete;
+    return (this.currentPhaseIndex === 0 || this.currentPhaseIndex === 1) && !this.levelComplete;
   }
 
   /**
