@@ -28,6 +28,7 @@ import { EMPBurstSystem } from './systems/EMPBurstSystem.ts';
 import { CommOverlay } from './ui/screens/CommOverlay.ts';
 import { DialogueManager } from './narrative/DialogueManager.ts';
 import type { DialogueScript } from './narrative/DialogueTypes.ts';
+import type { BriefingData } from './ui/screens/BriefingScreen.ts';
 import { Logger } from './core/Logger.ts';
 
 // --- Renderer Setup ---
@@ -241,6 +242,17 @@ const levelManager = new LevelManager(
   gameOverManager,
   inputManager,
 );
+// Load briefing data at init time (not during gameplay frames)
+fetch('assets/briefings/level-1.json')
+  .then((res) => res.json())
+  .then((data: BriefingData) => {
+    levelManager.setBriefingData(data);
+    Logger.info('Narrative', 'Level 1 briefing data loaded');
+  })
+  .catch((err) => {
+    Logger.warn('Narrative', 'Failed to load briefing data', { error: String(err) });
+  });
+
 levelManager.enter();
 
 // --- Pool Diagnostics Setup (Story 2-9, debug-only) ---

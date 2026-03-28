@@ -377,6 +377,12 @@ export const CORRIDOR_HEIGHT = 8.0;
 export const CORRIDOR_LENGTH = 700;
 export const CORRIDOR_RAIL_SPEED_MULTIPLIER = 1.2;
 
+// Briefing Screen constants (Story 4-4)
+export const BRIEFING_SCROLL_SPEED = 30;           // pixels per second
+export const BRIEFING_SKIP_GUARD_DELAY = 2.0;      // seconds before skip is enabled
+export const BRIEFING_HOLD_DURATION = 2.0;          // seconds to hold after scroll completes
+export const BRIEFING_FADE_DURATION = 0.5;          // seconds for fade in/out
+
 // Comm Overlay constants (Story 4-1)
 export const COMM_TYPEWRITER_SPEED = 30;       // characters per second
 export const COMM_DEFAULT_DURATION = 4.0;      // seconds to display a line

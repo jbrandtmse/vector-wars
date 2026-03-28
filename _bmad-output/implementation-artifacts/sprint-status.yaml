@@ -36,7 +36,7 @@
 
 generated: 2026-03-26
 last_updated: "2026-03-26T14:00:00Z"
-last_story_created: 4-3-diegetic-tutorial-sequence
+last_story_created: 4-4-briefing-screen-system
 project: vector-wars
 project_key: NOKEY
 tracking_system: file-system
@@ -87,7 +87,7 @@ development_status:
   4-1-handler-comm-overlay-system: done
   4-2-ai-taunt-system: done
   4-3-diegetic-tutorial-sequence: done
-  4-4-briefing-screen-system: backlog
+  4-4-briefing-screen-system: done
   4-5-audio-manager-architecture: backlog
   4-6-retro-sfx-for-weapons-and-actions: backlog
   4-7-ambient-electronic-hum: backlog

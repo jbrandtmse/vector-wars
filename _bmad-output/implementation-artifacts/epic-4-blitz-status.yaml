@@ -28,8 +28,8 @@ stories:
     committed: false
     notes: ""
   4-4-briefing-screen-system:
-    status: pending
-    phase: null
+    status: creating
+    phase: create-story
     attempts: 0
     committed: false
     notes: ""

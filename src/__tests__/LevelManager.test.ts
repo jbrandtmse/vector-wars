@@ -84,6 +84,19 @@ vi.mock('../state/phases/TutorialPhase.ts', () => {
   return { TutorialPhase: MockTutorialPhase };
 });
 
+vi.mock('../state/phases/BriefingPhase.ts', () => {
+  class MockBriefingPhase {
+    enter = vi.fn();
+    update = vi.fn();
+    exit = vi.fn();
+    isComplete = vi.fn(() => false);
+    constructor(..._args: any[]) {
+      createdPhases.push(this);
+    }
+  }
+  return { BriefingPhase: MockBriefingPhase };
+});
+
 // Mock PhaseTransition that resolves on the first update() call
 vi.mock('../state/phases/PhaseTransition.ts', () => {
   class MockPhaseTransition {
@@ -536,5 +549,205 @@ describe('LevelManager (Story 3-10)', () => {
 
       expect(levelManager.isUsingMainRail()).toBe(false);
     });
+  });
+});
+
+/**
+ * Helper to get phase mocks for the 6-phase (with briefing) sequence.
+ * LevelManager.enter() creates phases in order: tutorial, briefing, dogfight, surface, corridor, boss
+ */
+function getPhasesWithBriefing(startIdx: number) {
+  return {
+    tutorial: createdPhases[startIdx],
+    briefing: createdPhases[startIdx + 1],
+    dogfight: createdPhases[startIdx + 2],
+    surface: createdPhases[startIdx + 3],
+    corridor: createdPhases[startIdx + 4],
+    boss: createdPhases[startIdx + 5],
+  };
+}
+
+describe('LevelManager with briefing data (Story 4-4)', () => {
+  let deps: ReturnType<typeof createMockDeps>;
+  let levelManager: any;
+  let phaseStartIdx: number;
+
+  let emittedEvents: Array<{ event: string; data: any }>;
+  const trackEvent = (event: string) => (data: any) => {
+    emittedEvents.push({ event, data });
+  };
+  let phaseStartListener: (data: any) => void;
+  let phaseEndListener: (data: any) => void;
+  let levelCompleteListener: (data: any) => void;
+
+  const testBriefingData = {
+    title: 'MISSION BRIEFING',
+    speaker: 'handler',
+    lines: ['Line 1', 'Line 2'],
+  };
+
+  beforeEach(async () => {
+    emittedEvents = [];
+    createdPhases = [];
+    deps = createMockDeps();
+
+    const { LevelManager } = await import('../systems/LevelManager.ts');
+    phaseStartIdx = createdPhases.length;
+
+    levelManager = new LevelManager(
+      deps.scene,
+      deps.camera,
+      deps.vectorMaterials,
+      deps.gameObjectManager,
+      deps.player,
+      deps.renderPipeline,
+      deps.railMovement,
+      deps.enemySpawner,
+      deps.collisionSystem,
+      deps.effectsManager,
+      deps.enemyProjectileSystem,
+      deps.dataLanceSystem,
+      deps.gameOverManager,
+      deps.inputManager,
+    );
+
+    // Set briefing data before entering
+    levelManager.setBriefingData(testBriefingData);
+
+    phaseStartListener = trackEvent('phaseStart');
+    phaseEndListener = trackEvent('phaseEnd');
+    levelCompleteListener = trackEvent('levelComplete');
+
+    eventBus.on('phaseStart', phaseStartListener);
+    eventBus.on('phaseEnd', phaseEndListener);
+    eventBus.on('levelComplete', levelCompleteListener);
+  });
+
+  afterEach(() => {
+    eventBus.off('phaseStart', phaseStartListener);
+    eventBus.off('phaseEnd', phaseEndListener);
+    eventBus.off('levelComplete', levelCompleteListener);
+
+    try { levelManager?.exit(); } catch { /* ok */ }
+  });
+
+  it('creates 6 phases when briefing data is set', () => {
+    levelManager.enter();
+    // tutorial + briefing + dogfight + surface + corridor + boss = 6 new phases
+    expect(createdPhases.length - phaseStartIdx).toBe(6);
+  });
+
+  it('starts on tutorial phase', () => {
+    levelManager.enter();
+    expect(levelManager.getCurrentPhaseType()).toBe('tutorial');
+  });
+
+  it('advances from tutorial to briefing phase', () => {
+    levelManager.enter();
+    const phases = getPhasesWithBriefing(phaseStartIdx);
+
+    phases.tutorial.isComplete.mockReturnValue(true);
+    advanceTransition(levelManager);
+
+    expect(levelManager.getCurrentPhaseType()).toBe('briefing');
+  });
+
+  it('advances from briefing to dogfight phase', () => {
+    levelManager.enter();
+    const phases = getPhasesWithBriefing(phaseStartIdx);
+
+    phases.tutorial.isComplete.mockReturnValue(true);
+    advanceTransition(levelManager);
+
+    phases.briefing.isComplete.mockReturnValue(true);
+    advanceTransition(levelManager);
+
+    expect(levelManager.getCurrentPhaseType()).toBe('dogfight');
+  });
+
+  it('advances through all 6 phases to boss', () => {
+    levelManager.enter();
+    const phases = getPhasesWithBriefing(phaseStartIdx);
+
+    phases.tutorial.isComplete.mockReturnValue(true);
+    advanceTransition(levelManager);
+    expect(levelManager.getCurrentPhaseType()).toBe('briefing');
+
+    phases.briefing.isComplete.mockReturnValue(true);
+    advanceTransition(levelManager);
+    expect(levelManager.getCurrentPhaseType()).toBe('dogfight');
+
+    phases.dogfight.isComplete.mockReturnValue(true);
+    advanceTransition(levelManager);
+    expect(levelManager.getCurrentPhaseType()).toBe('surface');
+
+    phases.surface.isComplete.mockReturnValue(true);
+    advanceTransition(levelManager);
+    expect(levelManager.getCurrentPhaseType()).toBe('corridor');
+
+    phases.corridor.isComplete.mockReturnValue(true);
+    advanceTransition(levelManager);
+    expect(levelManager.getCurrentPhaseType()).toBe('boss');
+  });
+
+  it('emits correct phase events with briefing', () => {
+    levelManager.enter();
+    const phases = getPhasesWithBriefing(phaseStartIdx);
+    emittedEvents = [];
+
+    phases.tutorial.isComplete.mockReturnValue(true);
+    advanceTransition(levelManager);
+
+    const starts = emittedEvents.filter((e) => e.event === 'phaseStart');
+    expect(starts[0].data).toEqual({ phase: 'briefing', level: 1 });
+  });
+
+  it('isUsingMainRail returns false during briefing phase', () => {
+    levelManager.enter();
+    const phases = getPhasesWithBriefing(phaseStartIdx);
+
+    phases.tutorial.isComplete.mockReturnValue(true);
+    advanceTransition(levelManager);
+
+    // Now on briefing
+    expect(levelManager.isUsingMainRail()).toBe(false);
+  });
+
+  it('isUsingMainRail returns true during dogfight phase (after briefing)', () => {
+    levelManager.enter();
+    const phases = getPhasesWithBriefing(phaseStartIdx);
+
+    phases.tutorial.isComplete.mockReturnValue(true);
+    advanceTransition(levelManager);
+
+    phases.briefing.isComplete.mockReturnValue(true);
+    advanceTransition(levelManager);
+
+    // Now on dogfight
+    expect(levelManager.isUsingMainRail()).toBe(true);
+  });
+
+  it('emits levelComplete when boss phase completes (6-phase)', () => {
+    levelManager.enter();
+    const phases = getPhasesWithBriefing(phaseStartIdx);
+
+    phases.tutorial.isComplete.mockReturnValue(true);
+    advanceTransition(levelManager);
+    phases.briefing.isComplete.mockReturnValue(true);
+    advanceTransition(levelManager);
+    phases.dogfight.isComplete.mockReturnValue(true);
+    advanceTransition(levelManager);
+    phases.surface.isComplete.mockReturnValue(true);
+    advanceTransition(levelManager);
+    phases.corridor.isComplete.mockReturnValue(true);
+    advanceTransition(levelManager);
+
+    emittedEvents = [];
+    phases.boss.isComplete.mockReturnValue(true);
+    levelManager.update(0.016);
+
+    const events = emittedEvents.filter((e) => e.event === 'levelComplete');
+    expect(events.length).toBe(1);
+    expect(events[0].data).toEqual({ level: 1 });
   });
 });

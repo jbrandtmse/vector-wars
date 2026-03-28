@@ -18,6 +18,7 @@ import { SurfacePhase } from '../state/phases/SurfacePhase.ts';
 import { CorridorPhase } from '../state/phases/CorridorPhase.ts';
 import { BossPhase } from '../state/phases/BossPhase.ts';
 import { TutorialPhase } from '../state/phases/TutorialPhase.ts';
+import { BriefingPhase } from '../state/phases/BriefingPhase.ts';
 import { PhaseTransition } from '../state/phases/PhaseTransition.ts';
 import { eventBus } from '../core/GameEvents.ts';
 import { Logger } from '../core/Logger.ts';
@@ -35,6 +36,7 @@ import type { DataLanceSystem } from './DataLanceSystem.ts';
 import type { RailMovement } from './RailMovement.ts';
 import type { GameOverManager } from './GameOverManager.ts';
 import type { InputManager } from '../core/InputManager.ts';
+import type { BriefingData } from '../ui/screens/BriefingScreen.ts';
 
 /** Interface matching the lifecycle of all phase classes */
 interface Phase {
@@ -44,8 +46,11 @@ interface Phase {
   isComplete(): boolean;
 }
 
-/** Ordered list of phase types matching the phase array indices */
-const PHASE_TYPES: readonly PhaseType[] = ['tutorial', 'dogfight', 'surface', 'corridor', 'boss'] as const;
+/** Full phase type sequence (with briefing) */
+const PHASE_TYPES_WITH_BRIEFING: readonly PhaseType[] = ['tutorial', 'briefing', 'dogfight', 'surface', 'corridor', 'boss'] as const;
+
+/** Phase type sequence without briefing (fallback when briefing data not loaded) */
+const PHASE_TYPES_WITHOUT_BRIEFING: readonly PhaseType[] = ['tutorial', 'dogfight', 'surface', 'corridor', 'boss'] as const;
 
 export class LevelManager {
   private scene: THREE.Scene;
@@ -61,9 +66,11 @@ export class LevelManager {
   private dataLanceSystem: DataLanceSystem;
   private gameOverManager: GameOverManager;
   private inputManager: InputManager;
+  private briefingData: BriefingData | null = null;
 
   // Phase management
   private phases: Phase[] = [];
+  private phaseTypes: readonly PhaseType[] = PHASE_TYPES_WITH_BRIEFING;
   private currentPhaseIndex = 0;
   private phaseTransition: PhaseTransition;
   private checkpointEnabled = false;
@@ -124,6 +131,11 @@ export class LevelManager {
       this.effectsManager,
     );
 
+    // Create briefing phase (if briefing data is loaded)
+    const briefingPhase = this.briefingData
+      ? new BriefingPhase(this.briefingData)
+      : null;
+
     // Create all four gameplay phase instances
     const dogfightPhase = new DogfightPhase(
       this.enemySpawner,
@@ -158,7 +170,15 @@ export class LevelManager {
       () => this.camera.position.clone(),
     );
 
-    this.phases = [tutorialPhase, dogfightPhase, surfacePhase, corridorPhase, bossPhase];
+    if (briefingPhase) {
+      this.phases = [tutorialPhase, briefingPhase, dogfightPhase, surfacePhase, corridorPhase, bossPhase];
+      this.phaseTypes = PHASE_TYPES_WITH_BRIEFING;
+    } else {
+      // No briefing data available — skip briefing phase
+      this.phases = [tutorialPhase, dogfightPhase, surfacePhase, corridorPhase, bossPhase];
+      this.phaseTypes = PHASE_TYPES_WITHOUT_BRIEFING;
+      Logger.warn('LevelManager', 'Briefing data not loaded — skipping briefing phase');
+    }
 
     // Enter first phase (tutorial)
     this.phases[0].enter();
@@ -174,7 +194,7 @@ export class LevelManager {
 
     Logger.info('LevelManager', 'Level 1 started', {
       phaseCount: this.phases.length,
-      firstPhase: PHASE_TYPES[0],
+      firstPhase: this.phaseTypes[0],
     });
   }
 
@@ -198,7 +218,7 @@ export class LevelManager {
 
     // Check if current phase completed
     if (this.phases[this.currentPhaseIndex].isComplete()) {
-      const currentType = PHASE_TYPES[this.currentPhaseIndex];
+      const currentType = this.phaseTypes[this.currentPhaseIndex];
 
       // If final phase (boss) completed -> level complete
       if (this.currentPhaseIndex === this.phases.length - 1) {
@@ -217,11 +237,11 @@ export class LevelManager {
         () => {
           // Exit old phase
           this.phases[oldPhaseIndex].exit();
-          eventBus.emit('phaseEnd', { phase: PHASE_TYPES[oldPhaseIndex], level: 1 });
+          eventBus.emit('phaseEnd', { phase: this.phaseTypes[oldPhaseIndex], level: 1 });
 
           // Advance to next phase
           this.currentPhaseIndex = oldPhaseIndex + 1;
-          const newType = PHASE_TYPES[this.currentPhaseIndex];
+          const newType = this.phaseTypes[this.currentPhaseIndex];
 
           // Recharge shields between phases (NOT before first phase)
           this.player.rechargeShields(PHASE_SHIELD_RECHARGE_AMOUNT);
@@ -257,7 +277,7 @@ export class LevelManager {
     // Don't restart if a transition is already active (avoids double-trigger)
     if (this.phaseTransition.isActive()) return;
 
-    const currentType = PHASE_TYPES[this.currentPhaseIndex];
+    const currentType = this.phaseTypes[this.currentPhaseIndex];
     Logger.info('LevelManager', 'Player died, restarting phase', { phase: currentType });
 
     const phaseIndex = this.currentPhaseIndex;
@@ -305,18 +325,20 @@ export class LevelManager {
 
   /**
    * Returns whether the main rail movement should be used.
-   * True during tutorial phase (index 0) and dogfight phase (index 1).
-   * Other phases manage their own camera/rail.
+   * True during tutorial phase and dogfight phase.
+   * Briefing phase and other phases do NOT use the main rail.
    */
   isUsingMainRail(): boolean {
-    return (this.currentPhaseIndex === 0 || this.currentPhaseIndex === 1) && !this.levelComplete;
+    if (this.levelComplete) return false;
+    const currentType = this.getCurrentPhaseType();
+    return currentType === 'tutorial' || currentType === 'dogfight';
   }
 
   /**
    * Returns the current phase type for external inspection.
    */
   getCurrentPhaseType(): PhaseType {
-    return PHASE_TYPES[this.currentPhaseIndex];
+    return this.phaseTypes[this.currentPhaseIndex];
   }
 
   /**
@@ -324,5 +346,13 @@ export class LevelManager {
    */
   isLevelComplete(): boolean {
     return this.levelComplete;
+  }
+
+  /**
+   * Sets briefing data for the level. Must be called before enter().
+   * If not called or called with null, the briefing phase is skipped.
+   */
+  setBriefingData(data: BriefingData): void {
+    this.briefingData = data;
   }
 }
