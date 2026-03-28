@@ -20,6 +20,7 @@ import { ScoreManager } from './systems/ScoreManager.ts';
 import { ScreenShake } from './systems/ScreenShake.ts';
 import { DamageEffectsManager } from './systems/DamageEffectsManager.ts';
 import { ScorePopup } from './ui/hud/ScorePopup.ts';
+import { eventBus } from './core/GameEvents.ts';
 import { GameOverManager } from './systems/GameOverManager.ts';
 import { LevelManager } from './systems/LevelManager.ts';
 import { LogicBombSystem } from './systems/LogicBombSystem.ts';
@@ -157,6 +158,32 @@ const gameOverManager = new GameOverManager(scoreManager, hudManager);
 const screenShake = new ScreenShake();
 const damageEffectsManager = new DamageEffectsManager(screenShake, renderPipeline);
 void damageEffectsManager; // event-driven lifecycle, no per-frame calls
+
+// --- Level Complete handler (placeholder until Epic 6 proper game flow) ---
+eventBus.on('levelComplete', () => {
+  setTimeout(() => {
+    const overlay = document.createElement('div');
+    Object.assign(overlay.style, {
+      position: 'fixed', top: '0', left: '0', width: '100%', height: '100%',
+      backgroundColor: 'rgba(0,0,0,0.85)', display: 'flex', flexDirection: 'column',
+      justifyContent: 'center', alignItems: 'center', zIndex: '10',
+      fontFamily: "'Courier New', monospace", opacity: '0', transition: 'opacity 0.5s',
+    });
+    overlay.innerHTML = `
+      <div style="font-size:clamp(3rem,8vw,6rem);color:#00ff41;text-shadow:0 0 20px #00ff41,0 0 40px #00ff41;letter-spacing:0.15em;margin-bottom:1rem">LEVEL COMPLETE</div>
+      <div style="font-size:clamp(1rem,2.5vw,1.5rem);color:#00ff41;text-shadow:0 0 10px #00ff41;margin-bottom:2rem;opacity:0.8">FIREWALL BREACHED</div>
+      <div style="font-size:clamp(1.2rem,3vw,2rem);color:#00ff41;text-shadow:0 0 10px #00ff41;margin-bottom:3rem">SCORE: ${scoreManager.getScore()}</div>
+      <div style="font-size:clamp(0.8rem,2vw,1.2rem);color:#00ff41;text-shadow:0 0 10px #00ff41;opacity:0.7">PRESS SPACE TO RESTART</div>
+    `;
+    document.body.appendChild(overlay);
+    requestAnimationFrame(() => { overlay.style.opacity = '1'; });
+    setTimeout(() => {
+      window.addEventListener('keydown', (e) => {
+        if (e.code === 'Space') { e.preventDefault(); window.location.reload(); }
+      });
+    }, 1000);
+  }, 2000);
+});
 
 // --- Level Manager Setup (Story 3-10) ---
 const levelManager = new LevelManager(
