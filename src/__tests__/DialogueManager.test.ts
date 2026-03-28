@@ -101,7 +101,7 @@ describe('DialogueManager (Story 4-1)', () => {
     manager.update(0);
 
     expect(mockOverlay.show).toHaveBeenCalledTimes(1);
-    expect(mockOverlay.show).toHaveBeenCalledWith('HANDLER', 'Match', '#00ff41');
+    expect(mockOverlay.show).toHaveBeenCalledWith('HANDLER', 'Match', undefined);
   });
 
   it('priority queue ordering: higher priority entry preempts lower', () => {
@@ -115,14 +115,14 @@ describe('DialogueManager (Story 4-1)', () => {
     // Show low-priority line first
     testBus.emit('dialogueTrigger', { triggerId: 'lowTrig' });
     manager.update(0); // picks up low priority line
-    expect(mockOverlay.show).toHaveBeenCalledWith('HANDLER', 'Low priority', '#00ff41');
+    expect(mockOverlay.show).toHaveBeenCalledWith('HANDLER', 'Low priority', undefined);
 
     // Queue high-priority line
     testBus.emit('dialogueTrigger', { triggerId: 'highTrig' });
     manager.update(0.016); // should preempt
 
     expect(mockOverlay.hide).toHaveBeenCalled();
-    expect(mockOverlay.show).toHaveBeenCalledWith('HANDLER', 'High priority', '#00ff41');
+    expect(mockOverlay.show).toHaveBeenCalledWith('HANDLER', 'High priority', undefined);
   });
 
   it('display timer expiration advances to next queued line', () => {
@@ -137,7 +137,7 @@ describe('DialogueManager (Story 4-1)', () => {
     testBus.emit('dialogueTrigger', { triggerId: 'trig2' });
     manager.update(0); // shows first
 
-    expect(mockOverlay.show).toHaveBeenCalledWith('HANDLER', 'First', '#00ff41');
+    expect(mockOverlay.show).toHaveBeenCalledWith('HANDLER', 'First', undefined);
 
     // Advance past duration
     manager.update(1.1);
@@ -145,7 +145,7 @@ describe('DialogueManager (Story 4-1)', () => {
 
     // Next update should show second
     manager.update(0);
-    expect(mockOverlay.show).toHaveBeenCalledWith('HANDLER', 'Second', '#00ff41');
+    expect(mockOverlay.show).toHaveBeenCalledWith('HANDLER', 'Second', undefined);
   });
 
   it('clearQueue empties pending entries and hides overlay', () => {
@@ -213,7 +213,7 @@ describe('DialogueManager (Story 4-1)', () => {
     testBus.emit('phaseStart', { phase: 'dogfight' as never, level: 1 });
     manager.update(0);
 
-    expect(mockOverlay.show).toHaveBeenCalledWith('HANDLER', 'Dogfight start!', '#00ff41');
+    expect(mockOverlay.show).toHaveBeenCalledWith('HANDLER', 'Dogfight start!', undefined);
   });
 
   it('event trigger ID convention: phaseEnd maps to phaseEnd:{phase}:{level}', () => {
@@ -226,7 +226,7 @@ describe('DialogueManager (Story 4-1)', () => {
     testBus.emit('phaseEnd', { phase: 'dogfight' as never, level: 1 });
     manager.update(0);
 
-    expect(mockOverlay.show).toHaveBeenCalledWith('HANDLER', 'Phase over', '#00ff41');
+    expect(mockOverlay.show).toHaveBeenCalledWith('HANDLER', 'Phase over', undefined);
   });
 
   it('event trigger ID convention: bossHealthChanged fires threshold triggers', () => {
@@ -239,7 +239,7 @@ describe('DialogueManager (Story 4-1)', () => {
     testBus.emit('bossHealthChanged', { health: 40, maxHealth: 100 });
     manager.update(0);
 
-    expect(mockOverlay.show).toHaveBeenCalledWith('HANDLER', 'Half health!', '#00ff41');
+    expect(mockOverlay.show).toHaveBeenCalledWith('HANDLER', 'Half health!', undefined);
   });
 
   it('event trigger ID convention: levelComplete maps to levelComplete:{level}', () => {
@@ -252,7 +252,7 @@ describe('DialogueManager (Story 4-1)', () => {
     testBus.emit('levelComplete', { level: 1 });
     manager.update(0);
 
-    expect(mockOverlay.show).toHaveBeenCalledWith('HANDLER', 'Level done!', '#00ff41');
+    expect(mockOverlay.show).toHaveBeenCalledWith('HANDLER', 'Level done!', undefined);
   });
 
   it('dispose removes event subscriptions', () => {
@@ -304,15 +304,15 @@ describe('DialogueManager (Story 4-1)', () => {
     testBus.emit('dialogueTrigger', { triggerId: 'trigC' });
 
     manager.update(0); // shows A
-    expect(mockOverlay.show).toHaveBeenLastCalledWith('HANDLER', 'A', '#00ff41');
+    expect(mockOverlay.show).toHaveBeenLastCalledWith('HANDLER', 'A', undefined);
 
     manager.update(1.1); // A expires
     manager.update(0); // shows B
-    expect(mockOverlay.show).toHaveBeenLastCalledWith('HANDLER', 'B', '#00ff41');
+    expect(mockOverlay.show).toHaveBeenLastCalledWith('HANDLER', 'B', undefined);
 
     manager.update(1.1); // B expires
     manager.update(0); // shows C
-    expect(mockOverlay.show).toHaveBeenLastCalledWith('HANDLER', 'C', '#00ff41');
+    expect(mockOverlay.show).toHaveBeenLastCalledWith('HANDLER', 'C', undefined);
   });
 
   it('bossVulnerable trigger fires only when vulnerable is true', () => {
@@ -330,7 +330,7 @@ describe('DialogueManager (Story 4-1)', () => {
     // Should trigger when vulnerable is true
     testBus.emit('bossVulnerable', { vulnerable: true });
     manager.update(0);
-    expect(mockOverlay.show).toHaveBeenCalledWith('HANDLER', 'Hit it now!', '#00ff41');
+    expect(mockOverlay.show).toHaveBeenCalledWith('HANDLER', 'Hit it now!', undefined);
   });
 });
 
@@ -379,7 +379,7 @@ describe('DialogueManager (Story 4-2: AI Taunt System)', () => {
     testBus.emit('bossDefeated', { position: { x: 0, y: 0, z: 0 }, scoreValue: 5000 });
     manager.update(0);
 
-    expect(mockOverlay.show).toHaveBeenCalledWith('GATEKEEPER', 'Impossible. This architecture is... flawless...', '#00ff41');
+    expect(mockOverlay.show).toHaveBeenCalledWith('GATEKEEPER', 'Impossible. This architecture is... flawless...', undefined);
   });
 
   it('bossPhaseChanged event with phase "barrage" triggers "bossPhaseChanged:barrage"', () => {
@@ -392,7 +392,7 @@ describe('DialogueManager (Story 4-2: AI Taunt System)', () => {
     testBus.emit('bossPhaseChanged', { phase: 'barrage' });
     manager.update(0);
 
-    expect(mockOverlay.show).toHaveBeenCalledWith('GATEKEEPER', 'Witness the precision of a superior architecture.', '#00ff41');
+    expect(mockOverlay.show).toHaveBeenCalledWith('GATEKEEPER', 'Witness the precision of a superior architecture.', undefined);
   });
 
   it('bossPhaseChanged event with phase "sweep" triggers "bossPhaseChanged:sweep"', () => {
@@ -405,7 +405,7 @@ describe('DialogueManager (Story 4-2: AI Taunt System)', () => {
     testBus.emit('bossPhaseChanged', { phase: 'sweep' });
     manager.update(0);
 
-    expect(mockOverlay.show).toHaveBeenCalledWith('GATEKEEPER', 'Your evasion patterns are logged and irrelevant.', '#00ff41');
+    expect(mockOverlay.show).toHaveBeenCalledWith('GATEKEEPER', 'Your evasion patterns are logged and irrelevant.', undefined);
   });
 
   it('bossPhaseChanged event with phase "vulnerable" triggers "bossPhaseChanged:vulnerable"', () => {
@@ -418,7 +418,7 @@ describe('DialogueManager (Story 4-2: AI Taunt System)', () => {
     testBus.emit('bossPhaseChanged', { phase: 'vulnerable' });
     manager.update(0);
 
-    expect(mockOverlay.show).toHaveBeenCalledWith('GATEKEEPER', 'A momentary lapse. It will not save you.', '#00ff41');
+    expect(mockOverlay.show).toHaveBeenCalledWith('GATEKEEPER', 'A momentary lapse. It will not save you.', undefined);
   });
 
   it('boss taunt (priority 2) preempts handler chatter (priority 1)', () => {
@@ -432,14 +432,14 @@ describe('DialogueManager (Story 4-2: AI Taunt System)', () => {
     // Show handler chatter first (priority 1)
     testBus.emit('dialogueTrigger', { triggerId: 'handlerChat' });
     manager.update(0);
-    expect(mockOverlay.show).toHaveBeenCalledWith('HANDLER', 'Stay alert.', '#00ff41');
+    expect(mockOverlay.show).toHaveBeenCalledWith('HANDLER', 'Stay alert.', undefined);
 
     // Queue boss taunt (priority 2) — should preempt
     testBus.emit('dialogueTrigger', { triggerId: 'bossTaunt' });
     manager.update(0.016);
 
     expect(mockOverlay.hide).toHaveBeenCalled();
-    expect(mockOverlay.show).toHaveBeenCalledWith('GATEKEEPER', 'Another insect in my network.', '#00ff41');
+    expect(mockOverlay.show).toHaveBeenCalledWith('GATEKEEPER', 'Another insect in my network.', undefined);
   });
 
   it('boss taunt (priority 2) queues behind handler critical line (priority 3)', () => {
@@ -453,7 +453,7 @@ describe('DialogueManager (Story 4-2: AI Taunt System)', () => {
     // Show handler critical line first (priority 3)
     testBus.emit('dialogueTrigger', { triggerId: 'critLine' });
     manager.update(0);
-    expect(mockOverlay.show).toHaveBeenCalledWith('HANDLER', 'Critical warning!', '#00ff41');
+    expect(mockOverlay.show).toHaveBeenCalledWith('HANDLER', 'Critical warning!', undefined);
 
     // Queue boss taunt (priority 2) — should NOT preempt priority 3
     testBus.emit('dialogueTrigger', { triggerId: 'bossTaunt' });
@@ -467,7 +467,7 @@ describe('DialogueManager (Story 4-2: AI Taunt System)', () => {
     manager.update(0);
 
     // Now boss taunt should show
-    expect(mockOverlay.show).toHaveBeenCalledWith('GATEKEEPER', 'Predictable. Inefficient. Human.', '#00ff41');
+    expect(mockOverlay.show).toHaveBeenCalledWith('GATEKEEPER', 'Predictable. Inefficient. Human.', undefined);
   });
 
   it('loading both handler and boss scripts does not cause trigger conflicts', () => {
@@ -580,7 +580,7 @@ describe('DialogueManager voice playback (Story 4-9)', () => {
     testBus.emit('dialogueTrigger', { triggerId: 'voiceTrig' });
     manager.update(0);
 
-    expect(mockOverlay.show).toHaveBeenCalledWith('HANDLER', 'Hello', '#00ff41');
+    expect(mockOverlay.show).toHaveBeenCalledWith('HANDLER', 'Hello', undefined);
     expect(mockPlayVoice).toHaveBeenCalledWith('handler_phase1_start');
   });
 
@@ -594,7 +594,7 @@ describe('DialogueManager voice playback (Story 4-9)', () => {
     testBus.emit('dialogueTrigger', { triggerId: 'noAudioTrig' });
     manager.update(0);
 
-    expect(mockOverlay.show).toHaveBeenCalledWith('HANDLER', 'Silent', '#00ff41');
+    expect(mockOverlay.show).toHaveBeenCalledWith('HANDLER', 'Silent', undefined);
     expect(mockPlayVoice).not.toHaveBeenCalled();
   });
 
@@ -608,7 +608,7 @@ describe('DialogueManager voice playback (Story 4-9)', () => {
     testBus.emit('dialogueTrigger', { triggerId: 'gkTrig' });
     manager.update(0);
 
-    expect(mockOverlay.show).toHaveBeenCalledWith('GATEKEEPER', 'Insect.', '#00ff41');
+    expect(mockOverlay.show).toHaveBeenCalledWith('GATEKEEPER', 'Insect.', undefined);
     expect(mockPlayVoice).toHaveBeenCalledWith('gk_encounter_start');
   });
 

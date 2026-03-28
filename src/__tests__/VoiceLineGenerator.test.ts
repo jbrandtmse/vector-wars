@@ -185,7 +185,7 @@ describe('VoiceLineGenerator (Story 4-9)', () => {
     it('should include all 39 voice line definitions', () => {
       const ids = generator.getSoundIds();
       // 8 handler L1 + 5 handler L2 + 5 handler L3 + 10 tutorial + 9 gatekeeper + 7 avenger + 8 core intelligence = 52
-      expect(ids.length).toBe(52);
+      expect(ids.length).toBe(56);
     });
   });
 
@@ -260,7 +260,7 @@ describe('VoiceLineGenerator (Story 4-9)', () => {
       expect(Logger.info).toHaveBeenCalledWith(
         'Audio',
         'Voice line generation complete',
-        expect.objectContaining({ total: 52 })
+        expect.objectContaining({ total: 56 })
       );
     });
 
@@ -269,7 +269,7 @@ describe('VoiceLineGenerator (Story 4-9)', () => {
       expect(Logger.info).toHaveBeenCalledWith(
         'Audio',
         'Voice line generation complete',
-        expect.objectContaining({ generated: 52, failed: 0, total: 52 })
+        expect.objectContaining({ generated: 56, failed: 0, total: 56 })
       );
     });
 

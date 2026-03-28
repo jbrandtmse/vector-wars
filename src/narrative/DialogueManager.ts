@@ -6,6 +6,7 @@
  * a priority queue. Displays dialogue through CommOverlay.
  *
  * Created by: Story 4-1
+ * Updated by: Story 5-8 (palette-aware speaker colors, level tracking, level-specific triggers)
  */
 
 import { eventBus } from '../core/GameEvents.ts';
@@ -26,12 +27,12 @@ import { COMM_DEFAULT_DURATION } from '../config/constants.ts';
 import { Logger } from '../core/Logger.ts';
 import { audioManager } from '../audio/AudioManager.ts';
 
-/** Static speaker configuration — all green for Level 1 */
+/** Speaker configuration — no hardcoded colors; palette-aware via CommOverlay fallback (Story 5-8) */
 const SPEAKER_CONFIGS: Record<string, DialogueSpeakerConfig> = {
-  handler: { label: 'HANDLER', color: '#00ff41' },
-  gatekeeper: { label: 'GATEKEEPER', color: '#00ff41' },
-  avenger: { label: 'AVENGER', color: '#00ff41' },
-  coreIntelligence: { label: 'CORE INTELLIGENCE', color: '#00ff41' },
+  handler: { label: 'HANDLER' },
+  gatekeeper: { label: 'GATEKEEPER' },
+  avenger: { label: 'AVENGER' },
+  coreIntelligence: { label: 'CORE INTELLIGENCE' },
 };
 
 export class DialogueManager {
@@ -40,6 +41,7 @@ export class DialogueManager {
   private queue: DialogueEntry[] = [];
   private currentEntry: DialogueEntry | null = null;
   private displayTimer = 0;
+  private currentLevel = 1;
 
   // State tracking for one-shot triggers
   private firstEnemyKilled = false;
@@ -65,6 +67,9 @@ export class DialogueManager {
     this.onDialogueTrigger = (e) => this.handleTrigger(e.triggerId);
 
     this.onPhaseStart = (e) => {
+      // Track current level for level-specific triggers (Story 5-8)
+      this.currentLevel = e.level;
+
       // Reset per-phase state
       this.firstEnemyKilled = false;
       this.bossBelow75Fired = false;
@@ -100,7 +105,11 @@ export class DialogueManager {
 
     this.onBossVulnerable = (e) => {
       if (e.vulnerable) {
+        // Fire generic trigger (backward compatible) and level-specific trigger (Story 5-8)
         this.handleTrigger('bossVulnerable');
+        if (this.currentLevel > 1) {
+          this.handleTrigger(`bossVulnerable:${this.currentLevel}`);
+        }
       }
     };
 
@@ -118,7 +127,11 @@ export class DialogueManager {
     this.onEnemyDestroyed = () => {
       if (!this.firstEnemyKilled) {
         this.firstEnemyKilled = true;
+        // Fire generic trigger (backward compatible) and level-specific trigger (Story 5-8)
         this.handleTrigger('firstEnemyDestroyed');
+        if (this.currentLevel > 1) {
+          this.handleTrigger(`firstEnemyDestroyed:${this.currentLevel}`);
+        }
       }
     };
 
@@ -140,6 +153,11 @@ export class DialogueManager {
     eventBus.on('levelComplete', this.onLevelComplete);
 
     Logger.info('Narrative', 'DialogueManager initialized');
+  }
+
+  /** Get the current level number tracked by this manager. */
+  getCurrentLevel(): number {
+    return this.currentLevel;
   }
 
   loadScript(script: DialogueScript): void {
@@ -246,6 +264,8 @@ export class DialogueManager {
 
     const config = SPEAKER_CONFIGS[entry.speaker];
     if (config) {
+      // Pass config.color (undefined for palette-aware, explicit for overrides)
+      // CommOverlay.show() falls back to getPaletteHexColor() when color is undefined (Story 5-8)
       this.commOverlay.show(config.label, entry.text, config.color);
     } else {
       // Fallback for unknown speakers

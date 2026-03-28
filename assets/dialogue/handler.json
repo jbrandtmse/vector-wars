@@ -17,6 +17,10 @@
     { "id": "handler_l3_surface_start", "trigger": "phaseStart:surface:3", "speaker": "handler", "text": "Final fortress. The Core Intelligence's last line of defense. Hit everything.", "audio": "handler_l3_surface_start", "priority": 2, "duration": 5 },
     { "id": "handler_l3_corridor_start", "trigger": "phaseStart:corridor:3", "speaker": "handler", "text": "Fastest corridor yet. I can barely track you. Don't stop. Don't stop.", "audio": "handler_l3_corridor_start", "priority": 3, "duration": 5 },
     { "id": "handler_l3_boss_start", "trigger": "phaseStart:boss:3", "speaker": "handler", "text": "Massive construct... that's the Core Intelligence. Cipher, be careful.", "audio": "handler_l3_boss_start", "priority": 3, "duration": 5 },
-    { "id": "handler_l3_level_complete", "trigger": "levelComplete:3", "speaker": "handler", "text": "You did it. You actually... Cipher, you need to get out. NOW.", "audio": "handler_l3_level_complete", "priority": 3, "duration": 5 }
+    { "id": "handler_l3_level_complete", "trigger": "levelComplete:3", "speaker": "handler", "text": "You did it. You actually... Cipher, you need to get out. NOW.", "audio": "handler_l3_level_complete", "priority": 3, "duration": 5 },
+    { "id": "handler_l2_first_kill", "trigger": "firstEnemyDestroyed:2", "speaker": "handler", "text": "That's one down. They're faster now, Cipher.", "audio": "handler_l2_first_kill", "priority": 1, "duration": 3 },
+    { "id": "handler_l2_boss_vulnerable", "trigger": "bossVulnerable:2", "speaker": "handler", "text": "Now! Hit it with everything!", "audio": "handler_l2_boss_vulnerable", "priority": 2, "duration": 3 },
+    { "id": "handler_l3_first_kill", "trigger": "firstEnemyDestroyed:3", "speaker": "handler", "text": "Keep firing! Don't stop!", "audio": "handler_l3_first_kill", "priority": 1, "duration": 3 },
+    { "id": "handler_l3_boss_vulnerable", "trigger": "bossVulnerable:3", "speaker": "handler", "text": "It's open! End this, Cipher! END THIS!", "audio": "handler_l3_boss_vulnerable", "priority": 2, "duration": 3 }
   ]
 }

@@ -13,6 +13,19 @@
  */
 
 import { Logger } from '../core/Logger.ts';
+import {
+  HANDLER_L2_BASE_FREQ,
+  HANDLER_L2_MOD_RATE,
+  HANDLER_L2_MOD_DEPTH,
+  HANDLER_L2_NOISE_LEVEL,
+  HANDLER_L2_ATTACK,
+  HANDLER_L3_BASE_FREQ,
+  HANDLER_L3_MOD_RATE,
+  HANDLER_L3_MOD_DEPTH,
+  HANDLER_L3_NOISE_LEVEL,
+  HANDLER_L3_FREQ_DRIFT,
+  HANDLER_L3_ATTACK,
+} from '../config/constants.ts';
 
 type VoiceSetup = (ctx: OfflineAudioContext) => void;
 
@@ -46,7 +59,7 @@ interface VoiceProfile {
   sampleRate: number;
 }
 
-const HANDLER_PROFILE: VoiceProfile = {
+const HANDLER_PROFILE_L1: VoiceProfile = {
   baseFreq: 180,
   waveform: 'square',
   freqDrift: 40,
@@ -55,6 +68,34 @@ const HANDLER_PROFILE: VoiceProfile = {
   noiseLevel: 0.1,
   noiseFreq: 2000,
   attack: 0.02,
+  release: 0.05,
+  sampleRate: 11025,
+};
+
+// Level 2 handler: invested, urgent — higher pitch, faster modulation, more noise (Story 5-8)
+const HANDLER_PROFILE_L2: VoiceProfile = {
+  baseFreq: HANDLER_L2_BASE_FREQ,
+  waveform: 'square',
+  freqDrift: 40,
+  modRate: HANDLER_L2_MOD_RATE,
+  modDepth: HANDLER_L2_MOD_DEPTH,
+  noiseLevel: HANDLER_L2_NOISE_LEVEL,
+  noiseFreq: 2000,
+  attack: HANDLER_L2_ATTACK,
+  release: 0.05,
+  sampleRate: 11025,
+};
+
+// Level 3 handler: desperate, strained — highest pitch, fastest modulation, most noise (Story 5-8)
+const HANDLER_PROFILE_L3: VoiceProfile = {
+  baseFreq: HANDLER_L3_BASE_FREQ,
+  waveform: 'square',
+  freqDrift: HANDLER_L3_FREQ_DRIFT,
+  modRate: HANDLER_L3_MOD_RATE,
+  modDepth: HANDLER_L3_MOD_DEPTH,
+  noiseLevel: HANDLER_L3_NOISE_LEVEL,
+  noiseFreq: 2000,
+  attack: HANDLER_L3_ATTACK,
   release: 0.05,
   sampleRate: 11025,
 };
@@ -197,40 +238,44 @@ function hashString(str: string): number {
 // Handler lines — mid-range, calm comm channel
 const HANDLER_DEFINITIONS: Record<string, VoiceDefinition> = {
   // handler.json entries
-  handler_phase1_start: createVoiceDefinition(HANDLER_PROFILE, 1.5, hashString('handler_phase1_start')),
-  handler_first_kill: createVoiceDefinition(HANDLER_PROFILE, 1.0, hashString('handler_first_kill')),
-  handler_surface_start: createVoiceDefinition(HANDLER_PROFILE, 1.5, hashString('handler_surface_start')),
-  handler_corridor_start: createVoiceDefinition(HANDLER_PROFILE, 2.0, hashString('handler_corridor_start')),
-  handler_corridor_encourage: createVoiceDefinition(HANDLER_PROFILE, 0.8, hashString('handler_corridor_encourage')),
-  handler_boss_start: createVoiceDefinition(HANDLER_PROFILE, 1.5, hashString('handler_boss_start')),
-  handler_boss_vulnerable: createVoiceDefinition(HANDLER_PROFILE, 1.0, hashString('handler_boss_vulnerable')),
-  handler_level_complete: createVoiceDefinition(HANDLER_PROFILE, 2.0, hashString('handler_level_complete')),
-  // Level 2 handler lines (Story 5-1)
-  handler_l2_dogfight_start: createVoiceDefinition(HANDLER_PROFILE, 1.5, hashString('handler_l2_dogfight_start')),
-  handler_l2_surface_start: createVoiceDefinition(HANDLER_PROFILE, 1.5, hashString('handler_l2_surface_start')),
-  handler_l2_corridor_start: createVoiceDefinition(HANDLER_PROFILE, 2.0, hashString('handler_l2_corridor_start')),
-  handler_l2_boss_start: createVoiceDefinition(HANDLER_PROFILE, 2.0, hashString('handler_l2_boss_start')),
-  handler_l2_level_complete: createVoiceDefinition(HANDLER_PROFILE, 2.0, hashString('handler_l2_level_complete')),
-  // Level 3 handler lines (Story 5-3)
-  handler_l3_dogfight_start: createVoiceDefinition(HANDLER_PROFILE, 2.0, hashString('handler_l3_dogfight_start')),
-  handler_l3_surface_start: createVoiceDefinition(HANDLER_PROFILE, 2.0, hashString('handler_l3_surface_start')),
-  handler_l3_corridor_start: createVoiceDefinition(HANDLER_PROFILE, 2.0, hashString('handler_l3_corridor_start')),
-  handler_l3_boss_start: createVoiceDefinition(HANDLER_PROFILE, 2.0, hashString('handler_l3_boss_start')),
-  handler_l3_level_complete: createVoiceDefinition(HANDLER_PROFILE, 2.0, hashString('handler_l3_level_complete')),
+  handler_phase1_start: createVoiceDefinition(HANDLER_PROFILE_L1, 1.5, hashString('handler_phase1_start')),
+  handler_first_kill: createVoiceDefinition(HANDLER_PROFILE_L1, 1.0, hashString('handler_first_kill')),
+  handler_surface_start: createVoiceDefinition(HANDLER_PROFILE_L1, 1.5, hashString('handler_surface_start')),
+  handler_corridor_start: createVoiceDefinition(HANDLER_PROFILE_L1, 2.0, hashString('handler_corridor_start')),
+  handler_corridor_encourage: createVoiceDefinition(HANDLER_PROFILE_L1, 0.8, hashString('handler_corridor_encourage')),
+  handler_boss_start: createVoiceDefinition(HANDLER_PROFILE_L1, 1.5, hashString('handler_boss_start')),
+  handler_boss_vulnerable: createVoiceDefinition(HANDLER_PROFILE_L1, 1.0, hashString('handler_boss_vulnerable')),
+  handler_level_complete: createVoiceDefinition(HANDLER_PROFILE_L1, 2.0, hashString('handler_level_complete')),
+  // Level 2 handler lines — invested/urgent profile (Story 5-8)
+  handler_l2_dogfight_start: createVoiceDefinition(HANDLER_PROFILE_L2, 1.5, hashString('handler_l2_dogfight_start')),
+  handler_l2_surface_start: createVoiceDefinition(HANDLER_PROFILE_L2, 1.5, hashString('handler_l2_surface_start')),
+  handler_l2_corridor_start: createVoiceDefinition(HANDLER_PROFILE_L2, 2.0, hashString('handler_l2_corridor_start')),
+  handler_l2_boss_start: createVoiceDefinition(HANDLER_PROFILE_L2, 2.0, hashString('handler_l2_boss_start')),
+  handler_l2_level_complete: createVoiceDefinition(HANDLER_PROFILE_L2, 2.0, hashString('handler_l2_level_complete')),
+  handler_l2_first_kill: createVoiceDefinition(HANDLER_PROFILE_L2, 1.0, hashString('handler_l2_first_kill')),
+  handler_l2_boss_vulnerable: createVoiceDefinition(HANDLER_PROFILE_L2, 1.0, hashString('handler_l2_boss_vulnerable')),
+  // Level 3 handler lines — desperate/strained profile (Story 5-8)
+  handler_l3_dogfight_start: createVoiceDefinition(HANDLER_PROFILE_L3, 2.0, hashString('handler_l3_dogfight_start')),
+  handler_l3_surface_start: createVoiceDefinition(HANDLER_PROFILE_L3, 2.0, hashString('handler_l3_surface_start')),
+  handler_l3_corridor_start: createVoiceDefinition(HANDLER_PROFILE_L3, 2.0, hashString('handler_l3_corridor_start')),
+  handler_l3_boss_start: createVoiceDefinition(HANDLER_PROFILE_L3, 2.0, hashString('handler_l3_boss_start')),
+  handler_l3_level_complete: createVoiceDefinition(HANDLER_PROFILE_L3, 2.0, hashString('handler_l3_level_complete')),
+  handler_l3_first_kill: createVoiceDefinition(HANDLER_PROFILE_L3, 1.0, hashString('handler_l3_first_kill')),
+  handler_l3_boss_vulnerable: createVoiceDefinition(HANDLER_PROFILE_L3, 1.0, hashString('handler_l3_boss_vulnerable')),
 };
 
 // Tutorial lines — same handler profile
 const TUTORIAL_DEFINITIONS: Record<string, VoiceDefinition> = {
-  tutorial_welcome: createVoiceDefinition(HANDLER_PROFILE, 2.0, hashString('tutorial_welcome')),
-  tutorial_movement: createVoiceDefinition(HANDLER_PROFILE, 1.5, hashString('tutorial_movement')),
-  tutorial_movement_done: createVoiceDefinition(HANDLER_PROFILE, 1.0, hashString('tutorial_movement_done')),
-  tutorial_fire: createVoiceDefinition(HANDLER_PROFILE, 1.5, hashString('tutorial_fire')),
-  tutorial_fire_done: createVoiceDefinition(HANDLER_PROFILE, 1.0, hashString('tutorial_fire_done')),
-  tutorial_weapons: createVoiceDefinition(HANDLER_PROFILE, 2.0, hashString('tutorial_weapons')),
-  tutorial_shields: createVoiceDefinition(HANDLER_PROFILE, 2.0, hashString('tutorial_shields')),
-  tutorial_shields_done: createVoiceDefinition(HANDLER_PROFILE, 2.0, hashString('tutorial_shields_done')),
-  tutorial_calibration_done: createVoiceDefinition(HANDLER_PROFILE, 1.0, hashString('tutorial_calibration_done')),
-  tutorial_alarm: createVoiceDefinition(HANDLER_PROFILE, 1.5, hashString('tutorial_alarm')),
+  tutorial_welcome: createVoiceDefinition(HANDLER_PROFILE_L1, 2.0, hashString('tutorial_welcome')),
+  tutorial_movement: createVoiceDefinition(HANDLER_PROFILE_L1, 1.5, hashString('tutorial_movement')),
+  tutorial_movement_done: createVoiceDefinition(HANDLER_PROFILE_L1, 1.0, hashString('tutorial_movement_done')),
+  tutorial_fire: createVoiceDefinition(HANDLER_PROFILE_L1, 1.5, hashString('tutorial_fire')),
+  tutorial_fire_done: createVoiceDefinition(HANDLER_PROFILE_L1, 1.0, hashString('tutorial_fire_done')),
+  tutorial_weapons: createVoiceDefinition(HANDLER_PROFILE_L1, 2.0, hashString('tutorial_weapons')),
+  tutorial_shields: createVoiceDefinition(HANDLER_PROFILE_L1, 2.0, hashString('tutorial_shields')),
+  tutorial_shields_done: createVoiceDefinition(HANDLER_PROFILE_L1, 2.0, hashString('tutorial_shields_done')),
+  tutorial_calibration_done: createVoiceDefinition(HANDLER_PROFILE_L1, 1.0, hashString('tutorial_calibration_done')),
+  tutorial_alarm: createVoiceDefinition(HANDLER_PROFILE_L1, 1.5, hashString('tutorial_alarm')),
 };
 
 // Gatekeeper lines — low, cold AI

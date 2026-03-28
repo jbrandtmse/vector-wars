@@ -649,6 +649,20 @@ export const EVASION_DURATION = 0.6;            // seconds of evasion movement a
 export const GLITCH_THRESHOLD = 0.4;            // movementRandomness at which visual glitch jitter activates
 export const GLITCH_SCALE_INTENSITY = 0.06;     // scale jitter amplitude for Level 3 "digital instability"
 
+// Handler voice escalation constants (Story 5-8)
+// Per-level voice profile parameters controlling how the handler sounds increasingly urgent
+export const HANDLER_L2_BASE_FREQ = 200;        // Hz — higher pitch than L1 (180), conveying tension
+export const HANDLER_L2_MOD_RATE = 11;           // Hz — faster amplitude modulation than L1 (8), more urgency
+export const HANDLER_L2_MOD_DEPTH = 0.4;         // deeper modulation than L1 (0.3), more vocal strain
+export const HANDLER_L2_NOISE_LEVEL = 0.15;      // more static than L1 (0.1), degrading comm quality
+export const HANDLER_L2_ATTACK = 0.015;           // seconds — faster onset than L1 (0.02), more clipped
+export const HANDLER_L3_BASE_FREQ = 220;         // Hz — highest pitch, strained voice
+export const HANDLER_L3_MOD_RATE = 14;            // Hz — fastest modulation, trembling urgency
+export const HANDLER_L3_MOD_DEPTH = 0.5;          // deepest modulation, voice breaking
+export const HANDLER_L3_NOISE_LEVEL = 0.25;       // most static, comm channel degrading
+export const HANDLER_L3_FREQ_DRIFT = 60;          // Hz — wider pitch variation than L1 (40), composure lost
+export const HANDLER_L3_ATTACK = 0.01;            // seconds — sharpest onset, clipped and desperate
+
 // Level 2 spawn events — more enemies, more watchdogs/gatekeepers, cluster spawns
 export const SPAWN_EVENTS_LEVEL2: SpawnEvent[] = [
   // Wave 1: opening cluster — immediate pressure

@@ -23,8 +23,8 @@ export interface DialogueScript {
   entries: DialogueEntry[];
 }
 
-/** Maps a speaker ID to a display label and color for the comm overlay. */
+/** Maps a speaker ID to a display label and optional color override for the comm overlay. */
 export interface DialogueSpeakerConfig {
   label: string;
-  color: string;
+  color?: string;
 }
