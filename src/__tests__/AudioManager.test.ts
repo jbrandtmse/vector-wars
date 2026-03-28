@@ -3,6 +3,7 @@
  *
  * Story 4-5: Audio Manager Architecture
  * Story 4-6: Retro SFX for Weapons and Actions (generator integration + new events)
+ * Story 4-7: Ambient Electronic Hum (ambient generator integration + intensity events)
  */
 
 // @vitest-environment jsdom
@@ -607,6 +608,358 @@ describe('AudioManager', () => {
       manager.dispose();
       expect(mockOff).toHaveBeenCalledWith('bossDestroyed', expect.any(Function));
       expect(mockOff).toHaveBeenCalledWith('phaseStart', expect.any(Function));
+    });
+  });
+
+  // === Story 4-7: Ambient Hum Generator Integration ===
+
+  describe('registerAmbientGenerator (Story 4-7)', () => {
+    it('should store ambient generator reference', () => {
+      manager.init(mockCamera);
+      const mockAmbientGen = {
+        start: vi.fn(),
+        stop: vi.fn(),
+        setIntensity: vi.fn(),
+        setVolume: vi.fn(),
+        dispose: vi.fn(),
+        isPlaying: vi.fn().mockReturnValue(false),
+      };
+      expect(() => manager.registerAmbientGenerator(mockAmbientGen as never)).not.toThrow();
+      expect(Logger.info).toHaveBeenCalledWith('Audio', 'Ambient hum generator registered');
+    });
+  });
+
+  describe('ambient intensity via phaseStart (Story 4-7)', () => {
+    it('should set intensity to 0.1 for tutorial phase', () => {
+      manager.init(mockCamera);
+      const mockAmbientGen = {
+        start: vi.fn(),
+        stop: vi.fn(),
+        setIntensity: vi.fn(),
+        setVolume: vi.fn(),
+        dispose: vi.fn(),
+        isPlaying: vi.fn().mockReturnValue(true),
+      };
+      manager.registerAmbientGenerator(mockAmbientGen as never);
+
+      const phaseStartCall = mockOn.mock.calls.find(
+        (call: unknown[]) => call[0] === 'phaseStart'
+      );
+      phaseStartCall![1]({ phase: 'tutorial', level: 1 });
+      expect(mockAmbientGen.setIntensity).toHaveBeenCalledWith(0.1);
+    });
+
+    it('should set intensity to 0.15 for briefing phase', () => {
+      manager.init(mockCamera);
+      const mockAmbientGen = {
+        start: vi.fn(),
+        stop: vi.fn(),
+        setIntensity: vi.fn(),
+        setVolume: vi.fn(),
+        dispose: vi.fn(),
+        isPlaying: vi.fn().mockReturnValue(true),
+      };
+      manager.registerAmbientGenerator(mockAmbientGen as never);
+
+      const phaseStartCall = mockOn.mock.calls.find(
+        (call: unknown[]) => call[0] === 'phaseStart'
+      );
+      phaseStartCall![1]({ phase: 'briefing', level: 1 });
+      expect(mockAmbientGen.setIntensity).toHaveBeenCalledWith(0.15);
+    });
+
+    it('should set intensity to 0.4 for dogfight phase', () => {
+      manager.init(mockCamera);
+      const mockAmbientGen = {
+        start: vi.fn(),
+        stop: vi.fn(),
+        setIntensity: vi.fn(),
+        setVolume: vi.fn(),
+        dispose: vi.fn(),
+        isPlaying: vi.fn().mockReturnValue(true),
+      };
+      manager.registerAmbientGenerator(mockAmbientGen as never);
+
+      const phaseStartCall = mockOn.mock.calls.find(
+        (call: unknown[]) => call[0] === 'phaseStart'
+      );
+      phaseStartCall![1]({ phase: 'dogfight', level: 1 });
+      expect(mockAmbientGen.setIntensity).toHaveBeenCalledWith(0.4);
+    });
+
+    it('should set intensity to 0.5 for surface phase', () => {
+      manager.init(mockCamera);
+      const mockAmbientGen = {
+        start: vi.fn(),
+        stop: vi.fn(),
+        setIntensity: vi.fn(),
+        setVolume: vi.fn(),
+        dispose: vi.fn(),
+        isPlaying: vi.fn().mockReturnValue(true),
+      };
+      manager.registerAmbientGenerator(mockAmbientGen as never);
+
+      const phaseStartCall = mockOn.mock.calls.find(
+        (call: unknown[]) => call[0] === 'phaseStart'
+      );
+      phaseStartCall![1]({ phase: 'surface', level: 1 });
+      expect(mockAmbientGen.setIntensity).toHaveBeenCalledWith(0.5);
+    });
+
+    it('should set intensity to 0.6 for corridor phase', () => {
+      manager.init(mockCamera);
+      const mockAmbientGen = {
+        start: vi.fn(),
+        stop: vi.fn(),
+        setIntensity: vi.fn(),
+        setVolume: vi.fn(),
+        dispose: vi.fn(),
+        isPlaying: vi.fn().mockReturnValue(true),
+      };
+      manager.registerAmbientGenerator(mockAmbientGen as never);
+
+      const phaseStartCall = mockOn.mock.calls.find(
+        (call: unknown[]) => call[0] === 'phaseStart'
+      );
+      phaseStartCall![1]({ phase: 'corridor', level: 1 });
+      expect(mockAmbientGen.setIntensity).toHaveBeenCalledWith(0.6);
+    });
+
+    it('should set intensity to 0.8 for boss phase', () => {
+      manager.init(mockCamera);
+      const mockAmbientGen = {
+        start: vi.fn(),
+        stop: vi.fn(),
+        setIntensity: vi.fn(),
+        setVolume: vi.fn(),
+        dispose: vi.fn(),
+        isPlaying: vi.fn().mockReturnValue(true),
+      };
+      manager.registerAmbientGenerator(mockAmbientGen as never);
+
+      const phaseStartCall = mockOn.mock.calls.find(
+        (call: unknown[]) => call[0] === 'phaseStart'
+      );
+      phaseStartCall![1]({ phase: 'boss', level: 1 });
+      expect(mockAmbientGen.setIntensity).toHaveBeenCalledWith(0.8);
+    });
+  });
+
+  describe('ambient intensity via playerHit spike (Story 4-7)', () => {
+    it('should temporarily spike intensity on playerHit', () => {
+      vi.useFakeTimers();
+      manager.init(mockCamera);
+      const mockAmbientGen = {
+        start: vi.fn(),
+        stop: vi.fn(),
+        setIntensity: vi.fn(),
+        setVolume: vi.fn(),
+        dispose: vi.fn(),
+        isPlaying: vi.fn().mockReturnValue(true),
+      };
+      manager.registerAmbientGenerator(mockAmbientGen as never);
+
+      // Set baseline via phaseStart
+      const phaseStartCall = mockOn.mock.calls.find(
+        (call: unknown[]) => call[0] === 'phaseStart'
+      );
+      phaseStartCall![1]({ phase: 'dogfight', level: 1 }); // baseline 0.4
+
+      const playerHitCall = mockOn.mock.calls.find(
+        (call: unknown[]) => call[0] === 'playerHit'
+      );
+      // Clear the phase call to isolate the spike
+      mockAmbientGen.setIntensity.mockClear();
+
+      playerHitCall![1]({ damage: 10, source: 'test' });
+
+      // Should spike to 0.4 + 0.2 = 0.6
+      expect(mockAmbientGen.setIntensity).toHaveBeenCalledWith(expect.closeTo(0.6, 5));
+
+      // After 1 second, should return to baseline 0.4
+      vi.advanceTimersByTime(1000);
+      expect(mockAmbientGen.setIntensity).toHaveBeenLastCalledWith(0.4);
+
+      vi.useRealTimers();
+    });
+
+    it('should clamp spiked intensity to 1.0', () => {
+      vi.useFakeTimers();
+      manager.init(mockCamera);
+      const mockAmbientGen = {
+        start: vi.fn(),
+        stop: vi.fn(),
+        setIntensity: vi.fn(),
+        setVolume: vi.fn(),
+        dispose: vi.fn(),
+        isPlaying: vi.fn().mockReturnValue(true),
+      };
+      manager.registerAmbientGenerator(mockAmbientGen as never);
+
+      // Set baseline to boss phase (0.8)
+      const phaseStartCall = mockOn.mock.calls.find(
+        (call: unknown[]) => call[0] === 'phaseStart'
+      );
+      phaseStartCall![1]({ phase: 'boss', level: 1 });
+
+      const playerHitCall = mockOn.mock.calls.find(
+        (call: unknown[]) => call[0] === 'playerHit'
+      );
+      playerHitCall![1]({ damage: 10, source: 'test' });
+
+      // Should be clamped to 1.0, not 0.8 + 0.2 = 1.0 (exact)
+      expect(mockAmbientGen.setIntensity).toHaveBeenCalledWith(1.0);
+
+      vi.useRealTimers();
+    });
+  });
+
+  describe('ambient intensity via bossHealthChanged (Story 4-7)', () => {
+    it('should subscribe to bossHealthChanged event', () => {
+      manager.init(mockCamera);
+      expect(mockOn).toHaveBeenCalledWith('bossHealthChanged', expect.any(Function));
+    });
+
+    it('should set intensity to 0.9 when boss health drops below 50%', () => {
+      manager.init(mockCamera);
+      const mockAmbientGen = {
+        start: vi.fn(),
+        stop: vi.fn(),
+        setIntensity: vi.fn(),
+        setVolume: vi.fn(),
+        dispose: vi.fn(),
+        isPlaying: vi.fn().mockReturnValue(true),
+      };
+      manager.registerAmbientGenerator(mockAmbientGen as never);
+
+      const bossHealthCall = mockOn.mock.calls.find(
+        (call: unknown[]) => call[0] === 'bossHealthChanged'
+      );
+      expect(bossHealthCall).toBeDefined();
+
+      bossHealthCall![1]({ health: 40, maxHealth: 100 });
+      expect(mockAmbientGen.setIntensity).toHaveBeenCalledWith(0.9);
+    });
+
+    it('should set intensity to 1.0 when boss health drops below 25%', () => {
+      manager.init(mockCamera);
+      const mockAmbientGen = {
+        start: vi.fn(),
+        stop: vi.fn(),
+        setIntensity: vi.fn(),
+        setVolume: vi.fn(),
+        dispose: vi.fn(),
+        isPlaying: vi.fn().mockReturnValue(true),
+      };
+      manager.registerAmbientGenerator(mockAmbientGen as never);
+
+      const bossHealthCall = mockOn.mock.calls.find(
+        (call: unknown[]) => call[0] === 'bossHealthChanged'
+      );
+      bossHealthCall![1]({ health: 20, maxHealth: 100 });
+      expect(mockAmbientGen.setIntensity).toHaveBeenCalledWith(1.0);
+    });
+
+    it('should not change intensity when boss health is above 50%', () => {
+      manager.init(mockCamera);
+      const mockAmbientGen = {
+        start: vi.fn(),
+        stop: vi.fn(),
+        setIntensity: vi.fn(),
+        setVolume: vi.fn(),
+        dispose: vi.fn(),
+        isPlaying: vi.fn().mockReturnValue(true),
+      };
+      manager.registerAmbientGenerator(mockAmbientGen as never);
+
+      const bossHealthCall = mockOn.mock.calls.find(
+        (call: unknown[]) => call[0] === 'bossHealthChanged'
+      );
+      bossHealthCall![1]({ health: 60, maxHealth: 100 });
+      // setIntensity should NOT have been called (no ambient gen call from this event)
+      expect(mockAmbientGen.setIntensity).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('ambient generator dispose (Story 4-7)', () => {
+    it('should dispose ambient generator on AudioManager dispose', () => {
+      manager.init(mockCamera);
+      const mockAmbientGen = {
+        start: vi.fn(),
+        stop: vi.fn(),
+        setIntensity: vi.fn(),
+        setVolume: vi.fn(),
+        dispose: vi.fn(),
+        isPlaying: vi.fn().mockReturnValue(true),
+      };
+      manager.registerAmbientGenerator(mockAmbientGen as never);
+      manager.dispose();
+      expect(mockAmbientGen.dispose).toHaveBeenCalled();
+    });
+
+    it('should unsubscribe bossHealthChanged on dispose', () => {
+      manager.init(mockCamera);
+      manager.dispose();
+      expect(mockOff).toHaveBeenCalledWith('bossHealthChanged', expect.any(Function));
+    });
+  });
+
+  describe('getAudioContext (Story 4-7)', () => {
+    it('should return AudioContext from listener after init', () => {
+      manager.init(mockCamera);
+      const ctx = manager.getAudioContext();
+      expect(ctx).toBeDefined();
+      expect(ctx).not.toBeNull();
+    });
+
+    it('should return null before init', () => {
+      expect(manager.getAudioContext()).toBeNull();
+    });
+  });
+
+  describe('getAmbientOutputNode (Story 4-7)', () => {
+    it('should return null before init', () => {
+      expect(manager.getAmbientOutputNode()).toBeNull();
+    });
+  });
+
+  describe('ambient generator unlock handler (Story 4-7)', () => {
+    it('should start ambient generator on first user interaction', () => {
+      manager.init(mockCamera);
+      const mockAmbientGen = {
+        start: vi.fn(),
+        stop: vi.fn(),
+        setIntensity: vi.fn(),
+        setVolume: vi.fn(),
+        dispose: vi.fn(),
+        isPlaying: vi.fn().mockReturnValue(false),
+      };
+      manager.registerAmbientGenerator(mockAmbientGen as never);
+
+      // Simulate click event to trigger unlock handler
+      const clickEvent = new Event('click');
+      document.dispatchEvent(clickEvent);
+
+      expect(mockAmbientGen.start).toHaveBeenCalled();
+    });
+
+    it('should not start ambient generator if already playing', () => {
+      manager.init(mockCamera);
+      const mockAmbientGen = {
+        start: vi.fn(),
+        stop: vi.fn(),
+        setIntensity: vi.fn(),
+        setVolume: vi.fn(),
+        dispose: vi.fn(),
+        isPlaying: vi.fn().mockReturnValue(true), // Already playing
+      };
+      manager.registerAmbientGenerator(mockAmbientGen as never);
+
+      // Simulate click event
+      const clickEvent = new Event('click');
+      document.dispatchEvent(clickEvent);
+
+      expect(mockAmbientGen.start).not.toHaveBeenCalled();
     });
   });
 });

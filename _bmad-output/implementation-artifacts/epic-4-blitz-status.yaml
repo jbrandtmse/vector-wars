@@ -46,8 +46,8 @@ stories:
     committed: false
     notes: ""
   4-7-ambient-electronic-hum:
-    status: pending
-    phase: null
+    status: creating
+    phase: create-story
     attempts: 0
     committed: false
     notes: ""

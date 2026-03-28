@@ -7,17 +7,19 @@
  *
  * Created by: Story 4-5 (Audio Manager Architecture)
  * Updated by: Story 4-6 (Retro SFX for Weapons and Actions)
+ * Updated by: Story 4-7 (Ambient Electronic Hum)
  */
 
 import * as THREE from 'three';
 import { Logger } from '../core/Logger.ts';
 import { eventBus } from '../core/GameEvents.ts';
-import type { WeaponFiredEvent, PlayerHitEvent, PhaseStartEvent } from '../core/GameEvents.ts';
+import type { WeaponFiredEvent, PlayerHitEvent, PhaseStartEvent, BossHealthChangedEvent } from '../core/GameEvents.ts';
 import type { Enemy } from '../entities/enemies/Enemy.ts';
-import type { WeaponType } from '../types/game.ts';
+import type { WeaponType, PhaseType } from '../types/game.ts';
 import { AudioChannel } from './AudioChannel.ts';
 import type { ChannelType, SoundManifest } from './SoundManifest.ts';
 import type { SFXGenerator } from './SFXGenerator.ts';
+import type { AmbientHumGenerator } from './AmbientHumGenerator.ts';
 
 const WEAPON_SOUND_MAP: Record<WeaponType, string> = {
   dataLance: 'data_lance_fire',
@@ -33,6 +35,18 @@ const DEFAULT_VOLUMES: Record<ChannelType, number> = {
   music: 0.3,
 };
 
+const PHASE_INTENSITY_MAP: Record<PhaseType, number> = {
+  tutorial: 0.1,
+  briefing: 0.15,
+  dogfight: 0.4,
+  surface: 0.5,
+  corridor: 0.6,
+  boss: 0.8,
+};
+
+const INTENSITY_SPIKE_AMOUNT = 0.2;
+const INTENSITY_SPIKE_DURATION = 1000; // ms
+
 export class AudioManager {
   private listener: THREE.AudioListener | null = null;
   private camera: THREE.Camera | null = null;
@@ -44,6 +58,9 @@ export class AudioManager {
   private initialized = false;
   private unlockHandler: (() => void) | null = null;
   private generator: SFXGenerator | null = null;
+  private ambientGenerator: AmbientHumGenerator | null = null;
+  private ambientIntensityBaseline = 0;
+  private ambientIntensityTimeout: ReturnType<typeof setTimeout> | null = null;
 
   // EventBus callback references for cleanup
   private onWeaponFired: ((e: WeaponFiredEvent) => void) | null = null;
@@ -55,6 +72,7 @@ export class AudioManager {
     | ((e: { position: { x: number; y: number; z: number }; scoreValue: number }) => void)
     | null = null;
   private onPhaseStart: ((e: PhaseStartEvent) => void) | null = null;
+  private onBossHealthChanged: ((e: BossHealthChangedEvent) => void) | null = null;
 
   init(camera: THREE.Camera): void {
     if (this.initialized) return;
@@ -93,6 +111,10 @@ export class AudioManager {
           });
         }
       }
+      // Start ambient hum generator on first user interaction
+      if (this.ambientGenerator && !this.ambientGenerator.isPlaying()) {
+        this.ambientGenerator.start();
+      }
       // Remove after first interaction
       if (this.unlockHandler) {
         document.removeEventListener('click', this.unlockHandler);
@@ -112,6 +134,21 @@ export class AudioManager {
     };
     this.onPlayerHit = (_e: PlayerHitEvent) => {
       this.playSFX('shield_hit');
+      // Spike ambient intensity temporarily on damage
+      if (this.ambientGenerator) {
+        const spikedIntensity = Math.min(1.0, this.ambientIntensityBaseline + INTENSITY_SPIKE_AMOUNT);
+        this.ambientGenerator.setIntensity(spikedIntensity);
+        // Clear any existing timeout
+        if (this.ambientIntensityTimeout !== null) {
+          clearTimeout(this.ambientIntensityTimeout);
+        }
+        this.ambientIntensityTimeout = setTimeout(() => {
+          if (this.ambientGenerator) {
+            this.ambientGenerator.setIntensity(this.ambientIntensityBaseline);
+          }
+          this.ambientIntensityTimeout = null;
+        }, INTENSITY_SPIKE_DURATION);
+      }
     };
     this.onEnemyDestroyed = () => {
       this.playSFX('enemy_explosion');
@@ -124,6 +161,24 @@ export class AudioManager {
       if (e.phase === 'corridor') {
         this.playSFX('corridor_whoosh');
       }
+      // Set ambient hum intensity based on phase type
+      if (this.ambientGenerator) {
+        const intensity = PHASE_INTENSITY_MAP[e.phase] ?? 0.3;
+        this.ambientIntensityBaseline = intensity;
+        this.ambientGenerator.setIntensity(intensity);
+      }
+    };
+
+    this.onBossHealthChanged = (e: BossHealthChangedEvent) => {
+      if (!this.ambientGenerator) return;
+      const healthPercent = e.health / e.maxHealth;
+      if (healthPercent < 0.25) {
+        this.ambientIntensityBaseline = 1.0;
+        this.ambientGenerator.setIntensity(1.0);
+      } else if (healthPercent < 0.5) {
+        this.ambientIntensityBaseline = 0.9;
+        this.ambientGenerator.setIntensity(0.9);
+      }
     };
 
     eventBus.on('weaponFired', this.onWeaponFired);
@@ -131,6 +186,7 @@ export class AudioManager {
     eventBus.on('enemyDestroyed', this.onEnemyDestroyed);
     eventBus.on('bossDestroyed', this.onBossDestroyed);
     eventBus.on('phaseStart', this.onPhaseStart);
+    eventBus.on('bossHealthChanged', this.onBossHealthChanged);
 
     this.initialized = true;
     Logger.info('Audio', 'AudioManager initialized');
@@ -139,6 +195,36 @@ export class AudioManager {
   registerGenerator(generator: SFXGenerator): void {
     this.generator = generator;
     Logger.info('Audio', 'SFX generator registered');
+  }
+
+  registerAmbientGenerator(generator: AmbientHumGenerator): void {
+    this.ambientGenerator = generator;
+    Logger.info('Audio', 'Ambient hum generator registered');
+  }
+
+  /**
+   * Get the AudioContext from the listener.
+   * Used by AmbientHumGenerator which needs the live context.
+   */
+  getAudioContext(): AudioContext | null {
+    return this.listener ? (this.listener.context as AudioContext) : null;
+  }
+
+  /**
+   * Get the GainNode used by the ambient channel for volume routing.
+   * Creates a standalone GainNode connected to the listener's destination
+   * with the ambient channel's volume applied.
+   */
+  getAmbientOutputNode(): GainNode | null {
+    if (!this.listener) return null;
+    const ctx = this.listener.context as AudioContext;
+    const gainNode = ctx.createGain();
+    gainNode.gain.setValueAtTime(
+      DEFAULT_VOLUMES.ambient * this.masterVolume.value,
+      ctx.currentTime
+    );
+    gainNode.connect(ctx.destination);
+    return gainNode;
   }
 
   async loadManifest(url: string): Promise<void> {
@@ -223,6 +309,22 @@ export class AudioManager {
     if (this.onPhaseStart) {
       eventBus.off('phaseStart', this.onPhaseStart);
       this.onPhaseStart = null;
+    }
+    if (this.onBossHealthChanged) {
+      eventBus.off('bossHealthChanged', this.onBossHealthChanged);
+      this.onBossHealthChanged = null;
+    }
+
+    // Dispose ambient generator
+    if (this.ambientGenerator) {
+      this.ambientGenerator.dispose();
+      this.ambientGenerator = null;
+    }
+
+    // Clear intensity spike timeout
+    if (this.ambientIntensityTimeout !== null) {
+      clearTimeout(this.ambientIntensityTimeout);
+      this.ambientIntensityTimeout = null;
     }
 
     // Stop and dispose all channels

@@ -32,6 +32,7 @@ import type { BriefingData } from './ui/screens/BriefingScreen.ts';
 import { Logger } from './core/Logger.ts';
 import { audioManager } from './audio/AudioManager.ts';
 import { SFXGenerator } from './audio/SFXGenerator.ts';
+import { AmbientHumGenerator } from './audio/AmbientHumGenerator.ts';
 
 // --- Renderer Setup ---
 const container = document.getElementById('app');
@@ -65,6 +66,14 @@ audioManager.registerGenerator(sfxGenerator);
 sfxGenerator.generateAll().catch((err) => {
   Logger.warn('Audio', 'Failed to pre-generate SFX', { error: String(err) });
 });
+
+// --- Ambient Hum Generator Setup (Story 4-7) ---
+const ambientCtx = audioManager.getAudioContext();
+const ambientOutput = audioManager.getAmbientOutputNode();
+if (ambientCtx && ambientOutput) {
+  const ambientHumGenerator = new AmbientHumGenerator(ambientCtx, ambientOutput);
+  audioManager.registerAmbientGenerator(ambientHumGenerator);
+}
 
 // --- Scene Setup ---
 const scene = new THREE.Scene();
