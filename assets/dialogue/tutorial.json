@@ -5,6 +5,7 @@
       "trigger": "tutorial:step1",
       "speaker": "handler",
       "text": "First time jacking in? Let's run the calibration protocol.",
+      "audio": "tutorial_welcome",
       "priority": 3,
       "duration": 5
     },
@@ -13,6 +14,7 @@
       "trigger": "tutorial:step2",
       "speaker": "handler",
       "text": "Align your targeting array.",
+      "audio": "tutorial_movement",
       "priority": 3,
       "duration": 4
     },
@@ -21,6 +23,7 @@
       "trigger": "tutorial:step2:complete",
       "speaker": "handler",
       "text": "Good, looking sharp.",
+      "audio": "tutorial_movement_done",
       "priority": 3,
       "duration": 3
     },
@@ -29,6 +32,7 @@
       "trigger": "tutorial:step3",
       "speaker": "handler",
       "text": "Light up those calibration targets.",
+      "audio": "tutorial_fire",
       "priority": 3,
       "duration": 4
     },
@@ -37,6 +41,7 @@
       "trigger": "tutorial:step3:complete",
       "speaker": "handler",
       "text": "Weapon systems nominal.",
+      "audio": "tutorial_fire_done",
       "priority": 3,
       "duration": 3
     },
@@ -45,6 +50,7 @@
       "trigger": "tutorial:step4",
       "speaker": "handler",
       "text": "Your deck is loaded with Logic Bombs, EMP Burst, and Virus Payload. You'll need them all.",
+      "audio": "tutorial_weapons",
       "priority": 3,
       "duration": 5
     },
@@ -53,6 +59,7 @@
       "trigger": "tutorial:step5",
       "speaker": "handler",
       "text": "Your combat program has integrated shielding. Take a hit, see how it feels.",
+      "audio": "tutorial_shields",
       "priority": 3,
       "duration": 5
     },
@@ -61,6 +68,7 @@
       "trigger": "tutorial:step5:complete",
       "speaker": "handler",
       "text": "Shields absorb damage. Lose them all and your mind's trapped in here forever.",
+      "audio": "tutorial_shields_done",
       "priority": 3,
       "duration": 5
     },
@@ -69,6 +77,7 @@
       "trigger": "tutorial:step6",
       "speaker": "handler",
       "text": "Calibration complete. Systems are\u2014",
+      "audio": "tutorial_calibration_done",
       "priority": 3,
       "duration": 3
     },
@@ -77,6 +86,7 @@
       "trigger": "tutorial:step6:alarm",
       "speaker": "handler",
       "text": "That's not a drill. We've got incoming.",
+      "audio": "tutorial_alarm",
       "priority": 3,
       "duration": 4
     }

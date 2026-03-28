@@ -24,6 +24,7 @@ import type { CommOverlay } from '../ui/screens/CommOverlay.ts';
 import type { DialogueEntry, DialogueScript, DialogueSpeakerConfig } from './DialogueTypes.ts';
 import { COMM_DEFAULT_DURATION } from '../config/constants.ts';
 import { Logger } from '../core/Logger.ts';
+import { audioManager } from '../audio/AudioManager.ts';
 
 /** Static speaker configuration — all green for Level 1 */
 const SPEAKER_CONFIGS: Record<string, DialogueSpeakerConfig> = {
@@ -250,6 +251,11 @@ export class DialogueManager {
       // Fallback for unknown speakers
       Logger.warn('Narrative', 'Unknown speaker, using default', { speaker: entry.speaker });
       this.commOverlay.show(entry.speaker.toUpperCase(), entry.text);
+    }
+
+    // Play voice audio if entry has an audio field
+    if (entry.audio) {
+      audioManager.playVoice(entry.audio);
     }
   }
 }

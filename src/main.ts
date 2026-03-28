@@ -32,6 +32,7 @@ import type { BriefingData } from './ui/screens/BriefingScreen.ts';
 import { Logger } from './core/Logger.ts';
 import { audioManager } from './audio/AudioManager.ts';
 import { SFXGenerator } from './audio/SFXGenerator.ts';
+import { VoiceLineGenerator } from './audio/VoiceLineGenerator.ts';
 import { AmbientHumGenerator } from './audio/AmbientHumGenerator.ts';
 
 // --- Renderer Setup ---
@@ -65,6 +66,13 @@ const sfxGenerator = new SFXGenerator();
 audioManager.registerGenerator(sfxGenerator);
 sfxGenerator.generateAll().catch((err) => {
   Logger.warn('Audio', 'Failed to pre-generate SFX', { error: String(err) });
+});
+
+// --- Voice Line Generator Setup (Story 4-9) ---
+const voiceGenerator = new VoiceLineGenerator();
+audioManager.registerVoiceGenerator(voiceGenerator);
+voiceGenerator.generateAll().catch((err) => {
+  Logger.warn('Audio', 'Failed to pre-generate voice lines', { error: String(err) });
 });
 
 // --- Ambient Hum Generator Setup (Story 4-7) ---

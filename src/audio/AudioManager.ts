@@ -20,6 +20,7 @@ import { AudioChannel } from './AudioChannel.ts';
 import type { ChannelType, SoundManifest } from './SoundManifest.ts';
 import type { SFXGenerator } from './SFXGenerator.ts';
 import type { AmbientHumGenerator } from './AmbientHumGenerator.ts';
+import type { VoiceLineGenerator } from './VoiceLineGenerator.ts';
 
 const WEAPON_SOUND_MAP: Record<WeaponType, string> = {
   dataLance: 'data_lance_fire',
@@ -59,6 +60,7 @@ export class AudioManager {
   private initialized = false;
   private unlockHandler: (() => void) | null = null;
   private generator: SFXGenerator | null = null;
+  private voiceGenerator: VoiceLineGenerator | null = null;
   private ambientGenerator: AmbientHumGenerator | null = null;
   private ambientIntensityBaseline = 0;
   private ambientIntensityTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -196,6 +198,11 @@ export class AudioManager {
   registerGenerator(generator: SFXGenerator): void {
     this.generator = generator;
     Logger.info('Audio', 'SFX generator registered');
+  }
+
+  registerVoiceGenerator(generator: VoiceLineGenerator): void {
+    this.voiceGenerator = generator;
+    Logger.info('Audio', 'Voice line generator registered');
   }
 
   registerAmbientGenerator(generator: AmbientHumGenerator): void {
@@ -378,6 +385,7 @@ export class AudioManager {
     this.camera = null;
     this.audioLoader = null;
     this.generator = null;
+    this.voiceGenerator = null;
     this.initialized = false;
 
     Logger.info('Audio', 'AudioManager disposed');
@@ -391,7 +399,7 @@ export class AudioManager {
     }
 
     const entry = this.manifest[id];
-    if (!entry && !this.generator?.hasSound(id)) {
+    if (!entry && !this.generator?.hasSound(id) && !this.voiceGenerator?.hasSound(id)) {
       Logger.warn('Audio', 'Sound not found in manifest', { id });
       return;
     }
@@ -422,6 +430,15 @@ export class AudioManager {
     // Fallback to SFX generator
     if (this.generator) {
       const buffer = await this.generator.generate(id);
+      if (buffer) {
+        this.bufferCache.set(id, buffer);
+        return buffer;
+      }
+    }
+
+    // Fallback to voice line generator
+    if (this.voiceGenerator) {
+      const buffer = await this.voiceGenerator.generate(id);
       if (buffer) {
         this.bufferCache.set(id, buffer);
         return buffer;

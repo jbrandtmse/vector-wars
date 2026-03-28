@@ -25,6 +25,13 @@ vi.mock('../core/Logger.ts', () => ({
   },
 }));
 
+const mockPlayVoice = vi.fn();
+vi.mock('../audio/AudioManager.ts', () => ({
+  audioManager: {
+    playVoice: mockPlayVoice,
+  },
+}));
+
 describe('DialogueManager (Story 4-1)', () => {
   let DialogueManager: typeof import('../narrative/DialogueManager.ts').DialogueManager;
   let mockOverlay: {
@@ -524,5 +531,105 @@ describe('DialogueManager (Story 4-2: AI Taunt System)', () => {
     manager.update(0);
 
     expect(mockOverlay.show).not.toHaveBeenCalled();
+  });
+});
+
+describe('DialogueManager voice playback (Story 4-9)', () => {
+  let DialogueManager: typeof import('../narrative/DialogueManager.ts').DialogueManager;
+  let mockOverlay: {
+    show: ReturnType<typeof vi.fn>;
+    update: ReturnType<typeof vi.fn>;
+    hide: ReturnType<typeof vi.fn>;
+    isVisible: ReturnType<typeof vi.fn>;
+    dispose: ReturnType<typeof vi.fn>;
+  };
+  let manager: InstanceType<typeof DialogueManager>;
+
+  beforeEach(async () => {
+    vi.resetModules();
+    mockPlayVoice.mockClear();
+
+    const mod = await import('../narrative/DialogueManager.ts');
+    DialogueManager = mod.DialogueManager;
+
+    mockOverlay = {
+      show: vi.fn(),
+      update: vi.fn(),
+      hide: vi.fn(),
+      isVisible: vi.fn().mockReturnValue(false),
+      dispose: vi.fn(),
+    };
+
+    const gameEvents = await import('../core/GameEvents.ts');
+    testBus = gameEvents.eventBus as unknown as EventBus<GameEvents>;
+
+    manager = new DialogueManager(mockOverlay as never);
+  });
+
+  afterEach(() => {
+    manager.dispose();
+  });
+
+  it('should call audioManager.playVoice when entry has audio field', () => {
+    manager.loadScript({
+      entries: [
+        { id: 'voice_test', trigger: 'voiceTrig', speaker: 'handler', text: 'Hello', audio: 'handler_phase1_start', priority: 1, duration: 3 },
+      ],
+    });
+
+    testBus.emit('dialogueTrigger', { triggerId: 'voiceTrig' });
+    manager.update(0);
+
+    expect(mockOverlay.show).toHaveBeenCalledWith('HANDLER', 'Hello', '#00ff41');
+    expect(mockPlayVoice).toHaveBeenCalledWith('handler_phase1_start');
+  });
+
+  it('should NOT call audioManager.playVoice when entry has no audio field', () => {
+    manager.loadScript({
+      entries: [
+        { id: 'no_audio', trigger: 'noAudioTrig', speaker: 'handler', text: 'Silent', priority: 1, duration: 3 },
+      ],
+    });
+
+    testBus.emit('dialogueTrigger', { triggerId: 'noAudioTrig' });
+    manager.update(0);
+
+    expect(mockOverlay.show).toHaveBeenCalledWith('HANDLER', 'Silent', '#00ff41');
+    expect(mockPlayVoice).not.toHaveBeenCalled();
+  });
+
+  it('should play gatekeeper voice audio with correct ID', () => {
+    manager.loadScript({
+      entries: [
+        { id: 'gk_voice', trigger: 'gkTrig', speaker: 'gatekeeper', text: 'Insect.', audio: 'gk_encounter_start', priority: 2, duration: 4 },
+      ],
+    });
+
+    testBus.emit('dialogueTrigger', { triggerId: 'gkTrig' });
+    manager.update(0);
+
+    expect(mockOverlay.show).toHaveBeenCalledWith('GATEKEEPER', 'Insect.', '#00ff41');
+    expect(mockPlayVoice).toHaveBeenCalledWith('gk_encounter_start');
+  });
+
+  it('should play voice for each new line shown (not queued)', () => {
+    manager.loadScript({
+      entries: [
+        { id: 'first', trigger: 'trig1', speaker: 'handler', text: 'First', audio: 'handler_first_kill', priority: 1, duration: 1 },
+        { id: 'second', trigger: 'trig2', speaker: 'handler', text: 'Second', audio: 'handler_boss_start', priority: 1, duration: 1 },
+      ],
+    });
+
+    testBus.emit('dialogueTrigger', { triggerId: 'trig1' });
+    testBus.emit('dialogueTrigger', { triggerId: 'trig2' });
+    manager.update(0); // shows first
+    expect(mockPlayVoice).toHaveBeenCalledWith('handler_first_kill');
+    expect(mockPlayVoice).toHaveBeenCalledTimes(1);
+
+    // Let first expire, show second
+    manager.update(1.1);
+    manager.update(0);
+    expect(mockPlayVoice).toHaveBeenCalledWith('handler_boss_start');
+    expect(mockPlayVoice).toHaveBeenCalledTimes(2);
   });
 });

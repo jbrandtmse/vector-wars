@@ -1200,4 +1200,146 @@ describe('AudioManager', () => {
       });
     });
   });
+
+  // === Story 4-9: Voice Line Generator Integration ===
+
+  describe('registerVoiceGenerator (Story 4-9)', () => {
+    it('should store voice generator reference', () => {
+      manager.init(mockCamera);
+      const mockVoiceGen = {
+        generate: vi.fn(),
+        generateAll: vi.fn(),
+        hasSound: vi.fn().mockReturnValue(true),
+        getSoundIds: vi.fn().mockReturnValue(['handler_phase1_start']),
+      };
+      expect(() => manager.registerVoiceGenerator(mockVoiceGen as never)).not.toThrow();
+      expect(Logger.info).toHaveBeenCalledWith('Audio', 'Voice line generator registered');
+    });
+  });
+
+  describe('voice generator fallback (Story 4-9)', () => {
+    it('should fall back to voice generator when SFX generator cannot handle', async () => {
+      manager.init(mockCamera);
+
+      // Load empty manifest
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({}),
+      });
+      await manager.loadManifest('audio/manifest.json');
+
+      // SFX generator does not know this sound
+      const mockSfxGen = {
+        generate: vi.fn().mockResolvedValue(null),
+        generateAll: vi.fn(),
+        hasSound: vi.fn().mockReturnValue(false),
+        getSoundIds: vi.fn().mockReturnValue([]),
+      };
+      manager.registerGenerator(mockSfxGen as never);
+
+      // Voice generator knows this sound
+      const voiceBuffer = { byteLength: 200 } as AudioBuffer;
+      const mockVoiceGen = {
+        generate: vi.fn().mockResolvedValue(voiceBuffer),
+        generateAll: vi.fn(),
+        hasSound: vi.fn().mockReturnValue(true),
+        getSoundIds: vi.fn().mockReturnValue(['handler_phase1_start']),
+      };
+      manager.registerVoiceGenerator(mockVoiceGen as never);
+
+      manager.playVoice('handler_phase1_start');
+
+      await vi.waitFor(() => {
+        expect(mockVoiceGen.generate).toHaveBeenCalledWith('handler_phase1_start');
+      });
+    });
+
+    it('should not call voice generator when SFX generator succeeds', async () => {
+      manager.init(mockCamera);
+
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({}),
+      });
+      await manager.loadManifest('audio/manifest.json');
+
+      const sfxBuffer = { byteLength: 100 } as AudioBuffer;
+      const mockSfxGen = {
+        generate: vi.fn().mockResolvedValue(sfxBuffer),
+        generateAll: vi.fn(),
+        hasSound: vi.fn().mockReturnValue(true),
+        getSoundIds: vi.fn().mockReturnValue(['some_sound']),
+      };
+      manager.registerGenerator(mockSfxGen as never);
+
+      const mockVoiceGen = {
+        generate: vi.fn(),
+        generateAll: vi.fn(),
+        hasSound: vi.fn().mockReturnValue(true),
+        getSoundIds: vi.fn().mockReturnValue(['some_sound']),
+      };
+      manager.registerVoiceGenerator(mockVoiceGen as never);
+
+      manager.playSFX('some_sound');
+
+      await vi.waitFor(() => {
+        expect(mockSfxGen.generate).toHaveBeenCalledWith('some_sound');
+      });
+
+      // Voice generator should not be called since SFX generator succeeded
+      expect(mockVoiceGen.generate).not.toHaveBeenCalled();
+    });
+
+    it('should allow playback of voice ID known only by voice generator (not in manifest)', async () => {
+      manager.init(mockCamera);
+
+      // Empty manifest — voice ID not in it
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({}),
+      });
+      await manager.loadManifest('audio/manifest.json');
+
+      // No SFX generator registered
+      const voiceBuffer = {} as AudioBuffer;
+      const mockVoiceGen = {
+        generate: vi.fn().mockResolvedValue(voiceBuffer),
+        generateAll: vi.fn(),
+        hasSound: vi.fn().mockReturnValue(true),
+        getSoundIds: vi.fn().mockReturnValue(['handler_phase1_start']),
+      };
+      manager.registerVoiceGenerator(mockVoiceGen as never);
+
+      // Should not warn about "not found in manifest" because voiceGenerator.hasSound returns true
+      manager.playVoice('handler_phase1_start');
+
+      await vi.waitFor(() => {
+        expect(mockVoiceGen.generate).toHaveBeenCalledWith('handler_phase1_start');
+      });
+    });
+
+    it('should clear voice generator reference on dispose', () => {
+      manager.init(mockCamera);
+      const mockVoiceGen = {
+        generate: vi.fn(),
+        generateAll: vi.fn(),
+        hasSound: vi.fn().mockReturnValue(true),
+        getSoundIds: vi.fn().mockReturnValue([]),
+      };
+      manager.registerVoiceGenerator(mockVoiceGen as never);
+
+      manager.dispose();
+
+      // After dispose and re-init, voice generator should not be available
+      // We verify this indirectly — playing a voice-only sound should warn
+      manager = new AudioManager();
+      manager.init(mockCamera);
+      manager.playVoice('handler_phase1_start');
+      expect(Logger.warn).toHaveBeenCalledWith(
+        'Audio',
+        'Sound not found in manifest',
+        { id: 'handler_phase1_start' }
+      );
+    });
+  });
 });

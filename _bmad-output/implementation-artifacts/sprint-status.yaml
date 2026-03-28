@@ -35,8 +35,8 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-03-26
-last_updated: "2026-03-26T22:00:00Z"
-last_story_created: 4-8-swappable-audio-assets
+last_updated: "2026-03-26T23:00:00Z"
+last_story_created: 4-9-synthesized-handler-voice-lines
 project: vector-wars
 project_key: NOKEY
 tracking_system: file-system
@@ -83,7 +83,7 @@ development_status:
   epic-3-retrospective: optional
 
   # === Epic 4: Narrative & Audio ===
-  epic-4: in-progress
+  epic-4: done
   4-1-handler-comm-overlay-system: done
   4-2-ai-taunt-system: done
   4-3-diegetic-tutorial-sequence: done
@@ -92,7 +92,7 @@ development_status:
   4-6-retro-sfx-for-weapons-and-actions: done
   4-7-ambient-electronic-hum: done
   4-8-swappable-audio-assets: done
-  4-9-synthesized-handler-voice-lines: backlog
+  4-9-synthesized-handler-voice-lines: done
   epic-4-retrospective: optional
 
   # === Epic 5: Full Campaign ===
