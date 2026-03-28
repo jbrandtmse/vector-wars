@@ -278,7 +278,7 @@ describe('BriefingData interface (Story 5-9)', () => {
 // ============================================================
 
 describe('Briefing JSON content (Story 5-9)', () => {
-  const briefingsDir = resolve(__dirname, '../../assets/briefings');
+  const briefingsDir = resolve(__dirname, '../../public/assets/briefings');
 
   it('level-1.json should have voiceLineId "briefing_l1"', () => {
     const content = JSON.parse(readFileSync(resolve(briefingsDir, 'level-1.json'), 'utf-8'));

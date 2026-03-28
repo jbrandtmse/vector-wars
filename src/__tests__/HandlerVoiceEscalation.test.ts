@@ -430,7 +430,7 @@ describe('Handler Voice Escalation - DialogueManager (Story 5-8)', () => {
 
 describe('Handler Voice Escalation - handler.json validation (Story 5-8)', () => {
   it('handler.json should contain the new Level 2 first kill entry', async () => {
-    const response = await import('../../assets/dialogue/handler.json');
+    const response = await import('../../public/assets/dialogue/handler.json');
     const entries = response.default?.entries ?? response.entries;
 
     const l2FirstKill = entries.find((e: { id: string }) => e.id === 'handler_l2_first_kill');
@@ -441,7 +441,7 @@ describe('Handler Voice Escalation - handler.json validation (Story 5-8)', () =>
   });
 
   it('handler.json should contain the new Level 2 boss vulnerable entry', async () => {
-    const response = await import('../../assets/dialogue/handler.json');
+    const response = await import('../../public/assets/dialogue/handler.json');
     const entries = response.default?.entries ?? response.entries;
 
     const l2BossVuln = entries.find((e: { id: string }) => e.id === 'handler_l2_boss_vulnerable');
@@ -452,7 +452,7 @@ describe('Handler Voice Escalation - handler.json validation (Story 5-8)', () =>
   });
 
   it('handler.json should contain the new Level 3 first kill entry', async () => {
-    const response = await import('../../assets/dialogue/handler.json');
+    const response = await import('../../public/assets/dialogue/handler.json');
     const entries = response.default?.entries ?? response.entries;
 
     const l3FirstKill = entries.find((e: { id: string }) => e.id === 'handler_l3_first_kill');
@@ -463,7 +463,7 @@ describe('Handler Voice Escalation - handler.json validation (Story 5-8)', () =>
   });
 
   it('handler.json should contain the new Level 3 boss vulnerable entry', async () => {
-    const response = await import('../../assets/dialogue/handler.json');
+    const response = await import('../../public/assets/dialogue/handler.json');
     const entries = response.default?.entries ?? response.entries;
 
     const l3BossVuln = entries.find((e: { id: string }) => e.id === 'handler_l3_boss_vulnerable');
@@ -474,7 +474,7 @@ describe('Handler Voice Escalation - handler.json validation (Story 5-8)', () =>
   });
 
   it('existing handler.json entries should not be modified', async () => {
-    const response = await import('../../assets/dialogue/handler.json');
+    const response = await import('../../public/assets/dialogue/handler.json');
     const entries = response.default?.entries ?? response.entries;
 
     // Check a few original entries still have their original text

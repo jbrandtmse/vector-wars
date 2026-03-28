@@ -283,7 +283,7 @@ describe('TutorialPhase (Story 4-3)', () => {
   describe('Tutorial dialogue triggers', () => {
     it('tutorial.json entries have matching trigger IDs', async () => {
       // Load tutorial.json and verify trigger IDs match the phase's emission pattern
-      const response = await fetch('../../assets/dialogue/tutorial.json').catch(() => null);
+      const response = await fetch('../../public/assets/dialogue/tutorial.json').catch(() => null);
 
       // In test environment fetch may not work, but we verify the expected triggers
       const expectedTriggers = [

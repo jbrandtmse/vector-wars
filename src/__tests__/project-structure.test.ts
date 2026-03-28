@@ -30,11 +30,14 @@ describe('Project Directory Structure', () => {
     'assets/levels',
     'assets/bosses',
     'assets/dialogue',
+    'public/assets/briefings',
+    'public/assets/dialogue',
     'public/audio/sfx',
     'public/audio/voice',
     'public/audio/ambient',
     'public/audio/music',
     'public/fonts',
+    '.github/workflows',
   ];
 
   for (const dir of requiredDirs) {
