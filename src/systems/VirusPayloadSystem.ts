@@ -176,6 +176,24 @@ export class VirusPayloadSystem {
     }
   }
 
+  /**
+   * Resets the Virus Payload system for a new playthrough.
+   * Clears boss state, cooldown, and deactivates all in-flight payloads.
+   * Called by resetGameState() when returning to menu.
+   * (Story 6-8)
+   */
+  reset(): void {
+    this.bossIsDefeated = false;
+    this.bossIsVulnerable = false;
+    this.cooldown = 0;
+    for (const payload of this.payloads) {
+      if (payload.active) {
+        payload.deactivate();
+      }
+    }
+    Logger.info('Weapon', 'VirusPayloadSystem reset');
+  }
+
   getPoolStats(): { active: number; total: number } {
     let active = 0;
     for (const payload of this.payloads) {

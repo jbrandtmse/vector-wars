@@ -30,6 +30,16 @@ export class GameObjectManager {
     return this.entities;
   }
 
+  /**
+   * Removes all entities from the manager.
+   * Called by resetGameState() to prevent stale entities persisting
+   * into a new playthrough.
+   * (Story 6-8)
+   */
+  clearAll(): void {
+    this.entities = [];
+  }
+
   update(dt: number): void {
     for (const entity of this.entities) {
       if (entity.isActive) {

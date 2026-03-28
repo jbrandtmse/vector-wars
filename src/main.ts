@@ -25,6 +25,7 @@ import { GameOverManager } from './systems/GameOverManager.ts';
 import { LevelManager } from './systems/LevelManager.ts';
 import { LogicBombSystem } from './systems/LogicBombSystem.ts';
 import { EMPBurstSystem } from './systems/EMPBurstSystem.ts';
+import { VirusPayloadSystem } from './systems/VirusPayloadSystem.ts';
 import { CommOverlay } from './ui/screens/CommOverlay.ts';
 import { DialogueManager } from './narrative/DialogueManager.ts';
 import type { DialogueScript } from './narrative/DialogueTypes.ts';
@@ -195,6 +196,16 @@ const empBurstSystem = new EMPBurstSystem(
   gameObjectManager,
 );
 
+// --- Virus Payload System Setup (Story 3-8, wired Story 6-8) ---
+const virusPayloadSystem = new VirusPayloadSystem(
+  scene,
+  camera,
+  inputManager,
+  vectorMaterials,
+  cockpitRenderer,
+  gameObjectManager,
+);
+
 // --- Effects Manager Setup (Story 2-4) ---
 const effectsManager = new EffectsManager(scene, vectorMaterials);
 
@@ -256,6 +267,28 @@ function resetGameState(): void {
     activeFragmentation.dispose();
     activeFragmentation = null;
   }
+
+  // Reset weapon systems (Story 6-8)
+  dataLanceSystem.reset();
+  logicBombSystem.resetAmmo();
+  empBurstSystem.reset();
+  virusPayloadSystem.reset();
+
+  // Clear all entities from the game object manager (Story 6-8)
+  gameObjectManager.clearAll();
+
+  // Reset enemy projectiles and effects (Story 6-8)
+  enemyProjectileSystem.reset();
+  effectsManager.reset();
+
+  // Reset rail movement to start position (Story 6-8)
+  railMovement.reset();
+
+  // Reset enemy spawner tracking (Story 6-8)
+  enemySpawner.resetForNewLevel();
+
+  // Remove any lingering level-complete overlays (Story 6-8)
+  document.querySelectorAll('.level-complete-overlay').forEach(el => el.remove());
 
   // Reset camera-related state
   viewportOffset = { x: 0, y: 0 };
@@ -333,6 +366,7 @@ eventBus.on('levelComplete', ({ level }) => {
       const nextLevel = level + 1;
       const subtitleText = level === 1 ? 'FIREWALL BREACHED' : 'DEEP CORE ACCESS GRANTED';
       const overlay = document.createElement('div');
+      overlay.classList.add('level-complete-overlay');
       Object.assign(overlay.style, {
         position: 'fixed', top: '0', left: '0', width: '100%', height: '100%',
         backgroundColor: 'rgba(0,0,0,0.85)', display: 'flex', flexDirection: 'column',
@@ -539,6 +573,7 @@ function gameLoop(time: number): void {
     dataLanceSystem.update(dt);
     logicBombSystem.update(dt);
     empBurstSystem.update(dt);
+    virusPayloadSystem.update(dt);
     collisionSystem.update(dt);
     enemyProjectileSystem.update(dt);
     effectsManager.update(dt);

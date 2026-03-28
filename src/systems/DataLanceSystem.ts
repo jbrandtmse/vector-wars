@@ -199,6 +199,24 @@ export class DataLanceSystem {
   }
 
   /**
+   * Resets the Data Lance system for a new playthrough.
+   * Deactivates all active bolts and clears cooldown.
+   * Called by resetGameState() when returning to menu.
+   * (Story 6-8)
+   */
+  reset(): void {
+    this.cooldown = 0;
+    for (const bolt of this.bolts) {
+      if (bolt.active) {
+        bolt.active = false;
+        bolt.mesh.visible = false;
+        bolt.distance = 0;
+      }
+    }
+    Logger.info('Weapon', 'DataLanceSystem reset');
+  }
+
+  /**
    * Returns pool stats for debug diagnostics (Story 2-9).
    */
   getPoolStats(): { active: number; total: number } {

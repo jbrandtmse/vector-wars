@@ -35,8 +35,8 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-03-26
-last_updated: "2026-03-26T23:00:00Z"
-last_story_created: 6-7-final-audio-polish
+last_updated: "2026-03-26T23:45:00Z"
+last_story_created: 6-8-playtesting-bug-fixes
 project: vector-wars
 project_key: NOKEY
 tracking_system: file-system
@@ -112,7 +112,7 @@ development_status:
   epic-5-retrospective: optional
 
   # === Epic 6: Polish & Ship ===
-  epic-6: in-progress
+  epic-6: done
   6-1-main-menu-screen: done
   6-2-full-game-flow-navigation: done
   6-3-browser-compatibility-testing: done
@@ -120,5 +120,5 @@ development_status:
   6-5-github-pages-deployment: done
   6-6-electron-desktop-wrapper: done
   6-7-final-audio-polish: done
-  6-8-playtesting-bug-fixes: backlog
+  6-8-playtesting-bug-fixes: done
   epic-6-retrospective: optional

@@ -131,6 +131,22 @@ export class EMPBurstSystem {
     }
   }
 
+  /**
+   * Resets the EMP Burst system for a new playthrough.
+   * Deactivates all active bursts and clears cooldown.
+   * Called by resetGameState() when returning to menu.
+   * (Story 6-8)
+   */
+  reset(): void {
+    this.cooldown = 0;
+    for (const burst of this.bursts) {
+      if (burst.active) {
+        burst.deactivate();
+      }
+    }
+    Logger.info('Weapon', 'EMPBurstSystem reset');
+  }
+
   getCooldownRemaining(): number {
     return this.cooldown;
   }

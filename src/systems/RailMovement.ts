@@ -124,6 +124,15 @@ export class RailMovement {
   }
 
   /**
+   * Resets rail progress to the start of the path.
+   * Called by resetGameState() when returning to menu.
+   * (Story 6-8)
+   */
+  reset(): void {
+    this.progress = 0;
+  }
+
+  /**
    * Returns the current normalized progress (0-1) along the rail path.
    */
   getRailProgress(): number {

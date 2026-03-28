@@ -106,6 +106,21 @@ export class EnemyProjectileSystem {
   }
 
   /**
+   * Resets the enemy projectile system for a new playthrough.
+   * Deactivates all in-flight projectiles.
+   * Called by resetGameState() when returning to menu.
+   * (Story 6-8)
+   */
+  reset(): void {
+    for (const burst of this.bursts) {
+      if (burst.active) {
+        burst.deactivate();
+      }
+    }
+    Logger.info('EnemyProjectile', 'EnemyProjectileSystem reset');
+  }
+
+  /**
    * Returns pool stats for debug diagnostics (Story 2-9).
    */
   getPoolStats(): { active: number; total: number } {

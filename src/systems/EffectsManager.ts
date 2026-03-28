@@ -122,6 +122,23 @@ export class EffectsManager {
     return { active, total: this.explosions.length };
   }
 
+  /**
+   * Resets all active effects for a new playthrough.
+   * Deactivates all active explosions and resets pool index.
+   * Called by resetGameState() when returning to menu.
+   * (Story 6-8)
+   */
+  reset(): void {
+    for (const explosion of this.explosions) {
+      if (explosion.isActive) {
+        explosion.forceDeactivate();
+      }
+    }
+    this.nextExplosionIndex = 0;
+    this.destructionLastSpawnProgress = {};
+    Logger.info('Effects', 'EffectsManager reset');
+  }
+
   update(dt: number): void {
     for (const explosion of this.explosions) {
       explosion.update(dt);

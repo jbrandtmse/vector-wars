@@ -110,6 +110,17 @@ export class VectorShardExplosion {
     this.geometry.setDrawRange(0, this.shardCount * 2);
   }
 
+  /**
+   * Forces the explosion to deactivate immediately.
+   * Used by EffectsManager.reset() to clear active effects.
+   * (Story 6-8)
+   */
+  forceDeactivate(): void {
+    this.active = false;
+    this.mesh.visible = false;
+    this.geometry.setDrawRange(0, 0);
+  }
+
   update(dt: number): void {
     if (!this.active) return;
 
