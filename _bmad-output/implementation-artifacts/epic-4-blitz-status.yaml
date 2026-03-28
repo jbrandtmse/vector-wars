@@ -4,62 +4,62 @@
 
 epic: 4
 epic_title: "Narrative & Audio"
-status: in-progress
+status: completed
 started: "2026-03-27"
-completed: null
+completed: "2026-03-27"
 
 stories:
   4-1-handler-comm-overlay-system:
-    status: developing
-    phase: dev-story
-    attempts: 0
-    committed: false
-    notes: ""
+    status: done
+    phase: verified
+    attempts: 1
+    committed: true
+    notes: "DialogueManager + CommOverlay with typewriter effect. 1276 tests."
   4-2-ai-taunt-system:
-    status: developing
-    phase: dev-story
-    attempts: 0
-    committed: false
-    notes: ""
+    status: done
+    phase: verified
+    attempts: 1
+    committed: true
+    notes: "9 Gatekeeper dialogue entries, boss event subscriptions. 1285 tests."
   4-3-diegetic-tutorial-sequence:
-    status: creating
-    phase: create-story
-    attempts: 0
-    committed: false
-    notes: ""
+    status: done
+    phase: verified
+    attempts: 1
+    committed: true
+    notes: "6-step tutorial with CalibrationTargets, TutorialPrompt overlay. 1311 tests."
   4-4-briefing-screen-system:
-    status: creating
-    phase: create-story
-    attempts: 0
-    committed: false
-    notes: ""
+    status: done
+    phase: verified
+    attempts: 1
+    committed: true
+    notes: "BriefingScreen with scrolling text, 6-phase LevelManager sequence. 1344 tests."
   4-5-audio-manager-architecture:
-    status: creating
-    phase: create-story
-    attempts: 0
-    committed: false
-    notes: ""
+    status: done
+    phase: verified
+    attempts: 1
+    committed: true
+    notes: "4-channel AudioManager, JSON manifest, lazy buffer caching. 1403 tests."
   4-6-retro-sfx-for-weapons-and-actions:
-    status: creating
-    phase: create-story
-    attempts: 0
-    committed: false
-    notes: ""
+    status: done
+    phase: verified
+    attempts: 1
+    committed: true
+    notes: "SFXGenerator with 8 procedural retro sounds, generator fallback. 1431 tests."
   4-7-ambient-electronic-hum:
-    status: creating
-    phase: create-story
-    attempts: 0
-    committed: false
-    notes: ""
+    status: done
+    phase: verified
+    attempts: 1
+    committed: true
+    notes: "4-layer oscillator drone, phase/combat intensity mapping. 1481 tests."
   4-8-swappable-audio-assets:
-    status: creating
-    phase: create-story
-    attempts: 0
-    committed: false
-    notes: ""
+    status: done
+    phase: verified
+    attempts: 1
+    committed: true
+    notes: "reloadManifest(), AudioAssetValidator, debug console commands. 1499 tests."
   4-9-synthesized-handler-voice-lines:
-    status: creating
-    phase: create-story
-    attempts: 0
-    committed: false
-    notes: ""
+    status: done
+    phase: verified
+    attempts: 1
+    committed: true
+    notes: "27 procedural voice lines, handler + gatekeeper profiles. 1527 tests."
