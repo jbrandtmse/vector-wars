@@ -4,56 +4,56 @@
 
 epic: 6
 epic_title: "Polish & Ship"
-status: in-progress
+status: completed
 started: "2026-03-28"
-completed: null
+completed: "2026-03-28"
 
 stories:
   6-1-main-menu-screen:
-    status: pending
-    phase: null
-    attempts: 0
-    committed: false
-    notes: ""
+    status: done
+    phase: verified
+    attempts: 1
+    committed: true
+    notes: "MenuScreen with title, navigation, credits sub-screen. 1967 tests."
   6-2-full-game-flow-navigation:
-    status: pending
-    phase: null
-    attempts: 0
-    committed: false
-    notes: ""
+    status: done
+    phase: verified
+    attempts: 1
+    committed: true
+    notes: "Seamless menu→game→menu flow with no page reloads. 1976 tests."
   6-3-browser-compatibility-testing:
-    status: pending
-    phase: null
-    attempts: 0
-    committed: false
-    notes: ""
+    status: done
+    phase: verified
+    attempts: 1
+    committed: true
+    notes: "WebGL2 check, broadened build targets, visibility/resize/context handlers. 1992 tests."
   6-4-performance-optimization:
-    status: pending
-    phase: null
-    attempts: 0
-    committed: false
-    notes: ""
+    status: done
+    phase: verified
+    attempts: 1
+    committed: true
+    notes: "PerformanceMonitor, O(1) operations, bloom half-res. 2005 tests."
   6-5-github-pages-deployment:
-    status: pending
-    phase: null
-    attempts: 0
-    committed: false
-    notes: ""
+    status: done
+    phase: verified
+    attempts: 1
+    committed: true
+    notes: "GitHub Actions deploy workflow, fixed JSON data file paths. 2030 tests."
   6-6-electron-desktop-wrapper:
-    status: pending
-    phase: null
-    attempts: 0
-    committed: false
-    notes: ""
+    status: done
+    phase: verified
+    attempts: 1
+    committed: true
+    notes: "Electron main/preload, electron-builder config, CI workflow. 2067 tests."
   6-7-final-audio-polish:
-    status: pending
-    phase: null
-    attempts: 0
-    committed: false
-    notes: ""
+    status: done
+    phase: verified
+    attempts: 1
+    committed: true
+    notes: "AudioSettingsManager with persistence, manifest completeness (72 entries). 2109 tests."
   6-8-playtesting-bug-fixes:
-    status: pending
-    phase: null
-    attempts: 0
-    committed: false
-    notes: ""
+    status: done
+    phase: verified
+    attempts: 1
+    committed: true
+    notes: "6 bugs fixed: VirusPayload wiring, weapon/entity/projectile resets. 2125 tests."
