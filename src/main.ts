@@ -41,6 +41,7 @@ import { HighScoreManager } from './systems/HighScoreManager.ts';
 import { HighScoreScreen } from './ui/screens/HighScoreScreen.ts';
 import { CyberspaceFragmentation } from './entities/effects/CyberspaceFragmentation.ts';
 import { FRAG_PHASE1_DURATION } from './config/constants.ts';
+import { MenuScreen } from './ui/screens/MenuScreen.ts';
 
 // --- Renderer Setup ---
 const container = document.getElementById('app');
@@ -372,7 +373,23 @@ fetch('assets/briefings/level-3.json')
     Logger.warn('Narrative', 'Failed to load Level 3 briefing data', { error: String(err) });
   });
 
-levelManager.enter();
+// --- Main Menu Setup (Story 6-1) ---
+// Game no longer starts immediately -- the menu screen is shown first.
+// levelManager.enter() is called from the menu's START GAME callback.
+const menuScreen = new MenuScreen();
+menuScreen.onStartGame = () => {
+  // Resume AudioContext on user gesture (browser autoplay policy)
+  audioManager.resume();
+  levelManager.enter();
+};
+menuScreen.onHighScores = (returnToMenu: () => void) => {
+  const highScoreScreen = new HighScoreScreen();
+  highScoreScreen.onReturn = () => {
+    returnToMenu();
+  };
+  highScoreScreen.show(0, highScoreManager);
+};
+menuScreen.show();
 
 // --- Pool Diagnostics Setup (Story 2-9, debug-only) ---
 let poolDiagnosticsUpdate: ((dt: number) => void) | null = null;

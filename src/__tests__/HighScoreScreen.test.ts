@@ -235,4 +235,30 @@ describe('HighScoreScreen (Story 5-11)', () => {
     expect(playerRow).not.toBeNull();
     expect(playerRow!.style.opacity).toBe('1');
   });
+
+  it('onReturn callback is called instead of reload when set (Story 6-1)', () => {
+    const onReturn = vi.fn();
+    const manager = createMockHighScoreManager({ isHighScore: false });
+    screen.onReturn = onReturn;
+    screen.show(1000, manager);
+
+    // Advance past guard delay (1000ms)
+    vi.advanceTimersByTime(1100);
+
+    // Press any key (not just Space)
+    window.dispatchEvent(new KeyboardEvent('keydown', { code: 'KeyA' }));
+
+    expect(onReturn).toHaveBeenCalled();
+  });
+
+  it('shows PRESS ANY KEY TO RETURN when onReturn is set (Story 6-1)', () => {
+    const manager = createMockHighScoreManager({ isHighScore: false });
+    screen.onReturn = vi.fn();
+    screen.show(1000, manager);
+
+    const overlay = document.body.querySelector('div[style*="z-index: 15"]') as HTMLElement;
+    const textContent = overlay.textContent ?? '';
+    expect(textContent).toContain('PRESS ANY KEY TO RETURN');
+    expect(textContent).not.toContain('PRESS SPACE TO PLAY AGAIN');
+  });
 });

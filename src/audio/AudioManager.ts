@@ -323,6 +323,26 @@ export class AudioManager {
     return this.masterVolume.value;
   }
 
+  /**
+   * Resume the underlying AudioContext. Must be called from a user gesture
+   * (e.g. keydown event) to comply with browser autoplay policies.
+   * Also starts the ambient hum generator if registered and not yet playing.
+   */
+  resume(): void {
+    if (this.listener) {
+      const ctx = this.listener.context;
+      if (ctx.state === 'suspended') {
+        ctx.resume().catch(() => {
+          // Silently ignore resume failures
+        });
+      }
+    }
+    // Start ambient hum generator if not yet playing
+    if (this.ambientGenerator && !this.ambientGenerator.isPlaying()) {
+      this.ambientGenerator.start();
+    }
+  }
+
   getChannelVolume(channel: ChannelType): number {
     const ch = this.channels.get(channel);
     return ch ? ch.getVolume() : 0;

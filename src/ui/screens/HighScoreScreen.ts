@@ -44,6 +44,11 @@ export class HighScoreScreen {
   private playerScore = 0;
   private playerEntryIndex = -1; // index of the player's entry in the table after add
 
+  /** Optional callback invoked instead of window.location.reload() when viewing
+   *  the table. When set, the prompt text changes to "PRESS ANY KEY TO RETURN"
+   *  and any key (not just Space) triggers the callback. */
+  public onReturn: (() => void) | null = null;
+
   constructor() {
     this.overlay = document.createElement('div');
   }
@@ -392,7 +397,7 @@ export class HighScoreScreen {
 
     this.overlay.appendChild(table);
 
-    // Restart prompt
+    // Restart/return prompt
     const prompt = document.createElement('div');
     Object.assign(prompt.style, {
       fontSize: 'clamp(0.7rem, 1.5vw, 1rem)',
@@ -402,7 +407,7 @@ export class HighScoreScreen {
       opacity: '0',
       transition: 'opacity 0.5s ease-in',
     });
-    prompt.textContent = 'PRESS SPACE TO PLAY AGAIN';
+    prompt.textContent = this.onReturn ? 'PRESS ANY KEY TO RETURN' : 'PRESS SPACE TO PLAY AGAIN';
     this.overlay.appendChild(prompt);
 
     // Show restart prompt with delay
@@ -416,9 +421,15 @@ export class HighScoreScreen {
     const guardTimer = setTimeout(() => {
       this.restartEnabled = true;
       this.keyHandler = (e: KeyboardEvent) => {
-        if (e.code === 'Space' && this.restartEnabled) {
-          e.preventDefault();
-          window.location.reload();
+        if (this.restartEnabled) {
+          if (this.onReturn) {
+            e.preventDefault();
+            this.dispose();
+            this.onReturn();
+          } else if (e.code === 'Space') {
+            e.preventDefault();
+            window.location.reload();
+          }
         }
       };
       window.addEventListener('keydown', this.keyHandler);

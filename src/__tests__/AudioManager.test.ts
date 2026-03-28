@@ -1342,4 +1342,40 @@ describe('AudioManager', () => {
       );
     });
   });
+
+  describe('resume (Story 6-1)', () => {
+    it('should have resume method on prototype', () => {
+      expect(typeof AudioManager.prototype.resume).toBe('function');
+    });
+
+    it('should call context.resume() when context is suspended', () => {
+      manager.init(mockCamera);
+      const ctx = manager.getAudioContext();
+      expect(ctx).not.toBeNull();
+
+      manager.resume();
+
+      expect(ctx!.resume).toHaveBeenCalled();
+    });
+
+    it('should not throw when called before init', () => {
+      expect(() => manager.resume()).not.toThrow();
+    });
+
+    it('should start ambient generator if registered and not playing', () => {
+      manager.init(mockCamera);
+      const mockAmbientGen = {
+        start: vi.fn(),
+        stop: vi.fn(),
+        dispose: vi.fn(),
+        isPlaying: vi.fn().mockReturnValue(false),
+        setIntensity: vi.fn(),
+      };
+      manager.registerAmbientGenerator(mockAmbientGen as never);
+
+      manager.resume();
+
+      expect(mockAmbientGen.start).toHaveBeenCalled();
+    });
+  });
 });
