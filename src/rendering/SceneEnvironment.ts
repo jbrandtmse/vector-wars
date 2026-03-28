@@ -128,6 +128,23 @@ export class SceneEnvironment {
   }
 
   /**
+   * Hides grid and starfield meshes. Used during the ending fragmentation
+   * sequence to make the environment "disappear" as shards scatter.
+   */
+  hide(): void {
+    this.grid.visible = false;
+    this.starfield.visible = false;
+  }
+
+  /**
+   * Shows grid and starfield meshes (restores visibility).
+   */
+  show(): void {
+    this.grid.visible = true;
+    this.starfield.visible = true;
+  }
+
+  /**
    * Removes grid and starfield from scene and disposes all geometries
    * and the starfield PointsMaterial.
    *

@@ -182,6 +182,44 @@ describe('SceneEnvironment', () => {
     });
   });
 
+  describe('hide() and show() visibility control (Story 5-12)', () => {
+    it('hide() sets grid and starfield visible to false', () => {
+      // Verify both are visible initially
+      const lineSegments = scene.children.filter(
+        (child) => child instanceof THREE.LineSegments
+      );
+      const points = scene.children.filter(
+        (child) => child instanceof THREE.Points
+      );
+      expect(lineSegments[0].visible).toBe(true);
+      expect(points[0].visible).toBe(true);
+
+      env.hide();
+
+      expect(lineSegments[0].visible).toBe(false);
+      expect(points[0].visible).toBe(false);
+    });
+
+    it('show() sets grid and starfield visible to true', () => {
+      env.hide();
+
+      const lineSegments = scene.children.filter(
+        (child) => child instanceof THREE.LineSegments
+      );
+      const points = scene.children.filter(
+        (child) => child instanceof THREE.Points
+      );
+
+      expect(lineSegments[0].visible).toBe(false);
+      expect(points[0].visible).toBe(false);
+
+      env.show();
+
+      expect(lineSegments[0].visible).toBe(true);
+      expect(points[0].visible).toBe(true);
+    });
+  });
+
   describe('Task 4.11: updatePalette updates the starfield material color', () => {
     it('should update starfield material color when palette changes', () => {
       const points = scene.children.filter(

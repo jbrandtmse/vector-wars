@@ -39,6 +39,8 @@ import { OutroMusicGenerator } from './audio/OutroMusicGenerator.ts';
 import { EndingScreen } from './ui/screens/EndingScreen.ts';
 import { HighScoreManager } from './systems/HighScoreManager.ts';
 import { HighScoreScreen } from './ui/screens/HighScoreScreen.ts';
+import { CyberspaceFragmentation } from './entities/effects/CyberspaceFragmentation.ts';
+import { FRAG_PHASE1_DURATION } from './config/constants.ts';
 
 // --- Renderer Setup ---
 const container = document.getElementById('app');
@@ -203,6 +205,10 @@ const gameOverManager = new GameOverManager(scoreManager, hudManager);
 // --- High Score Manager Setup (Story 5-11) ---
 const highScoreManager = new HighScoreManager();
 
+// --- Cyberspace Fragmentation (Story 5-12) ---
+// Created on-demand during level 3 ending sequence; null until then.
+let activeFragmentation: CyberspaceFragmentation | null = null;
+
 // Wire GameOverScreen to show HighScoreScreen when score qualifies
 gameOverManager.setOnRestart((finalScore: number) => {
   if (highScoreManager.isHighScore(finalScore)) {
@@ -295,8 +301,19 @@ eventBus.on('levelComplete', ({ level }) => {
         window.addEventListener('keydown', handler);
       }, 1000);
     } else {
-      // Level 3 complete: full ending sequence (Story 5-10, updated Story 5-11)
+      // Level 3 complete: full ending sequence (Story 5-10, updated Story 5-11, 5-12)
       const endingScreen = new EndingScreen();
+      const fragmentation = new CyberspaceFragmentation(scene, vectorMaterials);
+      activeFragmentation = fragmentation;
+
+      endingScreen.onFragmentationStart = () => {
+        fragmentation.start();
+        // Hide the scene environment when Phase 2 begins (grid+starfield disappear)
+        setTimeout(() => {
+          sceneEnvironment.hide();
+        }, FRAG_PHASE1_DURATION * 1000);
+      };
+
       endingScreen.onCreditsComplete = (finalScore: number) => {
         const highScoreScreen = new HighScoreScreen();
         highScoreScreen.show(finalScore, highScoreManager);
@@ -454,6 +471,11 @@ renderer.setAnimationLoop((time: number) => {
 
   // Damage flash decay: update uniform before render pass (Story 2-7)
   renderPipeline.updateDamageFlash(dt);
+
+  // Cyberspace fragmentation: update ending effect shards (Story 5-12)
+  if (activeFragmentation?.isActive) {
+    activeFragmentation.update(dt);
+  }
 
   // Pool diagnostics: log stats once per second in debug mode (Story 2-9)
   if (poolDiagnosticsUpdate) poolDiagnosticsUpdate(dt);

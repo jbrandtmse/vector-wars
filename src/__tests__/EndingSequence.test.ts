@@ -185,6 +185,25 @@ describe('EndingScreen', () => {
     });
   });
 
+  describe('onFragmentationStart callback (Story 5-12)', () => {
+    it('calls onFragmentationStart callback on show() before audio calls', () => {
+      const callback = vi.fn();
+      endingScreen.onFragmentationStart = callback;
+      endingScreen.show(12345);
+
+      expect(callback).toHaveBeenCalledTimes(1);
+      // Verify it was called before audio calls
+      const fragCallOrder = callback.mock.invocationCallOrder[0];
+      const audioCallOrder = mockStopChannel.mock.invocationCallOrder[0];
+      expect(fragCallOrder).toBeLessThan(audioCallOrder);
+    });
+
+    it('does not crash when onFragmentationStart is null', () => {
+      endingScreen.onFragmentationStart = null;
+      expect(() => endingScreen.show(12345)).not.toThrow();
+    });
+  });
+
   describe('onCreditsComplete callback (Story 5-11)', () => {
     it('calls onCreditsComplete callback when credits finish instead of showing restart prompt', () => {
       const callback = vi.fn();

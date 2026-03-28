@@ -873,3 +873,14 @@ export const CORRIDOR_OBSTACLES_LEVEL3: CorridorObstacleConfig[] = [
   { type: 'firewall', position: [0, 4, -650], phaseOffset: 0.85 },
 ];
 // Total: 8 firewalls, 6 network cables, 8 data streams = 27 obstacles (vs 20 in Level 2, 35% increase)
+
+// Cyberspace fragmentation ending effect constants (Story 5-12)
+export const FRAG_TOTAL_SHARDS = 200;          // total line-segment shards in the effect
+export const FRAG_SHARD_MIN_SPEED = 8;         // minimum outward velocity (units/sec)
+export const FRAG_SHARD_MAX_SPEED = 30;        // maximum outward velocity (units/sec)
+export const FRAG_SHARD_MIN_LIFETIME = 3.0;    // minimum shard lifetime (seconds)
+export const FRAG_SHARD_MAX_LIFETIME = 10.0;   // maximum shard lifetime (seconds)
+export const FRAG_SHARD_LENGTH = 1.5;          // length of each shard line segment
+export const FRAG_PHASE1_DURATION = 3.0;       // seconds for initial fracture phase
+export const FRAG_PHASE2_DURATION = 5.0;       // seconds for full collapse phase
+export const FRAG_TOTAL_DURATION = 12.0;       // total effect duration

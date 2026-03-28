@@ -63,6 +63,9 @@ export class EndingScreen {
   /** Optional callback invoked when credits finish scrolling.
    *  When set, replaces the default restart prompt behavior. */
   public onCreditsComplete: ((finalScore: number) => void) | null = null;
+  /** Optional callback invoked at the start of show(), before the white flash.
+   *  Used to trigger the 3D cyberspace fragmentation effect. */
+  public onFragmentationStart: (() => void) | null = null;
   private finalScore = 0;
 
   constructor() {
@@ -80,6 +83,11 @@ export class EndingScreen {
    */
   show(finalScore: number): void {
     Logger.info('EndingScreen', 'Starting ending sequence', { finalScore });
+
+    // Trigger 3D fragmentation effect before the HTML overlay renders
+    if (this.onFragmentationStart) {
+      this.onFragmentationStart();
+    }
 
     this.finalScore = finalScore;
     this.buildDOM(finalScore);

@@ -35,8 +35,8 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-03-26
-last_updated: "2026-03-26T00:00:00Z"
-last_story_created: 5-11-high-score-table
+last_updated: "2026-03-26T12:00:00Z"
+last_story_created: 5-12-cyberspace-fragmentation-ending
 project: vector-wars
 project_key: NOKEY
 tracking_system: file-system
@@ -96,7 +96,7 @@ development_status:
   epic-4-retrospective: optional
 
   # === Epic 5: Full Campaign ===
-  epic-5: in-progress
+  epic-5: done
   5-1-level-2-amber-palette: done
   5-2-the-avenger-boss: done
   5-3-level-3-red-palette: done
@@ -108,7 +108,7 @@ development_status:
   5-9-briefing-screens-all-levels: done
   5-10-ending-sequence: done
   5-11-high-score-table: done
-  5-12-cyberspace-fragmentation-ending: backlog
+  5-12-cyberspace-fragmentation-ending: done
   epic-5-retrospective: optional
 
   # === Epic 6: Polish & Ship ===
