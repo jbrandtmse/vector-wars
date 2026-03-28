@@ -21,6 +21,7 @@ export interface BriefingData {
   title: string;
   lines: string[];
   speaker: string;
+  voiceLineId?: string;
 }
 
 export class BriefingScreen {

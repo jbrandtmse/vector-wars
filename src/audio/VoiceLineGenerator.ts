@@ -262,6 +262,10 @@ const HANDLER_DEFINITIONS: Record<string, VoiceDefinition> = {
   handler_l3_level_complete: createVoiceDefinition(HANDLER_PROFILE_L3, 2.0, hashString('handler_l3_level_complete')),
   handler_l3_first_kill: createVoiceDefinition(HANDLER_PROFILE_L3, 1.0, hashString('handler_l3_first_kill')),
   handler_l3_boss_vulnerable: createVoiceDefinition(HANDLER_PROFILE_L3, 1.0, hashString('handler_l3_boss_vulnerable')),
+  // Briefing voice lines — per-level handler voice-over for briefing screens (Story 5-9)
+  briefing_l1: createVoiceDefinition(HANDLER_PROFILE_L1, 4.0, hashString('briefing_l1')),
+  briefing_l2: createVoiceDefinition(HANDLER_PROFILE_L2, 4.0, hashString('briefing_l2')),
+  briefing_l3: createVoiceDefinition(HANDLER_PROFILE_L3, 4.0, hashString('briefing_l3')),
 };
 
 // Tutorial lines — same handler profile

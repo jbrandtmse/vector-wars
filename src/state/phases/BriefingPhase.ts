@@ -12,6 +12,7 @@
 import { BriefingScreen } from '../../ui/screens/BriefingScreen.ts';
 import type { BriefingData } from '../../ui/screens/BriefingScreen.ts';
 import { Logger } from '../../core/Logger.ts';
+import { audioManager } from '../../audio/AudioManager.ts';
 
 export class BriefingPhase {
   private briefingData: BriefingData;
@@ -30,6 +31,12 @@ export class BriefingPhase {
       this.completed = true;
       Logger.info('BriefingPhase', 'Briefing complete');
     });
+
+    // Play handler voice-over if voiceLineId is specified (Story 5-9)
+    if (this.briefingData.voiceLineId) {
+      audioManager.playVoice(this.briefingData.voiceLineId);
+      Logger.info('BriefingPhase', 'Playing briefing voice line', { voiceLineId: this.briefingData.voiceLineId });
+    }
   }
 
   update(_dt: number): void {

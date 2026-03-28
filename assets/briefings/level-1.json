@@ -1,6 +1,7 @@
 {
   "title": "MISSION BRIEFING",
   "speaker": "handler",
+  "voiceLineId": "briefing_l1",
   "lines": [
     "Calibration complete. All systems nominal. You're cleared for insertion.",
     "This is it, Cipher. The outer perimeter of the AI network. No one has breached it since Wraith's run.",

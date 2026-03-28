@@ -1,6 +1,7 @@
 {
   "title": "MISSION BRIEFING",
   "speaker": "handler",
+  "voiceLineId": "briefing_l2",
   "lines": [
     "Cipher, listen up. The network knows you're here. The Gatekeeper's destruction sent a shockwave through the entire AI hierarchy.",
     "They've flagged your signal. This isn't a perimeter defense anymore — this is retaliation. They're coming for you specifically.",

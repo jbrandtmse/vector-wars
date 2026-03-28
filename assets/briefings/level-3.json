@@ -1,6 +1,7 @@
 {
   "title": "MISSION BRIEFING",
   "speaker": "handler",
+  "voiceLineId": "briefing_l3",
   "lines": [
     "Cipher... listen to me. What I'm about to say isn't protocol. This is me talking.",
     "You've breached two layers of defense that no jockey has ever survived. The network's outer perimeter. The mid-level operational core. Both gone.",
