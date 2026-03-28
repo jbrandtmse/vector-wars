@@ -5,6 +5,7 @@
  * Story 4-6: Retro SFX for Weapons and Actions (generator integration + new events)
  * Story 4-7: Ambient Electronic Hum (ambient generator integration + intensity events)
  * Story 4-8: Swappable Audio Assets (reloadManifest + fallback chain verification)
+ * Story 6-7: Final Audio Polish (settings persistence integration)
  */
 
 // @vitest-environment jsdom
@@ -12,11 +13,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // Hoisted variables for use in vi.mock factories
-const { mockOn, mockOff, mockEmit, mockLoadAsync } = vi.hoisted(() => ({
+const { mockOn, mockOff, mockEmit, mockLoadAsync, mockLoadSettings, mockSaveSettings } = vi.hoisted(() => ({
   mockOn: vi.fn(),
   mockOff: vi.fn(),
   mockEmit: vi.fn(),
   mockLoadAsync: vi.fn(),
+  mockLoadSettings: vi.fn(),
+  mockSaveSettings: vi.fn(),
 }));
 
 // Track mock audio instances
@@ -80,6 +83,14 @@ vi.mock('../core/GameEvents.ts', () => ({
   },
 }));
 
+vi.mock('../audio/AudioSettingsManager.ts', () => ({
+  audioSettingsManager: {
+    loadSettings: mockLoadSettings,
+    saveSettings: mockSaveSettings,
+    getDefaults: vi.fn().mockReturnValue({ master: 1.0, sfx: 0.6, voice: 0.9, ambient: 0.4, music: 0.3 }),
+  },
+}));
+
 import { AudioManager } from '../audio/AudioManager.ts';
 import { Logger } from '../core/Logger.ts';
 import * as THREE from 'three';
@@ -91,6 +102,9 @@ describe('AudioManager', () => {
   beforeEach(() => {
     mockAudioInstances = [];
     vi.clearAllMocks();
+
+    // Default settings mock return
+    mockLoadSettings.mockReturnValue({ master: 1.0, sfx: 0.6, voice: 0.9, ambient: 0.4, music: 0.3 });
 
     manager = new AudioManager();
     mockCamera = {
@@ -1376,6 +1390,67 @@ describe('AudioManager', () => {
       manager.resume();
 
       expect(mockAmbientGen.start).toHaveBeenCalled();
+    });
+  });
+
+  describe('settings persistence (Story 6-7)', () => {
+    it('should load settings from AudioSettingsManager on init', () => {
+      mockLoadSettings.mockReturnValue({ master: 0.8, sfx: 0.5, voice: 0.7, ambient: 0.3, music: 0.2 });
+
+      manager.init(mockCamera);
+
+      expect(mockLoadSettings).toHaveBeenCalled();
+      expect(manager.getMasterVolume()).toBe(0.8);
+      expect(manager.getChannelVolume('sfx')).toBe(0.5);
+      expect(manager.getChannelVolume('voice')).toBe(0.7);
+      expect(manager.getChannelVolume('ambient')).toBe(0.3);
+      expect(manager.getChannelVolume('music')).toBe(0.2);
+    });
+
+    it('should save settings when setChannelVolume is called', () => {
+      manager.init(mockCamera);
+      mockSaveSettings.mockClear();
+
+      manager.setChannelVolume('sfx', 0.5);
+
+      expect(mockSaveSettings).toHaveBeenCalledWith(
+        expect.objectContaining({ sfx: 0.5 })
+      );
+    });
+
+    it('should save settings when setMasterVolume is called', () => {
+      manager.init(mockCamera);
+      mockSaveSettings.mockClear();
+
+      manager.setMasterVolume(0.7);
+
+      expect(mockSaveSettings).toHaveBeenCalledWith(
+        expect.objectContaining({ master: 0.7 })
+      );
+    });
+
+    it('should not save settings before init', () => {
+      mockSaveSettings.mockClear();
+
+      manager.setChannelVolume('sfx', 0.5);
+      manager.setMasterVolume(0.7);
+
+      expect(mockSaveSettings).not.toHaveBeenCalled();
+    });
+
+    it('should save complete settings object with all channels', () => {
+      manager.init(mockCamera);
+      mockSaveSettings.mockClear();
+
+      manager.setChannelVolume('sfx', 0.4);
+
+      expect(mockSaveSettings).toHaveBeenCalledWith({
+        master: 1.0,
+        sfx: 0.4,
+        voice: 0.9,
+        ambient: 0.4,
+        music: 0.3,
+      });
     });
   });
 });

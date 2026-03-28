@@ -8,6 +8,7 @@
  * Created by: Story 4-5 (Audio Manager Architecture)
  * Updated by: Story 4-6 (Retro SFX for Weapons and Actions)
  * Updated by: Story 4-7 (Ambient Electronic Hum)
+ * Updated by: Story 6-7 (Final Audio Polish)
  */
 
 import * as THREE from 'three';
@@ -22,6 +23,8 @@ import type { SFXGenerator } from './SFXGenerator.ts';
 import type { AmbientHumGenerator } from './AmbientHumGenerator.ts';
 import type { VoiceLineGenerator } from './VoiceLineGenerator.ts';
 import type { OutroMusicGenerator } from './OutroMusicGenerator.ts';
+import { audioSettingsManager } from './AudioSettingsManager.ts';
+import type { AudioSettings } from './AudioSettingsManager.ts';
 
 const WEAPON_SOUND_MAP: Record<WeaponType, string> = {
   dataLance: 'data_lance_fire',
@@ -105,6 +108,14 @@ export class AudioManager {
       'music',
       new AudioChannel(this.listener, { type: 'music', volume: DEFAULT_VOLUMES.music }, this.masterVolume)
     );
+
+    // Load persisted volume settings (Story 6-7)
+    const savedSettings = audioSettingsManager.loadSettings();
+    this.masterVolume.value = savedSettings.master;
+    this.channels.get('sfx')?.setVolume(savedSettings.sfx);
+    this.channels.get('voice')?.setVolume(savedSettings.voice);
+    this.channels.get('ambient')?.setVolume(savedSettings.ambient);
+    this.channels.get('music')?.setVolume(savedSettings.music);
 
     // Register AudioContext unlock listener (browser policy)
     this.unlockHandler = () => {
@@ -310,6 +321,7 @@ export class AudioManager {
     if (ch) {
       ch.setVolume(clamped);
     }
+    this.saveCurrentSettings();
   }
 
   setMasterVolume(volume: number): void {
@@ -317,6 +329,7 @@ export class AudioManager {
     for (const ch of this.channels.values()) {
       ch.updateMasterVolume();
     }
+    this.saveCurrentSettings();
   }
 
   getMasterVolume(): number {
@@ -417,6 +430,22 @@ export class AudioManager {
     this.initialized = false;
 
     Logger.info('Audio', 'AudioManager disposed');
+  }
+
+  private getCurrentSettings(): AudioSettings {
+    return {
+      master: this.masterVolume.value,
+      sfx: this.channels.get('sfx')?.getVolume() ?? DEFAULT_VOLUMES.sfx,
+      voice: this.channels.get('voice')?.getVolume() ?? DEFAULT_VOLUMES.voice,
+      ambient: this.channels.get('ambient')?.getVolume() ?? DEFAULT_VOLUMES.ambient,
+      music: this.channels.get('music')?.getVolume() ?? DEFAULT_VOLUMES.music,
+    };
+  }
+
+  private saveCurrentSettings(): void {
+    if (this.initialized) {
+      audioSettingsManager.saveSettings(this.getCurrentSettings());
+    }
   }
 
   private playOnChannel(channelType: ChannelType, id: string, loop?: boolean): void {
