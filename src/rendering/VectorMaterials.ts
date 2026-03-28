@@ -99,6 +99,23 @@ export class VectorMaterials {
   }
 
   /**
+   * Updates all registered materials to arbitrary HSL values.
+   * Used by PaletteTransition for per-frame interpolated color updates.
+   * Does NOT change the active palette name in ColorPalette.
+   */
+  setPaletteHSL(hue: number, saturation: number, lightness: number): void {
+    for (const entry of this.thinMaterials.values()) {
+      const adjustedLightness = Math.max(0, Math.min(1, lightness + entry.lightnessOffset));
+      entry.material.color.setHSL(hue, saturation, adjustedLightness);
+    }
+
+    for (const entry of this.fatMaterials.values()) {
+      const adjustedLightness = Math.max(0, Math.min(1, lightness + entry.lightnessOffset));
+      entry.material.color.setHSL(hue, saturation, adjustedLightness);
+    }
+  }
+
+  /**
    * Updates the resolution on all registered LineMaterial instances.
    * Required for correct Line2 rendering; must be called on window resize.
    */

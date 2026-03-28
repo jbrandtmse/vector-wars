@@ -164,6 +164,24 @@ describe('SceneEnvironment', () => {
     });
   });
 
+  describe('updatePaletteHSL() updates the starfield material to given HSL', () => {
+    it('should update starfield material color to arbitrary HSL values', () => {
+      const points = scene.children.filter(
+        (child) => child instanceof THREE.Points
+      ) as THREE.Points[];
+      const material = points[0].material as THREE.PointsMaterial;
+
+      // Use amber-ish HSL values
+      env.updatePaletteHSL(0.11, 1.0, 0.5);
+
+      const hsl = { h: 0, s: 0, l: 0 };
+      material.color.getHSL(hsl);
+      expect(hsl.h).toBeCloseTo(0.11, 2);
+      expect(hsl.s).toBeCloseTo(1.0, 2);
+      // Lightness should include STARFIELD_LIGHTNESS_OFFSET
+    });
+  });
+
   describe('Task 4.11: updatePalette updates the starfield material color', () => {
     it('should update starfield material color when palette changes', () => {
       const points = scene.children.filter(

@@ -116,6 +116,18 @@ export class SceneEnvironment {
   }
 
   /**
+   * Updates the starfield PointsMaterial color to arbitrary HSL values.
+   * Used by PaletteTransition for per-frame interpolated color updates.
+   */
+  updatePaletteHSL(hue: number, saturation: number, lightness: number): void {
+    this.starfieldMaterial.color.setHSL(
+      hue,
+      saturation,
+      Math.max(0, Math.min(1, lightness + STARFIELD_LIGHTNESS_OFFSET)),
+    );
+  }
+
+  /**
    * Removes grid and starfield from scene and disposes all geometries
    * and the starfield PointsMaterial.
    *

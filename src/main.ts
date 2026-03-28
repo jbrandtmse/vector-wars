@@ -89,7 +89,7 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x000000);
 
 // --- Environment Setup (grid + starfield) ---
-new SceneEnvironment(scene, vectorMaterials);
+const sceneEnvironment = new SceneEnvironment(scene, vectorMaterials);
 
 // Set initial resolution for LineMaterial
 vectorMaterials.updateResolution(window.innerWidth, window.innerHeight);
@@ -315,6 +315,7 @@ const levelManager = new LevelManager(
   dataLanceSystem,
   gameOverManager,
   inputManager,
+  sceneEnvironment,
 );
 // Load briefing data at init time (not during gameplay frames)
 fetch('assets/briefings/level-1.json')

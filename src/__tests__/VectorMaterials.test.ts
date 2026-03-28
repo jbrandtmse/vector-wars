@@ -120,6 +120,43 @@ describe('VectorMaterials', () => {
     });
   });
 
+  describe('setPaletteHSL()', () => {
+    it('should update all registered thin materials to given HSL', () => {
+      const mat1 = vm.create('hsl-thin-1');
+      const mat2 = vm.create('hsl-thin-2');
+      vm.setPaletteHSL(0.11, 1.0, 0.5);
+      for (const mat of [mat1, mat2]) {
+        const hsl = { h: 0, s: 0, l: 0 };
+        mat.color.getHSL(hsl);
+        expect(hsl.h).toBeCloseTo(0.11, 2);
+        expect(hsl.s).toBeCloseTo(1.0, 2);
+        expect(hsl.l).toBeCloseTo(0.5, 2);
+      }
+    });
+
+    it('should update all registered fat materials to given HSL', () => {
+      const mat1 = vm.createFat('hsl-fat-1', 2);
+      const mat2 = vm.createFat('hsl-fat-2', 3);
+      vm.setPaletteHSL(0.0, 1.0, 0.5);
+      for (const mat of [mat1, mat2]) {
+        const hsl = { h: 0, s: 0, l: 0 };
+        mat.color.getHSL(hsl);
+        expect(hsl.h).toBeCloseTo(0.0, 2);
+        expect(hsl.s).toBeCloseTo(1.0, 2);
+        expect(hsl.l).toBeCloseTo(0.5, 2);
+      }
+    });
+
+    it('should apply lightnessOffset to each material', () => {
+      const offset = 0.15;
+      const mat = vm.create('hsl-offset', offset);
+      vm.setPaletteHSL(0.11, 1.0, 0.5);
+      const hsl = { h: 0, s: 0, l: 0 };
+      mat.color.getHSL(hsl);
+      expect(hsl.l).toBeCloseTo(0.5 + offset, 2);
+    });
+  });
+
   describe('updateResolution()', () => {
     it('should update resolution on all fat materials', () => {
       const mat = vm.createFat('res-test', 3);

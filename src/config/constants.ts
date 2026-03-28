@@ -304,6 +304,9 @@ export const VIRUS_PAYLOAD_LENGTH = 3.0;
 export const PHASE_TRANSITION_FADE_DURATION = 0.75;
 export const PHASE_SHIELD_RECHARGE_AMOUNT = 30;
 
+// Palette transition constants (Story 5-5)
+export const PALETTE_TRANSITION_DURATION = 2.0;
+
 // Rail completion threshold (used by phases to detect rail end)
 export const RAIL_COMPLETION_THRESHOLD = 0.98;
 

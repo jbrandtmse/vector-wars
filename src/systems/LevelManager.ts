@@ -27,10 +27,12 @@ import { PhaseTransition } from '../state/phases/PhaseTransition.ts';
 import { GatekeeperBoss } from '../entities/bosses/GatekeeperBoss.ts';
 import { AvengerBoss } from '../entities/bosses/AvengerBoss.ts';
 import { CoreIntelligenceBoss } from '../entities/bosses/CoreIntelligenceBoss.ts';
+import { PaletteTransition } from '../rendering/PaletteTransition.ts';
 import { eventBus } from '../core/GameEvents.ts';
 import { Logger } from '../core/Logger.ts';
 import {
   PHASE_SHIELD_RECHARGE_AMOUNT,
+  PALETTE_TRANSITION_DURATION,
   SPAWN_EVENTS,
   SPAWN_EVENTS_LEVEL2,
   SPAWN_EVENTS_LEVEL3,
@@ -56,6 +58,7 @@ import type { DataLanceSystem } from './DataLanceSystem.ts';
 import type { RailMovement } from './RailMovement.ts';
 import type { GameOverManager } from './GameOverManager.ts';
 import type { InputManager } from '../core/InputManager.ts';
+import type { SceneEnvironment } from '../rendering/SceneEnvironment.ts';
 import type { BriefingData } from '../ui/screens/BriefingScreen.ts';
 
 /** Interface matching the lifecycle of all phase classes */
@@ -120,6 +123,7 @@ export class LevelManager {
   private dataLanceSystem: DataLanceSystem;
   private gameOverManager: GameOverManager;
   private inputManager: InputManager;
+  private paletteTransition: PaletteTransition;
   private briefingDataMap: Map<number, BriefingData> = new Map();
 
   // Level tracking
@@ -151,6 +155,7 @@ export class LevelManager {
     dataLanceSystem: DataLanceSystem,
     gameOverManager: GameOverManager,
     inputManager: InputManager,
+    sceneEnvironment?: SceneEnvironment,
   ) {
     this.scene = scene;
     this.camera = camera;
@@ -167,6 +172,7 @@ export class LevelManager {
     this.inputManager = inputManager;
 
     this.phaseTransition = new PhaseTransition(renderPipeline);
+    this.paletteTransition = new PaletteTransition(vectorMaterials, sceneEnvironment);
   }
 
   /**
@@ -189,8 +195,16 @@ export class LevelManager {
 
     // Set palette for this level
     const paletteName = LEVEL_PALETTES[level] ?? 'green';
-    this.vectorMaterials.setPalette(paletteName);
-    Logger.info('LevelManager', `Palette set to ${paletteName}`);
+    if (level > 1) {
+      // Animate palette transition from previous level's palette
+      const previousPalette = LEVEL_PALETTES[level - 1] ?? 'green';
+      this.paletteTransition.start(previousPalette, paletteName, PALETTE_TRANSITION_DURATION);
+      Logger.info('LevelManager', `Palette transition started: ${previousPalette} -> ${paletteName}`);
+    } else {
+      // Level 1: set palette instantly (no previous palette to transition from)
+      this.vectorMaterials.setPalette(paletteName);
+      Logger.info('LevelManager', `Palette set to ${paletteName}`);
+    }
 
     // Configure enemy spawner for this level
     const spawnEvents = LEVEL_SPAWN_EVENTS[level] ?? SPAWN_EVENTS;
@@ -361,6 +375,11 @@ export class LevelManager {
    */
   update(dt: number, viewportOffset?: { x: number; y: number }): void {
     if (this.levelComplete) return;
+
+    // Drive palette transition if active (color shift during early gameplay)
+    if (this.paletteTransition.isActive()) {
+      this.paletteTransition.update(dt);
+    }
 
     // If transition is active, drive the animation and keep the scene alive
     if (this.phaseTransition.isActive()) {
