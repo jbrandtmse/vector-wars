@@ -31,6 +31,7 @@ import type { DialogueScript } from './narrative/DialogueTypes.ts';
 import type { BriefingData } from './ui/screens/BriefingScreen.ts';
 import { Logger } from './core/Logger.ts';
 import { audioManager } from './audio/AudioManager.ts';
+import { SFXGenerator } from './audio/SFXGenerator.ts';
 
 // --- Renderer Setup ---
 const container = document.getElementById('app');
@@ -52,10 +53,17 @@ const camera = new THREE.PerspectiveCamera(
 );
 // Camera position is now controlled by RailMovement -- no static position
 
-// --- Audio Manager Setup (Story 4-5) ---
+// --- Audio Manager Setup (Story 4-5, 4-6) ---
 audioManager.init(camera);
 audioManager.loadManifest('audio/manifest.json').catch((err) => {
   Logger.warn('Audio', 'Failed to load audio manifest', { error: String(err) });
+});
+
+// --- SFX Generator Setup (Story 4-6) ---
+const sfxGenerator = new SFXGenerator();
+audioManager.registerGenerator(sfxGenerator);
+sfxGenerator.generateAll().catch((err) => {
+  Logger.warn('Audio', 'Failed to pre-generate SFX', { error: String(err) });
 });
 
 // --- Scene Setup ---

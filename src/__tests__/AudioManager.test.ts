@@ -2,6 +2,7 @@
  * AudioManager tests — validates central audio system behavior.
  *
  * Story 4-5: Audio Manager Architecture
+ * Story 4-6: Retro SFX for Weapons and Actions (generator integration + new events)
  */
 
 // @vitest-environment jsdom
@@ -431,6 +432,181 @@ describe('AudioManager', () => {
     it('should stop the specified channel without throwing', () => {
       manager.init(mockCamera);
       expect(() => manager.stopChannel('sfx')).not.toThrow();
+    });
+  });
+
+  // === Story 4-6: SFX Generator Integration ===
+
+  describe('registerGenerator', () => {
+    it('should store generator reference', () => {
+      manager.init(mockCamera);
+      const mockGenerator = {
+        generate: vi.fn(),
+        generateAll: vi.fn(),
+        hasSound: vi.fn().mockReturnValue(true),
+        getSoundIds: vi.fn().mockReturnValue(['test_sound']),
+      };
+      // Should not throw
+      expect(() => manager.registerGenerator(mockGenerator as never)).not.toThrow();
+      expect(Logger.info).toHaveBeenCalledWith('Audio', 'SFX generator registered');
+    });
+  });
+
+  describe('generator fallback', () => {
+    it('should use generator when sound not in manifest but generator has it', async () => {
+      manager.init(mockCamera);
+
+      // Load empty manifest
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({}),
+      });
+      await manager.loadManifest('audio/manifest.json');
+
+      const mockBuffer = {} as AudioBuffer;
+      const mockGenerator = {
+        generate: vi.fn().mockResolvedValue(mockBuffer),
+        generateAll: vi.fn(),
+        hasSound: vi.fn().mockReturnValue(true),
+        getSoundIds: vi.fn().mockReturnValue(['generated_sound']),
+      };
+      manager.registerGenerator(mockGenerator as never);
+
+      manager.playSFX('generated_sound');
+
+      await vi.waitFor(() => {
+        expect(mockGenerator.generate).toHaveBeenCalledWith('generated_sound');
+      });
+    });
+
+    it('should fall back to generator when file load fails', async () => {
+      manager.init(mockCamera);
+
+      // Manifest has an entry but file load will fail
+      const manifest = {
+        test_sfx: { path: 'audio/sfx/test.ogg', channel: 'sfx' },
+      };
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(manifest),
+      });
+      await manager.loadManifest('audio/manifest.json');
+
+      mockLoadAsync.mockRejectedValueOnce(new Error('File not found'));
+
+      const mockBuffer = {} as AudioBuffer;
+      const mockGenerator = {
+        generate: vi.fn().mockResolvedValue(mockBuffer),
+        generateAll: vi.fn(),
+        hasSound: vi.fn().mockReturnValue(true),
+        getSoundIds: vi.fn().mockReturnValue(['test_sfx']),
+      };
+      manager.registerGenerator(mockGenerator as never);
+
+      manager.playSFX('test_sfx');
+
+      await vi.waitFor(() => {
+        expect(mockGenerator.generate).toHaveBeenCalledWith('test_sfx');
+      });
+    });
+
+    it('should log warning when sound not in manifest and no generator', () => {
+      manager.init(mockCamera);
+      manager.playSFX('nonexistent');
+      expect(Logger.warn).toHaveBeenCalledWith(
+        'Audio',
+        'Sound not found in manifest',
+        { id: 'nonexistent' }
+      );
+    });
+  });
+
+  describe('new EventBus subscriptions (Story 4-6)', () => {
+    it('should subscribe to bossDestroyed event', () => {
+      manager.init(mockCamera);
+      expect(mockOn).toHaveBeenCalledWith('bossDestroyed', expect.any(Function));
+    });
+
+    it('should subscribe to phaseStart event', () => {
+      manager.init(mockCamera);
+      expect(mockOn).toHaveBeenCalledWith('phaseStart', expect.any(Function));
+    });
+
+    it('should play boss_destruction on bossDestroyed event', async () => {
+      manager.init(mockCamera);
+
+      const mockBuffer = {} as AudioBuffer;
+      const mockGenerator = {
+        generate: vi.fn().mockResolvedValue(mockBuffer),
+        generateAll: vi.fn(),
+        hasSound: vi.fn().mockReturnValue(true),
+        getSoundIds: vi.fn().mockReturnValue(['boss_destruction']),
+      };
+      manager.registerGenerator(mockGenerator as never);
+
+      const bossDestroyedCall = mockOn.mock.calls.find(
+        (call: unknown[]) => call[0] === 'bossDestroyed'
+      );
+      expect(bossDestroyedCall).toBeDefined();
+
+      bossDestroyedCall![1]({ position: { x: 0, y: 0, z: 0 }, scoreValue: 1000 });
+
+      await vi.waitFor(() => {
+        expect(mockGenerator.generate).toHaveBeenCalledWith('boss_destruction');
+      });
+    });
+
+    it('should play corridor_whoosh on phaseStart when phase is corridor', async () => {
+      manager.init(mockCamera);
+
+      const mockBuffer = {} as AudioBuffer;
+      const mockGenerator = {
+        generate: vi.fn().mockResolvedValue(mockBuffer),
+        generateAll: vi.fn(),
+        hasSound: vi.fn().mockReturnValue(true),
+        getSoundIds: vi.fn().mockReturnValue(['corridor_whoosh']),
+      };
+      manager.registerGenerator(mockGenerator as never);
+
+      const phaseStartCall = mockOn.mock.calls.find(
+        (call: unknown[]) => call[0] === 'phaseStart'
+      );
+      expect(phaseStartCall).toBeDefined();
+
+      phaseStartCall![1]({ phase: 'corridor', level: 1 });
+
+      await vi.waitFor(() => {
+        expect(mockGenerator.generate).toHaveBeenCalledWith('corridor_whoosh');
+      });
+    });
+
+    it('should NOT play corridor_whoosh on phaseStart when phase is not corridor', () => {
+      manager.init(mockCamera);
+
+      const mockGenerator = {
+        generate: vi.fn(),
+        generateAll: vi.fn(),
+        hasSound: vi.fn().mockReturnValue(true),
+        getSoundIds: vi.fn().mockReturnValue([]),
+      };
+      manager.registerGenerator(mockGenerator as never);
+
+      const phaseStartCall = mockOn.mock.calls.find(
+        (call: unknown[]) => call[0] === 'phaseStart'
+      );
+      expect(phaseStartCall).toBeDefined();
+
+      phaseStartCall![1]({ phase: 'dogfight', level: 1 });
+
+      // Should not try to play corridor_whoosh for non-corridor phases
+      expect(mockGenerator.generate).not.toHaveBeenCalled();
+    });
+
+    it('should unsubscribe bossDestroyed and phaseStart on dispose', () => {
+      manager.init(mockCamera);
+      manager.dispose();
+      expect(mockOff).toHaveBeenCalledWith('bossDestroyed', expect.any(Function));
+      expect(mockOff).toHaveBeenCalledWith('phaseStart', expect.any(Function));
     });
   });
 });

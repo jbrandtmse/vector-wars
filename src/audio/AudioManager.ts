@@ -6,16 +6,18 @@
  * and plays audio via EventBus subscriptions.
  *
  * Created by: Story 4-5 (Audio Manager Architecture)
+ * Updated by: Story 4-6 (Retro SFX for Weapons and Actions)
  */
 
 import * as THREE from 'three';
 import { Logger } from '../core/Logger.ts';
 import { eventBus } from '../core/GameEvents.ts';
-import type { WeaponFiredEvent, PlayerHitEvent } from '../core/GameEvents.ts';
+import type { WeaponFiredEvent, PlayerHitEvent, PhaseStartEvent } from '../core/GameEvents.ts';
 import type { Enemy } from '../entities/enemies/Enemy.ts';
 import type { WeaponType } from '../types/game.ts';
 import { AudioChannel } from './AudioChannel.ts';
 import type { ChannelType, SoundManifest } from './SoundManifest.ts';
+import type { SFXGenerator } from './SFXGenerator.ts';
 
 const WEAPON_SOUND_MAP: Record<WeaponType, string> = {
   dataLance: 'data_lance_fire',
@@ -41,6 +43,7 @@ export class AudioManager {
   private masterVolume = { value: 1.0 };
   private initialized = false;
   private unlockHandler: (() => void) | null = null;
+  private generator: SFXGenerator | null = null;
 
   // EventBus callback references for cleanup
   private onWeaponFired: ((e: WeaponFiredEvent) => void) | null = null;
@@ -48,6 +51,10 @@ export class AudioManager {
   private onEnemyDestroyed:
     | ((e: { enemy: Enemy; position: { x: number; y: number; z: number } }) => void)
     | null = null;
+  private onBossDestroyed:
+    | ((e: { position: { x: number; y: number; z: number }; scoreValue: number }) => void)
+    | null = null;
+  private onPhaseStart: ((e: PhaseStartEvent) => void) | null = null;
 
   init(camera: THREE.Camera): void {
     if (this.initialized) return;
@@ -110,12 +117,28 @@ export class AudioManager {
       this.playSFX('enemy_explosion');
     };
 
+    this.onBossDestroyed = () => {
+      this.playSFX('boss_destruction');
+    };
+    this.onPhaseStart = (e: PhaseStartEvent) => {
+      if (e.phase === 'corridor') {
+        this.playSFX('corridor_whoosh');
+      }
+    };
+
     eventBus.on('weaponFired', this.onWeaponFired);
     eventBus.on('playerHit', this.onPlayerHit);
     eventBus.on('enemyDestroyed', this.onEnemyDestroyed);
+    eventBus.on('bossDestroyed', this.onBossDestroyed);
+    eventBus.on('phaseStart', this.onPhaseStart);
 
     this.initialized = true;
     Logger.info('Audio', 'AudioManager initialized');
+  }
+
+  registerGenerator(generator: SFXGenerator): void {
+    this.generator = generator;
+    Logger.info('Audio', 'SFX generator registered');
   }
 
   async loadManifest(url: string): Promise<void> {
@@ -193,6 +216,14 @@ export class AudioManager {
       eventBus.off('enemyDestroyed', this.onEnemyDestroyed);
       this.onEnemyDestroyed = null;
     }
+    if (this.onBossDestroyed) {
+      eventBus.off('bossDestroyed', this.onBossDestroyed);
+      this.onBossDestroyed = null;
+    }
+    if (this.onPhaseStart) {
+      eventBus.off('phaseStart', this.onPhaseStart);
+      this.onPhaseStart = null;
+    }
 
     // Stop and dispose all channels
     for (const ch of this.channels.values()) {
@@ -217,49 +248,59 @@ export class AudioManager {
     this.listener = null;
     this.camera = null;
     this.audioLoader = null;
+    this.generator = null;
     this.initialized = false;
 
     Logger.info('Audio', 'AudioManager disposed');
   }
 
   private playOnChannel(channelType: ChannelType, id: string, loop?: boolean): void {
-    const entry = this.manifest[id];
-    if (!entry) {
-      Logger.warn('Audio', 'Sound not found in manifest', { id });
-      return;
-    }
-
     const channel = this.channels.get(channelType);
     if (!channel) {
       Logger.warn('Audio', 'Channel not found', { channel: channelType });
       return;
     }
 
-    this.loadBuffer(id, entry.path).then((buffer) => {
+    const entry = this.manifest[id];
+    if (!entry && !this.generator?.hasSound(id)) {
+      Logger.warn('Audio', 'Sound not found in manifest', { id });
+      return;
+    }
+
+    this.loadBuffer(id, entry?.path ?? null).then((buffer) => {
       if (buffer) {
         channel.play(buffer, loop);
       }
     });
   }
 
-  private async loadBuffer(id: string, path: string): Promise<AudioBuffer | null> {
+  private async loadBuffer(id: string, path: string | null): Promise<AudioBuffer | null> {
     // Return from cache if available
     const cached = this.bufferCache.get(id);
     if (cached) return cached;
 
-    if (!this.audioLoader) {
-      Logger.warn('Audio', 'AudioLoader not initialized');
-      return null;
+    // Try loading from file via AudioLoader
+    if (path && this.audioLoader) {
+      try {
+        const buffer = await this.audioLoader.loadAsync(path);
+        this.bufferCache.set(id, buffer);
+        return buffer;
+      } catch {
+        // File load failed — fall through to generator
+      }
     }
 
-    try {
-      const buffer = await this.audioLoader.loadAsync(path);
-      this.bufferCache.set(id, buffer);
-      return buffer;
-    } catch (error) {
-      Logger.warn('Audio', 'Failed to load audio buffer', { id, path, error: String(error) });
-      return null;
+    // Fallback to SFX generator
+    if (this.generator) {
+      const buffer = await this.generator.generate(id);
+      if (buffer) {
+        this.bufferCache.set(id, buffer);
+        return buffer;
+      }
     }
+
+    Logger.warn('Audio', 'Failed to load audio buffer', { id, path });
+    return null;
   }
 }
 
