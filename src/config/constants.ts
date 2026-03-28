@@ -377,6 +377,12 @@ export const CORRIDOR_HEIGHT = 8.0;
 export const CORRIDOR_LENGTH = 700;
 export const CORRIDOR_RAIL_SPEED_MULTIPLIER = 1.2;
 
+// Comm Overlay constants (Story 4-1)
+export const COMM_TYPEWRITER_SPEED = 30;       // characters per second
+export const COMM_DEFAULT_DURATION = 4.0;      // seconds to display a line
+export const COMM_FADE_IN_DURATION = 0.2;      // seconds
+export const COMM_FADE_OUT_DURATION = 0.3;     // seconds
+
 // Data Corridor Phase rail path (Story 3-4)
 // Non-looping straight-forward path through narrowing corridor
 // Very slight lateral variation for visual interest, centered at y~4

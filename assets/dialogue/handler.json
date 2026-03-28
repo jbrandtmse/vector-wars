@@ -1,0 +1,12 @@
+{
+  "entries": [
+    { "id": "handler_phase1_start", "trigger": "phaseStart:dogfight:1", "speaker": "handler", "text": "Cipher, you're clear of the perimeter. Stay sharp.", "priority": 2, "duration": 4 },
+    { "id": "handler_first_kill", "trigger": "firstEnemyDestroyed", "speaker": "handler", "text": "Good kill. Keep moving.", "priority": 1, "duration": 3 },
+    { "id": "handler_surface_start", "trigger": "phaseStart:surface:1", "speaker": "handler", "text": "Fortress in sight. Target those firewall nodes.", "priority": 2, "duration": 4 },
+    { "id": "handler_corridor_start", "trigger": "phaseStart:corridor:1", "speaker": "handler", "text": "Cipher... this corridor. This is where we lost Wraith's signal.", "priority": 3, "duration": 5 },
+    { "id": "handler_corridor_encourage", "trigger": "phaseStart:corridor:1:mid", "speaker": "handler", "text": "Keep moving.", "priority": 1, "duration": 2 },
+    { "id": "handler_boss_start", "trigger": "phaseStart:boss:1", "speaker": "handler", "text": "Massive construct ahead. That's the Gatekeeper.", "priority": 3, "duration": 4 },
+    { "id": "handler_boss_vulnerable", "trigger": "bossVulnerable", "speaker": "handler", "text": "It's exposed! Hit it now!", "priority": 2, "duration": 3 },
+    { "id": "handler_level_complete", "trigger": "levelComplete:1", "speaker": "handler", "text": "Cipher... you actually did it. First breach confirmed.", "priority": 3, "duration": 5 }
+  ]
+}

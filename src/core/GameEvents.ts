@@ -100,6 +100,10 @@ export interface PhaseRestartEvent {
   level: number;
 }
 
+export interface DialogueTriggerEvent {
+  triggerId: string;
+}
+
 export interface GameEvents {
   weaponFired: WeaponFiredEvent;
   enemySpawned: { enemy: Enemy; position: { x: number; y: number; z: number } };
@@ -123,6 +127,7 @@ export interface GameEvents {
   phaseEnd: PhaseEndEvent;
   levelComplete: LevelCompleteEvent;
   phaseRestart: PhaseRestartEvent;
+  dialogueTrigger: DialogueTriggerEvent;
 }
 
 /** Module-level singleton event bus */

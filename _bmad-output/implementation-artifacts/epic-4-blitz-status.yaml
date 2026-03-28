@@ -1,0 +1,65 @@
+# Epic Blitz Status
+# Generated: 2026-03-27
+# Last Updated: 2026-03-27
+
+epic: 4
+epic_title: "Narrative & Audio"
+status: in-progress
+started: "2026-03-27"
+completed: null
+
+stories:
+  4-1-handler-comm-overlay-system:
+    status: developing
+    phase: dev-story
+    attempts: 0
+    committed: false
+    notes: ""
+  4-2-ai-taunt-system:
+    status: pending
+    phase: null
+    attempts: 0
+    committed: false
+    notes: ""
+  4-3-diegetic-tutorial-sequence:
+    status: pending
+    phase: null
+    attempts: 0
+    committed: false
+    notes: ""
+  4-4-briefing-screen-system:
+    status: pending
+    phase: null
+    attempts: 0
+    committed: false
+    notes: ""
+  4-5-audio-manager-architecture:
+    status: pending
+    phase: null
+    attempts: 0
+    committed: false
+    notes: ""
+  4-6-retro-sfx-for-weapons-and-actions:
+    status: pending
+    phase: null
+    attempts: 0
+    committed: false
+    notes: ""
+  4-7-ambient-electronic-hum:
+    status: pending
+    phase: null
+    attempts: 0
+    committed: false
+    notes: ""
+  4-8-swappable-audio-assets:
+    status: pending
+    phase: null
+    attempts: 0
+    committed: false
+    notes: ""
+  4-9-synthesized-handler-voice-lines:
+    status: pending
+    phase: null
+    attempts: 0
+    committed: false
+    notes: ""

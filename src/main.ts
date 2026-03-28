@@ -25,6 +25,10 @@ import { GameOverManager } from './systems/GameOverManager.ts';
 import { LevelManager } from './systems/LevelManager.ts';
 import { LogicBombSystem } from './systems/LogicBombSystem.ts';
 import { EMPBurstSystem } from './systems/EMPBurstSystem.ts';
+import { CommOverlay } from './ui/screens/CommOverlay.ts';
+import { DialogueManager } from './narrative/DialogueManager.ts';
+import type { DialogueScript } from './narrative/DialogueTypes.ts';
+import { Logger } from './core/Logger.ts';
 
 // --- Renderer Setup ---
 const container = document.getElementById('app');
@@ -154,6 +158,21 @@ const hudManager = new HUDManager(camera, vectorMaterials);
 // --- Game Over Manager Setup (Story 2-10) ---
 const gameOverManager = new GameOverManager(scoreManager, hudManager);
 
+// --- Comm Overlay + Dialogue Manager Setup (Story 4-1) ---
+const commOverlay = new CommOverlay();
+const dialogueManager = new DialogueManager(commOverlay);
+
+// Load dialogue scripts at init time (not during gameplay frames)
+fetch('assets/dialogue/handler.json')
+  .then((res) => res.json())
+  .then((script: DialogueScript) => {
+    dialogueManager.loadScript(script);
+    Logger.info('Narrative', 'Handler dialogue loaded');
+  })
+  .catch((err) => {
+    Logger.warn('Narrative', 'Failed to load handler dialogue', { error: String(err) });
+  });
+
 // --- Screen Shake + Damage Flash Setup (Story 2-7) ---
 const screenShake = new ScreenShake();
 const damageEffectsManager = new DamageEffectsManager(screenShake, renderPipeline);
@@ -269,6 +288,9 @@ renderer.setAnimationLoop((time: number) => {
     enemyProjectileSystem.update(dt);
     effectsManager.update(dt);
     gameObjectManager.update(dt);
+
+    // Dialogue system: update after level manager, before render (Story 4-1)
+    dialogueManager.update(dt);
   }
 
   // === VISUAL SYSTEMS (always run) ===
