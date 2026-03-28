@@ -108,11 +108,21 @@ export const GATEKEEPER_LATERAL_SWAY = 2.5;
 export const GATEKEEPER_SWAY_FREQUENCY = 0.6;
 export const GATEKEEPER_ATTACK_INTERVAL = 3.5;
 
-// Spawn event definitions (Story 2-2, extended Story 3-1, extended Story 3-2, extended Story 3-3)
+// Overseer enemy defaults (Story 5-6)
+export const OVERSEER_HEALTH = 60;
+export const OVERSEER_SCORE_VALUE = 400;
+export const OVERSEER_COLLIDER_RADIUS = 1.8;
+export const OVERSEER_POOL_SIZE = 6;
+export const OVERSEER_BUFF_RADIUS = 15.0;
+export const OVERSEER_BUFF_COOLDOWN_MULTIPLIER = 0.6;
+export const OVERSEER_BUFF_SPEED_MULTIPLIER = 1.3;
+export const OVERSEER_BUFF_INTERVAL = 3.0;
+
+// Spawn event definitions (Story 2-2, extended Story 3-1, extended Story 3-2, extended Story 3-3, extended Story 5-6)
 // Hardcoded for now -- JSON loading comes later with LevelManager
 export interface SpawnEvent {
   railProgress: number;  // 0-1, trigger point on rail
-  enemyType: 'sentinel' | 'watchdog' | 'gatekeeper' | 'firewallNode' | 'iceTower';
+  enemyType: 'sentinel' | 'watchdog' | 'gatekeeper' | 'overseer' | 'firewallNode' | 'iceTower';
   position: [number, number, number]; // world-space spawn position
   count: number;          // how many to spawn
 }
@@ -580,11 +590,31 @@ export const GATEKEEPER_BEHAVIOR_LEVEL3: BehaviorParams = {
   projectileSpeed: 18,
 };
 
+// Overseer enemy behavior — coordinator/elite, appears Level 2+ (Story 5-6)
+export const OVERSEER_BEHAVIOR_LEVEL2: BehaviorParams = {
+  patrolSpeed: 1.2,
+  attackCooldown: 2.5,
+  evasionChance: 0.15,
+  movementRandomness: 0.1,
+  attackDamage: 15,
+  projectileSpeed: 16,
+};
+
+export const OVERSEER_BEHAVIOR_LEVEL3: BehaviorParams = {
+  patrolSpeed: 1.5,
+  attackCooldown: 1.8,
+  evasionChance: 0.35,
+  movementRandomness: 0.4,
+  attackDamage: 18,
+  projectileSpeed: 18,
+};
+
 /** Per-level behavior param sets keyed by enemy type */
 export interface LevelBehaviorConfig {
   sentinel: BehaviorParams;
   watchdog: BehaviorParams;
   gatekeeper: BehaviorParams;
+  overseer: BehaviorParams;
 }
 
 export const LEVEL_BEHAVIORS: Record<number, LevelBehaviorConfig> = {
@@ -592,16 +622,19 @@ export const LEVEL_BEHAVIORS: Record<number, LevelBehaviorConfig> = {
     sentinel: SENTINEL_BEHAVIOR_LEVEL1,
     watchdog: WATCHDOG_BEHAVIOR_LEVEL1,
     gatekeeper: GATEKEEPER_BEHAVIOR_LEVEL1,
+    overseer: OVERSEER_BEHAVIOR_LEVEL2, // Overseers don't appear in Level 1; fallback
   },
   2: {
     sentinel: SENTINEL_BEHAVIOR_LEVEL2,
     watchdog: WATCHDOG_BEHAVIOR_LEVEL2,
     gatekeeper: GATEKEEPER_BEHAVIOR_LEVEL2,
+    overseer: OVERSEER_BEHAVIOR_LEVEL2,
   },
   3: {
     sentinel: SENTINEL_BEHAVIOR_LEVEL3,
     watchdog: WATCHDOG_BEHAVIOR_LEVEL3,
     gatekeeper: GATEKEEPER_BEHAVIOR_LEVEL3,
+    overseer: OVERSEER_BEHAVIOR_LEVEL3,
   },
 };
 
@@ -629,8 +662,11 @@ export const SPAWN_EVENTS_LEVEL2: SpawnEvent[] = [
   { railProgress: 0.82, enemyType: 'sentinel', position: [25, 2, -50], count: 4 },
   { railProgress: 0.85, enemyType: 'watchdog', position: [35, 4, -45], count: 2 },
   { railProgress: 0.88, enemyType: 'gatekeeper', position: [20, 3, -55], count: 1 },
+  // Overseer spawns (Story 5-6) — coordinators that buff nearby enemies
+  { railProgress: 0.30, enemyType: 'overseer', position: [70, 6, 40], count: 1 },
+  { railProgress: 0.62, enemyType: 'overseer', position: [-50, 6, 20], count: 1 },
 ];
-// Total: 18 sentinels, 14 watchdogs, 6 gatekeepers = 38 enemies (vs ~20 in Level 1)
+// Total: 18 sentinels, 14 watchdogs, 6 gatekeepers, 2 overseers = 40 enemies (vs ~20 in Level 1)
 
 // Level 2 surface targets — more nodes, more ICE towers, tighter placement
 export const SURFACE_TARGETS_LEVEL2: SurfaceTarget[] = [
@@ -730,8 +766,13 @@ export const SPAWN_EVENTS_LEVEL3: SpawnEvent[] = [
   { railProgress: 0.86, enemyType: 'watchdog', position: [30, 4, -50], count: 3 },
   { railProgress: 0.88, enemyType: 'gatekeeper', position: [15, 3, -60], count: 2 },
   { railProgress: 0.90, enemyType: 'sentinel', position: [40, 3, -45], count: 2 },
+  // Overseer spawns (Story 5-6) — more frequent coordinators, earlier appearances
+  { railProgress: 0.15, enemyType: 'overseer', position: [65, 6, -5], count: 1 },
+  { railProgress: 0.40, enemyType: 'overseer', position: [-15, 6, 55], count: 1 },
+  { railProgress: 0.65, enemyType: 'overseer', position: [-55, 6, -10], count: 1 },
+  { railProgress: 0.80, enemyType: 'overseer', position: [25, 6, -40], count: 1 },
 ];
-// Total: 29 sentinels, 23 watchdogs, 13 gatekeepers = 65 enemies (vs 38 in Level 2, ~71% increase)
+// Total: 29 sentinels, 23 watchdogs, 13 gatekeepers, 4 overseers = 69 enemies (vs 40 in Level 2)
 
 // Level 3 surface targets — maximum density, dense ICE towers, heavy defenses
 export const SURFACE_TARGETS_LEVEL3: SurfaceTarget[] = [

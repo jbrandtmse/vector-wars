@@ -117,7 +117,7 @@ describe('Level 3 Constants (Story 5-3)', () => {
         expect(event.railProgress).toBeLessThanOrEqual(1);
         expect(event.count).toBeGreaterThan(0);
         expect(event.position).toHaveLength(3);
-        expect(['sentinel', 'watchdog', 'gatekeeper', 'firewallNode', 'iceTower']).toContain(event.enemyType);
+        expect(['sentinel', 'watchdog', 'gatekeeper', 'overseer', 'firewallNode', 'iceTower']).toContain(event.enemyType);
       }
     });
 

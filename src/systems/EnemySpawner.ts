@@ -14,19 +14,22 @@
  * Updated by: Story 2-9 (refactored to use ObjectPool<Sentinel>)
  * Updated by: Story 3-1 (added Watchdog pool and pursuit AI state wiring)
  * Updated by: Story 3-2 (added Gatekeeper pool and block AI state wiring)
+ * Updated by: Story 5-6 (added Overseer pool and coordinator AI state wiring)
  */
 
 import * as THREE from 'three';
-import { SPAWN_EVENTS, SENTINEL_POOL_SIZE, WATCHDOG_POOL_SIZE, GATEKEEPER_POOL_SIZE } from '../config/constants.ts';
+import { SPAWN_EVENTS, SENTINEL_POOL_SIZE, WATCHDOG_POOL_SIZE, GATEKEEPER_POOL_SIZE, OVERSEER_POOL_SIZE } from '../config/constants.ts';
 import type { SpawnEvent, LevelBehaviorConfig } from '../config/constants.ts';
 import { GameObjectManager } from '../entities/GameObjectManager.ts';
 import { Sentinel } from '../entities/enemies/Sentinel.ts';
 import { Watchdog } from '../entities/enemies/Watchdog.ts';
 import { Gatekeeper } from '../entities/enemies/Gatekeeper.ts';
+import { Overseer } from '../entities/enemies/Overseer.ts';
 import { SpawnState } from '../ai/states/SpawnState.ts';
 import { PatrolState } from '../ai/states/PatrolState.ts';
 import { PursuitState } from '../ai/states/PursuitState.ts';
 import { BlockState } from '../ai/states/BlockState.ts';
+import { OverseerState } from '../ai/states/OverseerState.ts';
 import { AttackState, type FireCallback } from '../ai/states/AttackState.ts';
 import { ObjectPool } from '../core/ObjectPool.ts';
 import { eventBus } from '../core/GameEvents.ts';
@@ -45,6 +48,7 @@ export class EnemySpawner {
   private sentinelPool: ObjectPool<Sentinel>;
   private watchdogPool: ObjectPool<Watchdog>;
   private gatekeeperPool: ObjectPool<Gatekeeper>;
+  private overseerPool: ObjectPool<Overseer>;
   private railMovement: RailMovement | null;
   private tempSpawnPos = new THREE.Vector3();
   private tempRailDir = new THREE.Vector3();
@@ -106,6 +110,19 @@ export class EnemySpawner {
       GATEKEEPER_POOL_SIZE,
     );
 
+    // Pre-warm Overseer pool (Story 5-6)
+    this.overseerPool = new ObjectPool<Overseer>(
+      () => {
+        const overseer = new Overseer(this.vectorMaterials);
+        this.scene.add(overseer.getObject3D());
+        overseer.getObject3D().visible = false;
+        overseer.setActive(false);
+        this.gameObjectManager.add(overseer);
+        return overseer;
+      },
+      OVERSEER_POOL_SIZE,
+    );
+
     // Release enemies back to pool when destroyed
     eventBus.on('enemyDestroyed', ({ enemy }) => {
       if (enemy instanceof Sentinel) {
@@ -114,6 +131,8 @@ export class EnemySpawner {
         this.watchdogPool.release(enemy);
       } else if (enemy instanceof Gatekeeper) {
         this.gatekeeperPool.release(enemy);
+      } else if (enemy instanceof Overseer) {
+        this.overseerPool.release(enemy);
       }
     });
   }
@@ -131,6 +150,11 @@ export class EnemySpawner {
   /** Expose the gatekeeper pool for diagnostics registration (Story 3-2) */
   getGatekeeperPool(): ObjectPool<Gatekeeper> {
     return this.gatekeeperPool;
+  }
+
+  /** Expose the overseer pool for diagnostics registration (Story 5-6) */
+  getOverseerPool(): ObjectPool<Overseer> {
+    return this.overseerPool;
   }
 
   /**
@@ -195,8 +219,10 @@ export class EnemySpawner {
 
   private spawnWave(event: SpawnEvent, _eventIndex: number): void {
     for (let j = 0; j < event.count; j++) {
-      let enemy: Sentinel | Watchdog | Gatekeeper | undefined;
-      if (event.enemyType === 'gatekeeper') {
+      let enemy: Sentinel | Watchdog | Gatekeeper | Overseer | undefined;
+      if (event.enemyType === 'overseer') {
+        enemy = this.overseerPool.acquire();
+      } else if (event.enemyType === 'gatekeeper') {
         enemy = this.gatekeeperPool.acquire();
       } else if (event.enemyType === 'watchdog') {
         enemy = this.watchdogPool.acquire();
@@ -213,6 +239,8 @@ export class EnemySpawner {
           enemy.params = this.levelBehaviors.watchdog;
         } else if (event.enemyType === 'gatekeeper') {
           enemy.params = this.levelBehaviors.gatekeeper;
+        } else if (event.enemyType === 'overseer') {
+          enemy.params = this.levelBehaviors.overseer;
         }
       }
 
@@ -240,7 +268,20 @@ export class EnemySpawner {
       // already added during pool prewarm. It starts inactive, so update() skips it.
 
       // Wire AI state chain based on enemy type
-      if (event.enemyType === 'gatekeeper') {
+      if (event.enemyType === 'overseer') {
+        // Overseer: Spawn -> OverseerState -> Attack -> OverseerState cycle (Story 5-6)
+        const createOverseerState = (): OverseerState => new OverseerState(
+          this.gameObjectManager,
+          this.playerPositionGetter,
+          createAttackFromOverseer,
+        );
+        const createAttackFromOverseer = (): AttackState => new AttackState(
+          this.fireCallback,
+          this.playerPositionGetter,
+          createOverseerState(),  // attack returns to coordinating
+        );
+        enemy.transitionToState(new SpawnState(createOverseerState()));
+      } else if (event.enemyType === 'gatekeeper') {
         // Gatekeeper: Spawn -> Block -> Attack -> Block cycle (Story 3-2)
         const getRailDir = () => this.getRailDirection();
         const createBlockState = (): BlockState => new BlockState(
