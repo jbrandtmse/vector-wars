@@ -210,13 +210,62 @@ const highScoreManager = new HighScoreManager();
 // Created on-demand during level 3 ending sequence; null until then.
 let activeFragmentation: CyberspaceFragmentation | null = null;
 
-// Wire GameOverScreen to show HighScoreScreen when score qualifies
+// --- Game State Reset (Story 6-2) ---
+// Resets all gameplay state for a fresh run when returning to the main menu.
+function resetGameState(): void {
+  Logger.info('Main', 'Resetting game state for new playthrough');
+
+  // Reset score to zero
+  scoreManager.reset();
+
+  // Reset player shields to full and clear dead flag
+  player.reset();
+
+  // Clear game over state
+  gameOverManager.reset();
+
+  // Restore HUD visibility (hidden by GameOverManager on death)
+  hudManager.showHUD();
+
+  // Exit any active level/phase (cleans up event listeners, phase state)
+  levelManager.exit();
+
+  // Reset dialogue manager (clear queue and one-shot flags)
+  dialogueManager.reset();
+
+  // Reset palette to green (default starting palette)
+  vectorMaterials.setPalette('green');
+
+  // Restore scene environment visibility (hidden by cyberspace fragmentation ending)
+  sceneEnvironment.show();
+
+  // Dispose active fragmentation effect if present
+  if (activeFragmentation) {
+    activeFragmentation.dispose();
+    activeFragmentation = null;
+  }
+
+  // Reset camera-related state
+  viewportOffset = { x: 0, y: 0 };
+  currentBankAngle = 0;
+}
+
+// --- Return to Menu helper (Story 6-2) ---
+function returnToMenu(): void {
+  resetGameState();
+  menuScreen.show();
+}
+
+// Wire GameOverScreen to show HighScoreScreen then return to menu (Story 6-2)
 gameOverManager.setOnRestart((finalScore: number) => {
   if (highScoreManager.isHighScore(finalScore)) {
     const highScoreScreen = new HighScoreScreen();
+    highScoreScreen.onReturn = () => {
+      returnToMenu();
+    };
     highScoreScreen.show(finalScore, highScoreManager);
   } else {
-    window.location.reload();
+    returnToMenu();
   }
 });
 
@@ -317,6 +366,9 @@ eventBus.on('levelComplete', ({ level }) => {
 
       endingScreen.onCreditsComplete = (finalScore: number) => {
         const highScoreScreen = new HighScoreScreen();
+        highScoreScreen.onReturn = () => {
+          returnToMenu();
+        };
         highScoreScreen.show(finalScore, highScoreManager);
       };
       endingScreen.show(scoreManager.getScore());

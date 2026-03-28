@@ -35,8 +35,8 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-03-26
-last_updated: "2026-03-26T14:00:00Z"
-last_story_created: 6-1-main-menu-screen
+last_updated: "2026-03-26T16:00:00Z"
+last_story_created: 6-2-full-game-flow-navigation
 project: vector-wars
 project_key: NOKEY
 tracking_system: file-system
@@ -114,7 +114,7 @@ development_status:
   # === Epic 6: Polish & Ship ===
   epic-6: in-progress
   6-1-main-menu-screen: done
-  6-2-full-game-flow-navigation: backlog
+  6-2-full-game-flow-navigation: done
   6-3-browser-compatibility-testing: backlog
   6-4-performance-optimization: backlog
   6-5-github-pages-deployment: backlog

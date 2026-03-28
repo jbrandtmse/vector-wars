@@ -213,6 +213,21 @@ export class DialogueManager {
     this.commOverlay.hide();
   }
 
+  /**
+   * Resets all dialogue state for a fresh playthrough.
+   * Clears the queue and resets one-shot trigger flags.
+   * Called by resetGameState() when returning to the main menu.
+   * (Story 6-2)
+   */
+  reset(): void {
+    this.clearQueue();
+    this.currentLevel = 1;
+    this.firstEnemyKilled = false;
+    this.bossBelow75Fired = false;
+    this.bossBelow50Fired = false;
+    this.bossBelow25Fired = false;
+  }
+
   dispose(): void {
     eventBus.off('dialogueTrigger', this.onDialogueTrigger);
     eventBus.off('phaseStart', this.onPhaseStart);

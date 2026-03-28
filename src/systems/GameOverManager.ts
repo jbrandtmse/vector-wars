@@ -58,6 +58,16 @@ export class GameOverManager {
   }
 
   /**
+   * Resets game over state so a new game can begin.
+   * Called by resetGameState() when returning to the main menu.
+   * (Story 6-2)
+   */
+  reset(): void {
+    this.gameOverActive = false;
+    this.preventGameOver = false;
+  }
+
+  /**
    * Sets a callback on the GameOverScreen that is invoked when the player
    * presses Space instead of immediately reloading. Used by HighScoreScreen
    * integration to intercept restart and show the high score table.

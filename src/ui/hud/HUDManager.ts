@@ -53,6 +53,15 @@ export class HUDManager {
   }
 
   /**
+   * Shows the HUD by setting the group visibility to true.
+   * Used when returning to menu and restarting a new game after game over.
+   * (Story 6-2)
+   */
+  showHUD(): void {
+    this.hudGroup.visible = true;
+  }
+
+  /**
    * Removes HUD from the camera, unsubscribes events, and disposes all geometries.
    * Materials are managed by VectorMaterials singleton and not disposed here.
    */
