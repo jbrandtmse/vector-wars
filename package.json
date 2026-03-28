@@ -3,16 +3,38 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "main": "electron-dist/main.js",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "electron:dev": "npm run build && tsc -p tsconfig.electron.json && electron .",
+    "electron:build": "npm run build && tsc -p tsconfig.electron.json && electron-builder --publish never"
+  },
+  "build": {
+    "appId": "com.vectorwars.app",
+    "productName": "Vector Wars",
+    "directories": {
+      "output": "electron-out"
+    },
+    "files": [
+      "electron-dist/**/*",
+      "dist/**/*"
+    ],
+    "win": {
+      "target": "portable"
+    },
+    "mac": {
+      "target": "dmg"
+    }
   },
   "devDependencies": {
     "@types/node": "^25.5.0",
     "@types/three": "^0.183.1",
+    "electron": "^41.1.0",
+    "electron-builder": "^26.8.1",
     "jsdom": "^29.0.1",
     "typescript": "~5.9.3",
     "vite": "^8.0.1",

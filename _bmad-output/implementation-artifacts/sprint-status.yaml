@@ -35,8 +35,8 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-03-26
-last_updated: "2026-03-26T21:00:00Z"
-last_story_created: 6-5-github-pages-deployment
+last_updated: "2026-03-26T22:00:00Z"
+last_story_created: 6-6-electron-desktop-wrapper
 project: vector-wars
 project_key: NOKEY
 tracking_system: file-system
@@ -118,7 +118,7 @@ development_status:
   6-3-browser-compatibility-testing: done
   6-4-performance-optimization: done
   6-5-github-pages-deployment: done
-  6-6-electron-desktop-wrapper: backlog
+  6-6-electron-desktop-wrapper: done
   6-7-final-audio-polish: backlog
   6-8-playtesting-bug-fixes: backlog
   epic-6-retrospective: optional
