@@ -4,80 +4,80 @@
 
 epic: 5
 epic_title: "Full Campaign"
-status: in-progress
+status: completed
 started: "2026-03-27"
-completed: null
+completed: "2026-03-27"
 
 stories:
   5-1-level-2-amber-palette:
-    status: pending
-    phase: null
-    attempts: 0
-    committed: false
-    notes: ""
+    status: done
+    phase: verified
+    attempts: 1
+    committed: true
+    notes: "Multi-level LevelManager, PaletteColors, Level 2 content. 1560 tests."
   5-2-the-avenger-boss:
-    status: pending
-    phase: null
-    attempts: 0
-    committed: false
-    notes: ""
+    status: done
+    phase: verified
+    attempts: 1
+    committed: true
+    notes: "AvengerBoss with rush/barrage/vulnerable cycle. 1611 tests."
   5-3-level-3-red-palette:
-    status: pending
-    phase: null
-    attempts: 0
-    committed: false
-    notes: ""
+    status: done
+    phase: verified
+    attempts: 1
+    committed: true
+    notes: "Level 3 glitchy enemies, 65 spawns, Act 3 briefing. 1639 tests."
   5-4-the-core-intelligence-boss:
-    status: pending
-    phase: null
-    attempts: 0
-    committed: false
-    notes: ""
+    status: done
+    phase: verified
+    attempts: 1
+    committed: true
+    notes: "CoreIntelligenceBoss with emotional escalation mechanic. 1687 tests."
   5-5-color-palette-progression:
-    status: pending
-    phase: null
-    attempts: 0
-    committed: false
-    notes: ""
+    status: done
+    phase: verified
+    attempts: 1
+    committed: true
+    notes: "PaletteTransition with animated HSL interpolation. 1706 tests."
   5-6-overseer-enemy-type:
-    status: pending
-    phase: null
-    attempts: 0
-    committed: false
-    notes: ""
+    status: done
+    phase: verified
+    attempts: 1
+    committed: true
+    notes: "Overseer coordinator with buff pulse mechanic. 1762 tests."
   5-7-enemy-behavioral-evolution:
-    status: pending
-    phase: null
-    attempts: 0
-    committed: false
-    notes: ""
+    status: done
+    phase: verified
+    attempts: 1
+    committed: true
+    notes: "movementRandomness + evasionChance functional, EvadeState. 1807 tests."
   5-8-handler-voice-escalation:
-    status: pending
-    phase: null
-    attempts: 0
-    committed: false
-    notes: ""
+    status: done
+    phase: verified
+    attempts: 1
+    committed: true
+    notes: "3 handler voice profiles, palette-aware comms. 1845 tests."
   5-9-briefing-screens-all-levels:
-    status: pending
-    phase: null
-    attempts: 0
-    committed: false
-    notes: ""
+    status: done
+    phase: verified
+    attempts: 1
+    committed: true
+    notes: "Voice-over for all 3 briefings. 1869 tests."
   5-10-ending-sequence:
-    status: pending
-    phase: null
-    attempts: 0
-    committed: false
-    notes: ""
+    status: done
+    phase: verified
+    attempts: 1
+    committed: true
+    notes: "EndingScreen with Ghost transmissions, credits, outro music. 1896 tests."
   5-11-high-score-table:
-    status: pending
-    phase: null
-    attempts: 0
-    committed: false
-    notes: ""
+    status: done
+    phase: verified
+    attempts: 1
+    committed: true
+    notes: "HighScoreManager + HighScoreScreen with initials entry. 1924 tests."
   5-12-cyberspace-fragmentation-ending:
-    status: pending
-    phase: null
-    attempts: 0
-    committed: false
-    notes: ""
+    status: done
+    phase: verified
+    attempts: 1
+    committed: true
+    notes: "200-shard fragmentation effect in 3 phases. 1946 tests."
