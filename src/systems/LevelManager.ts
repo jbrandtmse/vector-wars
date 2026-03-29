@@ -374,7 +374,7 @@ export class LevelManager {
    * Called each frame from main.ts animation loop.
    */
   update(dt: number, viewportOffset?: { x: number; y: number }): void {
-    if (this.levelComplete) return;
+    if (this.levelComplete || this.phases.length === 0) return;
 
     // Drive palette transition if active (color shift during early gameplay)
     if (this.paletteTransition.isActive()) {
@@ -505,7 +505,7 @@ export class LevelManager {
    * Briefing phase and other phases do NOT use the main rail.
    */
   isUsingMainRail(): boolean {
-    if (this.levelComplete) return false;
+    if (this.levelComplete || this.phases.length === 0) return false;
     const currentType = this.getCurrentPhaseType();
     return currentType === 'tutorial' || currentType === 'dogfight';
   }
