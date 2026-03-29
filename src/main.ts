@@ -298,7 +298,10 @@ function resetGameState(): void {
 }
 
 // --- Return to Menu helper (Story 6-2) ---
+let menuShowing = true; // starts true since menu shows on load
 function returnToMenu(): void {
+  if (menuShowing) return; // prevent duplicate menu overlays
+  menuShowing = true;
   resetGameState();
   menuScreen.show();
 }
@@ -478,6 +481,7 @@ fetch('assets/briefings/level-3.json')
 // levelManager.enter() is called from the menu's START GAME callback.
 const menuScreen = new MenuScreen();
 menuScreen.onStartGame = () => {
+  menuShowing = false;
   // Resume AudioContext on user gesture (browser autoplay policy)
   audioManager.resume();
   levelManager.enter();
