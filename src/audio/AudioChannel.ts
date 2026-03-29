@@ -72,6 +72,8 @@ export class AudioChannel {
     }
     if (this.type === 'voice') {
       this.queue = [];
+      this.voicePlaying = false;
+      if (this.voiceTimer) { clearTimeout(this.voiceTimer); this.voiceTimer = null; }
     }
   }
 
@@ -118,19 +120,36 @@ export class AudioChannel {
     instance.play();
   }
 
+  private voicePlaying = false;
+  private voiceTimer: ReturnType<typeof setTimeout> | null = null;
+
   private playVoice(buffer: AudioBuffer): void {
     const instance = this.instances[0];
-    if (instance.isPlaying) {
+    if (this.voicePlaying) {
       this.queue.push(buffer);
       return;
+    }
+    this.voicePlaying = true;
+
+    if (instance.isPlaying) {
+      instance.stop();
     }
     instance.setBuffer(buffer);
     instance.setLoop(false);
     instance.setVolume(this.volume * this.masterVolumeRef.value);
-    instance.onEnded = () => {
+
+    const onFinish = () => {
+      this.voicePlaying = false;
+      if (this.voiceTimer) { clearTimeout(this.voiceTimer); this.voiceTimer = null; }
       this.playNextQueued();
     };
+
+    instance.onEnded = onFinish;
     instance.play();
+
+    // Safety timeout: if onEnded never fires, force advance after buffer duration + 1s
+    if (this.voiceTimer) clearTimeout(this.voiceTimer);
+    this.voiceTimer = setTimeout(onFinish, (buffer.duration + 1.0) * 1000);
   }
 
   private playGeneric(buffer: AudioBuffer, loop?: boolean): void {
@@ -147,13 +166,26 @@ export class AudioChannel {
   private playNextQueued(): void {
     if (this.queue.length === 0) return;
     const nextBuffer = this.queue.shift()!;
+    this.voicePlaying = true;
     const instance = this.instances[0];
+
+    if (instance.isPlaying) {
+      instance.stop();
+    }
     instance.setBuffer(nextBuffer);
     instance.setLoop(false);
     instance.setVolume(this.volume * this.masterVolumeRef.value);
-    instance.onEnded = () => {
+
+    const onFinish = () => {
+      this.voicePlaying = false;
+      if (this.voiceTimer) { clearTimeout(this.voiceTimer); this.voiceTimer = null; }
       this.playNextQueued();
     };
+
+    instance.onEnded = onFinish;
     instance.play();
+
+    if (this.voiceTimer) clearTimeout(this.voiceTimer);
+    this.voiceTimer = setTimeout(onFinish, (nextBuffer.duration + 1.0) * 1000);
   }
 }
