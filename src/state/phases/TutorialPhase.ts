@@ -287,13 +287,15 @@ export class TutorialPhase {
   private updateMovement(): void {
     if (this.movementCompleted) return;
 
-    // Track arrow key presses
+    // Track arrow key presses — any 2 directions is enough
     if (this.inputManager.isActive('moveUp')) this.movedUp = true;
     if (this.inputManager.isActive('moveDown')) this.movedDown = true;
     if (this.inputManager.isActive('moveLeft')) this.movedLeft = true;
     if (this.inputManager.isActive('moveRight')) this.movedRight = true;
 
-    if (this.movedUp && this.movedDown && this.movedLeft && this.movedRight) {
+    // Auto-advance after 10 seconds even without input (don't trap the player)
+    const directionsUsed = [this.movedUp, this.movedDown, this.movedLeft, this.movedRight].filter(Boolean).length;
+    if (directionsUsed >= 2 || this.stepTimer >= 10.0) {
       this.movementCompleted = true;
       this.tutorialPrompt?.hide();
       eventBus.emit('dialogueTrigger', { triggerId: 'tutorial:step2:complete' });
@@ -310,11 +312,11 @@ export class TutorialPhase {
   private updateDataLance(): void {
     if (this.targetsCompleted) return;
 
-    // Check if all calibration targets are destroyed
+    // Check if all calibration targets are destroyed OR timeout after 15 seconds
     const allDestroyed = this.targetsSpawned &&
       this.calibrationTargets.every(t => !t.isActive);
 
-    if (allDestroyed) {
+    if (allDestroyed || this.stepTimer >= 15.0) {
       this.targetsCompleted = true;
       this.tutorialPrompt?.hide();
       eventBus.emit('dialogueTrigger', { triggerId: 'tutorial:step3:complete' });

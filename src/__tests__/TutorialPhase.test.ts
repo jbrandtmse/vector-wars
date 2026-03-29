@@ -173,7 +173,7 @@ describe('TutorialPhase (Story 4-3)', () => {
       phase.exit();
     });
 
-    it('does not advance if only some keys pressed', () => {
+    it('does not advance if only one key pressed', () => {
       const phase = createPhase();
       phase.enter();
       phase.update(5.0); // skip welcome
@@ -181,9 +181,7 @@ describe('TutorialPhase (Story 4-3)', () => {
 
       inputManager._press('moveUp');
       phase.update(0.016);
-      inputManager._press('moveDown');
-      phase.update(0.016);
-      // Only two directions pressed
+      // Only one direction pressed
 
       expect(triggeredDialogues).not.toContain('tutorial:step2:complete');
 
