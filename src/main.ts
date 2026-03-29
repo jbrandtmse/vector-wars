@@ -70,7 +70,9 @@ const camera = new THREE.PerspectiveCamera(
   0.01,
   1000
 );
-// Camera position is now controlled by RailMovement -- no static position
+// Camera starts at origin; RailMovement positions it once gameplay begins
+camera.position.set(0, 3, 5);
+camera.lookAt(0, 0, 0);
 
 // --- Audio Manager Setup (Story 4-5, 4-6) ---
 audioManager.init(camera);
