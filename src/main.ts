@@ -401,6 +401,7 @@ eventBus.on('levelComplete', ({ level }) => {
             overlay.style.opacity = '0';
             setTimeout(() => {
               overlay.remove();
+              levelCompleted = false;
               levelManager.exit();
               levelManager.startLevel(nextLevel);
             }, 500);
