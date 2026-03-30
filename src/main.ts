@@ -238,6 +238,7 @@ let activeFragmentation: CyberspaceFragmentation | null = null;
 // --- Game State Reset (Story 6-2) ---
 // Resets all gameplay state for a fresh run when returning to the main menu.
 function resetGameState(): void {
+  levelCompleted = false;
   Logger.info('Main', 'Resetting game state for new playthrough');
 
   // Reset score to zero
@@ -360,7 +361,13 @@ const damageEffectsManager = new DamageEffectsManager(screenShake, renderPipelin
 void damageEffectsManager; // event-driven lifecycle, no per-frame calls
 
 // --- Level Complete handler (Story 5-1, updated Story 5-3: multi-level transitions) ---
+let levelCompleted = false;
 eventBus.on('levelComplete', ({ level }) => {
+  // Immediately prevent game over and freeze damage — the player won
+  levelCompleted = true;
+  gameOverManager.preventGameOver = true;
+  player.rechargeShields(1000); // full heal so no death can trigger
+
   setTimeout(() => {
     const hex = getPaletteHexColor();
     const glow = getPaletteCSSGlow();
@@ -571,8 +578,8 @@ function gameLoop(time: number): void {
   // Sync player collider to camera position (Story 2-5)
   player.syncToCamera(camera);
 
-  // === GAMEPLAY SYSTEMS (frozen on game over) ===
-  if (!gameOverManager.isGameOver) {
+  // === GAMEPLAY SYSTEMS (frozen on game over and level complete) ===
+  if (!gameOverManager.isGameOver && !levelCompleted) {
     levelManager.update(dt, viewportOffset);
 
     // Shared weapon/collision systems run in ALL phases (not just dogfight)
