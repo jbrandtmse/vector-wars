@@ -360,12 +360,17 @@ const screenShake = new ScreenShake();
 const damageEffectsManager = new DamageEffectsManager(screenShake, renderPipeline);
 void damageEffectsManager; // event-driven lifecycle, no per-frame calls
 
-// --- Per-level background music ---
+// --- Per-level background music + dialogue cleanup on phase transitions ---
 eventBus.on('phaseStart', ({ phase, level }) => {
   // Start level music when entering the dogfight phase (first gameplay phase)
   if (phase === 'dogfight' && level >= 1 && level <= 3) {
     audioManager.playMusic(`music_level_${level}`, true);
   }
+});
+eventBus.on('phaseEnd', () => {
+  // Clear queued dialogue between phases so lines don't leak across
+  audioManager.stopChannel('voice');
+  dialogueManager.clearQueue();
 });
 
 // --- Level Complete handler (Story 5-1, updated Story 5-3: multi-level transitions) ---
@@ -376,6 +381,8 @@ eventBus.on('levelComplete', ({ level }) => {
   gameOverManager.preventGameOver = true;
   player.rechargeShields(1000); // full heal so no death can trigger
   audioManager.stopChannel('music'); // stop level music on completion
+  audioManager.stopChannel('voice'); // stop any playing voice line
+  dialogueManager.clearQueue(); // flush queued dialogue from this level
 
   setTimeout(() => {
     const hex = getPaletteHexColor();
