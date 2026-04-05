@@ -62,9 +62,15 @@ Tests use Vitest with jsdom.
 
 ## Controls
 
-- **Mouse** — aim / move crosshair
-- **Left click** — fire data lance
-- **Keyboard** — additional weapons and abilities (unlocked during gameplay)
+| Input | Action |
+|-------|--------|
+| Mouse | Aim / move crosshair |
+| Left click | Fire data lance |
+| Arrow keys | Move ship |
+| Space | Fire (keyboard) |
+| Z | Logic bomb |
+| X | EMP burst |
+| C | Virus payload |
 
 ## Tech Stack
 
